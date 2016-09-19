@@ -14,6 +14,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/adrienkohlbecker/ejson-kms/crypto"
+	"github.com/adrienkohlbecker/ejson-kms/kms"
 	"github.com/adrienkohlbecker/ejson-kms/model"
 )
 
@@ -90,7 +91,12 @@ func (cmd *addCmd) Execute(args []string) errors.Error {
 
 	fmt.Printf("KMS: Encrypting plaintext for %s\n", cmd.name)
 
-	ciphertext, err := crypto.Encrypt(cmd.creds.KMSKeyArn, []byte(plaintext), cmd.creds.Context)
+	svc, err := kms.Service()
+	if err != nil {
+		return errors.WrapPrefix(err, "Unable to open AWS session", 0)
+	}
+
+	ciphertext, err := crypto.Encrypt(svc, cmd.creds.KMSKeyArn, []byte(plaintext), cmd.creds.Context)
 	if err != nil {
 		return errors.WrapPrefix(err, "Unable to encrypt credential", 0)
 	}

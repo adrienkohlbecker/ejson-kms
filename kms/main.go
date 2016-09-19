@@ -1,4 +1,4 @@
-package aws
+package kms
 
 import (
 	"github.com/adrienkohlbecker/errors"
@@ -12,14 +12,23 @@ type DataKey struct {
 	Plaintext  []byte
 }
 
-func GenerateDataKey(kmsKeyArn string, context map[string]string) (DataKey, errors.Error) {
+type KMS interface {
+	GenerateDataKey(*kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error)
+	Decrypt(*kms.DecryptInput) (*kms.DecryptOutput, error)
+}
+
+func Service() (KMS, errors.Error) {
 
 	sess, err := session.NewSession()
 	if err != nil {
-		return DataKey{}, errors.WrapPrefix(err, "Failed to create AWS session", 0)
+		return nil, errors.WrapPrefix(err, "Failed to create AWS session", 0)
 	}
 
-	svc := kms.New(sess)
+	return kms.New(sess), nil
+
+}
+
+func GenerateDataKey(svc KMS, kmsKeyArn string, context map[string]string) (DataKey, errors.Error) {
 
 	awsContext := make(map[string]*string)
 	for key, value := range context {
@@ -42,14 +51,7 @@ func GenerateDataKey(kmsKeyArn string, context map[string]string) (DataKey, erro
 
 }
 
-func DecryptDataKey(ciphertext []byte, context map[string]string) (DataKey, errors.Error) {
-
-	sess, err := session.NewSession()
-	if err != nil {
-		return DataKey{}, errors.WrapPrefix(err, "Failed to create AWS session", 0)
-	}
-
-	svc := kms.New(sess)
+func DecryptDataKey(svc KMS, ciphertext []byte, context map[string]string) (DataKey, errors.Error) {
 
 	awsContext := make(map[string]*string)
 	for key, value := range context {

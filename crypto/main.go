@@ -4,13 +4,13 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	"github.com/adrienkohlbecker/ejson-kms/aws"
+	"github.com/adrienkohlbecker/ejson-kms/kms"
 	"github.com/adrienkohlbecker/errors"
 )
 
-func Encrypt(kmsKeyArn string, plaintext []byte, context map[string]string) (string, errors.Error) {
+func Encrypt(svc kms.KMS, kmsKeyArn string, plaintext []byte, context map[string]string) (string, errors.Error) {
 
-	key, err := aws.GenerateDataKey(kmsKeyArn, context)
+	key, err := kms.GenerateDataKey(svc, kmsKeyArn, context)
 	if err != nil {
 		return "", errors.WrapPrefix(err, "Unable to generate data key", 0)
 	}
@@ -26,14 +26,14 @@ func Encrypt(kmsKeyArn string, plaintext []byte, context map[string]string) (str
 
 }
 
-func Decrypt(encoded string, context map[string]string) ([]byte, errors.Error) {
+func Decrypt(svc kms.KMS, encoded string, context map[string]string) ([]byte, errors.Error) {
 
 	decoded, err := decode(encoded)
 	if err != nil {
 		return []byte{}, errors.WrapPrefix(err, "Unable to decode ciphertext", 0)
 	}
 
-	key, err := aws.DecryptDataKey(decoded.keyCiphertext, context)
+	key, err := kms.DecryptDataKey(svc, decoded.keyCiphertext, context)
 	if err != nil {
 		return []byte{}, errors.WrapPrefix(err, "Unable to decrypt key ciphertext", 0)
 	}
