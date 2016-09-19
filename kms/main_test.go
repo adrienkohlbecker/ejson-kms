@@ -55,7 +55,7 @@ func TestGenerateDataKey(t *testing.T) {
 
 			expected := &kms.GenerateDataKeyInput{
 				KeyId:             aws.String("my-key-arn"),
-				EncryptionContext: map[string]*string{"ABC": nil},
+				EncryptionContext: map[string]*string{"ABC": nil, "credential": aws.String("my_cred")},
 				GrantTokens:       []*string{},
 				KeySpec:           aws.String("AES_256"),
 			}
@@ -75,7 +75,7 @@ func TestGenerateDataKey(t *testing.T) {
 			Plaintext:  []byte("plaintext"),
 		}
 
-		key, err := GenerateDataKey(mock, "my-key-arn", map[string]*string{"ABC": nil})
+		key, err := GenerateDataKey(mock, "my-key-arn", "my_cred", map[string]*string{"ABC": nil})
 		assert.NoError(t, err)
 		assert.Equal(t, key, expected)
 
@@ -88,7 +88,7 @@ func TestGenerateDataKey(t *testing.T) {
 			return nil, fmt.Errorf("testing errors")
 		}
 
-		_, err := GenerateDataKey(mock, "my-key-arn", map[string]*string{"ABC": nil})
+		_, err := GenerateDataKey(mock, "my-key-arn", "my_cred", map[string]*string{"ABC": nil})
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Unable to generate data key")
 			assert.Contains(t, err.Error(), "testing errors")
@@ -107,7 +107,7 @@ func TestDecryptDataKey(t *testing.T) {
 
 			expected := &kms.DecryptInput{
 				CiphertextBlob:    []byte("ciphertextblob"),
-				EncryptionContext: map[string]*string{"ABC": nil},
+				EncryptionContext: map[string]*string{"ABC": nil, "credential": aws.String("my_cred")},
 				GrantTokens:       []*string{},
 			}
 
@@ -125,7 +125,7 @@ func TestDecryptDataKey(t *testing.T) {
 			Plaintext:  []byte("plaintext"),
 		}
 
-		key, err := DecryptDataKey(mock, []byte("ciphertextblob"), map[string]*string{"ABC": nil})
+		key, err := DecryptDataKey(mock, []byte("ciphertextblob"), "my_cred", map[string]*string{"ABC": nil})
 		assert.NoError(t, err)
 		assert.Equal(t, key, expected)
 
@@ -138,7 +138,7 @@ func TestDecryptDataKey(t *testing.T) {
 			return nil, fmt.Errorf("testing errors")
 		}
 
-		_, err := DecryptDataKey(mock, []byte("ciphertextblob"), map[string]*string{"ABC": nil})
+		_, err := DecryptDataKey(mock, []byte("ciphertextblob"), "my_cred", map[string]*string{"ABC": nil})
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Unable to decrypt key ciphertext")
 			assert.Contains(t, err.Error(), "testing errors")
