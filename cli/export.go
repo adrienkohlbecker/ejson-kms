@@ -74,10 +74,11 @@ func (cmd *exportCmd) Execute(args []string) errors.Error {
 	}
 
 	items := make(chan formatter.Item, len(cmd.creds.Credentials))
+	cipher := crypto.NewCipher(svc, cmd.creds.KMSKeyArn, cmd.creds.Context)
 
 	for _, item := range cmd.creds.Credentials {
 
-		plaintext, loopErr := crypto.Decrypt(svc, item.Ciphertext, item.Name, cmd.creds.Context)
+		plaintext, loopErr := cipher.Decrypt(item.Ciphertext)
 		if loopErr != nil {
 			return errors.WrapPrefix(loopErr, fmt.Sprintf("Unable to decrypt credential: %s", item.Name), 0)
 		}

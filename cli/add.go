@@ -90,7 +90,9 @@ func (cmd *addCmd) Execute(args []string) errors.Error {
 	fmt.Printf("KMS: Encrypting plaintext for %s\n", cmd.name)
 
 	now := time.Now().UTC().Truncate(time.Second)
-	ciphertext, err := crypto.Encrypt(svc, cmd.creds.KMSKeyArn, []byte(plaintext), cmd.name, cmd.creds.Context)
+	cipher := crypto.NewCipher(svc, cmd.creds.KMSKeyArn, cmd.creds.Context)
+
+	ciphertext, err := cipher.Encrypt(plaintext)
 	if err != nil {
 		return errors.WrapPrefix(err, "Unable to encrypt credential", 0)
 	}

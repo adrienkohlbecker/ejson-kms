@@ -1,14 +1,20 @@
 package kms
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/kms"
+	kms_mock "github.com/adrienkohlbecker/ejson-kms/kms/mock"
 	"github.com/stretchr/testify/assert"
+)
+
+var testContext = map[string]*string{"ABC": nil}
+
+const (
+	testKeyARN        = "my-key-arn"
+	testKeyCiphertext = "ciphertextblob"
+	testKeyPlaintext  = "plaintext"
 )
 
 func TestService(t *testing.T) {
@@ -50,32 +56,14 @@ func TestGenerateDataKey(t *testing.T) {
 
 	t.Run("without AWS error", func(t *testing.T) {
 
-		mock := &MockKMS{}
-		mock.internalGenerateDataKey = func(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error) {
-
-			expected := &kms.GenerateDataKeyInput{
-				KeyId:             aws.String("my-key-arn"),
-				EncryptionContext: map[string]*string{"ABC": nil, "credential": aws.String("my_cred")},
-				GrantTokens:       []*string{},
-				KeySpec:           aws.String("AES_256"),
-			}
-
-			assert.Equal(t, expected, params)
-
-			return &kms.GenerateDataKeyOutput{
-				CiphertextBlob: []byte("ciphertextblob"),
-				KeyId:          aws.String("my-key-arn"),
-				Plaintext:      []byte("plaintext"),
-			}, nil
-
-		}
+		svc := kms_mock.MockGenerateDataKey(t, testKeyARN, testContext, testKeyCiphertext, testKeyPlaintext)
 
 		expected := DataKey{
-			Ciphertext: []byte("ciphertextblob"),
-			Plaintext:  []byte("plaintext"),
+			Ciphertext: []byte(testKeyCiphertext),
+			Plaintext:  []byte(testKeyPlaintext),
 		}
 
-		key, err := GenerateDataKey(mock, "my-key-arn", "my_cred", map[string]*string{"ABC": nil})
+		key, err := GenerateDataKey(svc, testKeyARN, testContext)
 		assert.NoError(t, err)
 		assert.Equal(t, key, expected)
 
@@ -83,12 +71,9 @@ func TestGenerateDataKey(t *testing.T) {
 
 	t.Run("with AWS error", func(t *testing.T) {
 
-		mock := &MockKMS{}
-		mock.internalGenerateDataKey = func(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error) {
-			return nil, fmt.Errorf("testing errors")
-		}
+		svc := kms_mock.MockGenerateDataKeyWithError("testing errors")
 
-		_, err := GenerateDataKey(mock, "my-key-arn", "my_cred", map[string]*string{"ABC": nil})
+		_, err := GenerateDataKey(svc, testKeyARN, testContext)
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Unable to generate data key")
 			assert.Contains(t, err.Error(), "testing errors")
@@ -102,30 +87,14 @@ func TestDecryptDataKey(t *testing.T) {
 
 	t.Run("without AWS error", func(t *testing.T) {
 
-		mock := &MockKMS{}
-		mock.internalDecrypt = func(params *kms.DecryptInput) (*kms.DecryptOutput, error) {
-
-			expected := &kms.DecryptInput{
-				CiphertextBlob:    []byte("ciphertextblob"),
-				EncryptionContext: map[string]*string{"ABC": nil, "credential": aws.String("my_cred")},
-				GrantTokens:       []*string{},
-			}
-
-			assert.Equal(t, expected, params)
-
-			return &kms.DecryptOutput{
-				KeyId:     aws.String("my-key-arn"),
-				Plaintext: []byte("plaintext"),
-			}, nil
-
-		}
+		svc := kms_mock.MockDecrypt(t, testKeyARN, testContext, testKeyCiphertext, testKeyPlaintext)
 
 		expected := DataKey{
-			Ciphertext: []byte("ciphertextblob"),
-			Plaintext:  []byte("plaintext"),
+			Ciphertext: []byte(testKeyCiphertext),
+			Plaintext:  []byte(testKeyPlaintext),
 		}
 
-		key, err := DecryptDataKey(mock, []byte("ciphertextblob"), "my_cred", map[string]*string{"ABC": nil})
+		key, err := DecryptDataKey(svc, []byte(testKeyCiphertext), testContext)
 		assert.NoError(t, err)
 		assert.Equal(t, key, expected)
 
@@ -133,12 +102,9 @@ func TestDecryptDataKey(t *testing.T) {
 
 	t.Run("with AWS error", func(t *testing.T) {
 
-		mock := &MockKMS{}
-		mock.internalDecrypt = func(params *kms.DecryptInput) (*kms.DecryptOutput, error) {
-			return nil, fmt.Errorf("testing errors")
-		}
+		svc := kms_mock.MockDecryptWithError("testing errors")
 
-		_, err := DecryptDataKey(mock, []byte("ciphertextblob"), "my_cred", map[string]*string{"ABC": nil})
+		_, err := DecryptDataKey(svc, []byte(testKeyCiphertext), testContext)
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Unable to decrypt key ciphertext")
 			assert.Contains(t, err.Error(), "testing errors")
@@ -146,16 +112,4 @@ func TestDecryptDataKey(t *testing.T) {
 
 	})
 
-}
-
-type MockKMS struct {
-	internalGenerateDataKey func(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error)
-	internalDecrypt         func(*kms.DecryptInput) (*kms.DecryptOutput, error)
-}
-
-func (m *MockKMS) GenerateDataKey(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error) {
-	return m.internalGenerateDataKey(params)
-}
-func (m *MockKMS) Decrypt(params *kms.DecryptInput) (*kms.DecryptOutput, error) {
-	return m.internalDecrypt(params)
 }

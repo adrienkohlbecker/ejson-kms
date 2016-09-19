@@ -86,12 +86,15 @@ func (cmd *rotateCmd) Execute(args []string) errors.Error {
 		return err
 	}
 
+	cipher := crypto.NewCipher(svc, cmd.creds.KMSKeyArn, cmd.creds.Context)
+	now := time.Now().UTC().Truncate(time.Second)
+
 	for i, item := range cmd.creds.Credentials {
 
 		if item.Name == cmd.name {
 
 			fmt.Printf("KMS: Decrypting old plaintext for %s\n", cmd.name)
-			oldPlaintext, loopErr := crypto.Decrypt(svc, item.Ciphertext, cmd.name, cmd.creds.Context)
+			oldPlaintext, loopErr := cipher.Decrypt(item.Ciphertext)
 			if loopErr != nil {
 				return errors.WrapPrefix(loopErr, fmt.Sprintf("Unable to decrypt credential: %s", item.Name), 0)
 			}
@@ -101,8 +104,7 @@ func (cmd *rotateCmd) Execute(args []string) errors.Error {
 			}
 
 			fmt.Printf("KMS: Encrypting new plaintext for %s\n", cmd.name)
-			now := time.Now().UTC().Truncate(time.Second)
-			ciphertext, loopErr := crypto.Encrypt(svc, cmd.creds.KMSKeyArn, []byte(plaintext), cmd.name, cmd.creds.Context)
+			ciphertext, loopErr := cipher.Encrypt(plaintext)
 			if loopErr != nil {
 				return errors.WrapPrefix(loopErr, "Unable to encrypt credential", 0)
 			}

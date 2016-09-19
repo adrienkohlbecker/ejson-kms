@@ -1,8 +1,6 @@
 package kms
 
 import (
-	"fmt"
-
 	"github.com/adrienkohlbecker/errors"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -42,22 +40,19 @@ func Service() (KMS, errors.Error) {
 //
 // A context can be given as key-value pairs. These are stored with the key,
 // logged through AWS CloudTrail (if enabled), and must be provided as is
-// for each future use of the data key. The name of the credential is
-// automatically added to the context under the key "credential"
-func GenerateDataKey(svc KMS, kmsKeyArn string, name string, context map[string]*string) (DataKey, errors.Error) {
-
-	context["credential"] = aws.String(name)
+// for each future use of the data key.
+func GenerateDataKey(svc KMS, kmsKeyArn string, context map[string]*string) (DataKey, errors.Error) {
 
 	params := &kms.GenerateDataKeyInput{
 		KeyId:             aws.String(kmsKeyArn),
 		EncryptionContext: context,
 		GrantTokens:       []*string{},
-		KeySpec:           aws.String("AES_256"),
+		KeySpec:           aws.String("AES_256"), // to generate a 32 bytes key for secretbox
 	}
 
 	resp, err := svc.GenerateDataKey(params)
 	if err != nil {
-		return DataKey{}, errors.WrapPrefix(err, fmt.Sprintf("Unable to generate data key for %s", name), 0)
+		return DataKey{}, errors.WrapPrefix(err, "Unable to generate data key", 0)
 	}
 
 	return DataKey{Ciphertext: resp.CiphertextBlob, Plaintext: resp.Plaintext}, nil
@@ -66,11 +61,7 @@ func GenerateDataKey(svc KMS, kmsKeyArn string, name string, context map[string]
 
 // DecryptDataKey takes an encrypted data key and associated context, and
 // returns the key plaintext (along with the ciphertext for consistency).
-// The name of the credential is automatically added to the context under
-// the key "credential"
-func DecryptDataKey(svc KMS, ciphertext []byte, name string, context map[string]*string) (DataKey, errors.Error) {
-
-	context["credential"] = aws.String(name)
+func DecryptDataKey(svc KMS, ciphertext []byte, context map[string]*string) (DataKey, errors.Error) {
 
 	params := &kms.DecryptInput{
 		CiphertextBlob:    ciphertext,
@@ -80,7 +71,7 @@ func DecryptDataKey(svc KMS, ciphertext []byte, name string, context map[string]
 
 	resp, err := svc.Decrypt(params)
 	if err != nil {
-		return DataKey{}, errors.WrapPrefix(err, fmt.Sprintf("Unable to decrypt key ciphertext for %s", name), 0)
+		return DataKey{}, errors.WrapPrefix(err, "Unable to decrypt key ciphertext", 0)
 	}
 
 	return DataKey{Ciphertext: ciphertext, Plaintext: resp.Plaintext}, nil

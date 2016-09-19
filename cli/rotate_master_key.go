@@ -70,16 +70,19 @@ func (cmd *rotateMasterKeyCmd) Execute(args []string) errors.Error {
 		return err
 	}
 
+	cipher := crypto.NewCipher(svc, cmd.creds.KMSKeyArn, cmd.creds.Context)
+	newCipher := crypto.NewCipher(svc, cmd.newKmsKeyARN, cmd.creds.Context)
+
 	for i, item := range cmd.creds.Credentials {
 
 		fmt.Printf("KMS: Decrypting old plaintext for %s\n", item.Name)
-		oldPlaintext, loopErr := crypto.Decrypt(svc, item.Ciphertext, item.Name, cmd.creds.Context)
+		oldPlaintext, loopErr := cipher.Decrypt(item.Ciphertext)
 		if loopErr != nil {
 			return errors.WrapPrefix(loopErr, fmt.Sprintf("Unable to decrypt credential: %s", item.Name), 0)
 		}
 
 		fmt.Printf("KMS: Encrypting new plaintext for %s\n", item.Name)
-		ciphertext, loopErr := crypto.Encrypt(svc, cmd.newKmsKeyARN, oldPlaintext, item.Name, cmd.creds.Context)
+		ciphertext, loopErr := newCipher.Encrypt(oldPlaintext)
 		if loopErr != nil {
 			return errors.WrapPrefix(loopErr, "Unable to encrypt credential", 0)
 		}

@@ -79,11 +79,13 @@ func (cmd *printCmd) Execute(args []string) errors.Error {
 		return err
 	}
 
+	cipher := crypto.NewCipher(svc, cmd.creds.KMSKeyArn, cmd.creds.Context)
+
 	for _, item := range cmd.creds.Credentials {
 
 		if item.Name == cmd.name {
 
-			plaintext, loopErr := crypto.Decrypt(svc, item.Ciphertext, item.Name, cmd.creds.Context)
+			plaintext, loopErr := cipher.Decrypt(item.Ciphertext)
 			if loopErr != nil {
 				return errors.WrapPrefix(loopErr, fmt.Sprintf("Unable to decrypt credential: %s", item.Name), 0)
 			}

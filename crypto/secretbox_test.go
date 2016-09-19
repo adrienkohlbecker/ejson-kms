@@ -1,18 +1,11 @@
 package crypto
 
 import (
-	"crypto/rand"
-	"fmt"
 	"testing"
 
+	crypto_mock "github.com/adrienkohlbecker/ejson-kms/crypto/mock"
 	"github.com/stretchr/testify/assert"
 )
-
-type errorReader struct{}
-
-func (r *errorReader) Read(p []byte) (n int, err error) {
-	return 0, fmt.Errorf("testing error")
-}
 
 func TestNonce(t *testing.T) {
 
@@ -26,15 +19,14 @@ func TestNonce(t *testing.T) {
 
 	t.Run("failing", func(t *testing.T) {
 
-		original := rand.Reader
-		rand.Reader = &errorReader{}
+		crypto_mock.WithErrorRandReader("testing error", func() {
 
-		_, err := Nonce()
-		if assert.Error(t, err) {
-			assert.Contains(t, err.Error(), "Unable to generate nonce")
-		}
+			_, err := Nonce()
+			if assert.Error(t, err) {
+				assert.Contains(t, err.Error(), "Unable to generate nonce")
+			}
 
-		rand.Reader = original
+		})
 
 	})
 
@@ -65,17 +57,16 @@ func TestEncryptBytes(t *testing.T) {
 
 	t.Run("nonce error", func(t *testing.T) {
 
-		original := rand.Reader
-		rand.Reader = &errorReader{}
+		crypto_mock.WithErrorRandReader("testing error", func() {
 
-		keyBytes := []byte("-abcdefabcdefabcdefabcdefabcdef-")
-		plaintext := []byte("plaintext")
-		_, err := EncryptBytes(keyBytes, plaintext)
-		if assert.Error(t, err) {
-			assert.Contains(t, err.Error(), "Unable to generate nonce")
-		}
+			keyBytes := []byte("-abcdefabcdefabcdefabcdefabcdef-")
+			plaintext := []byte("plaintext")
+			_, err := EncryptBytes(keyBytes, plaintext)
+			if assert.Error(t, err) {
+				assert.Contains(t, err.Error(), "Unable to generate nonce")
+			}
 
-		rand.Reader = original
+		})
 
 	})
 
