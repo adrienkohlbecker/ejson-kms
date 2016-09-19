@@ -23,6 +23,35 @@ type Credential struct {
 	Value       string     `json:"value"`
 }
 
+func Import(path string) (*JSON, errors.Error) {
+
+	bytes, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, errors.WrapPrefix(err, fmt.Sprintf("Unable to read file at %s", path), 0)
+	}
+
+	j := &JSON{}
+	err = json.Unmarshal(bytes, j)
+	if err != nil {
+		return nil, errors.WrapPrefix(err, fmt.Sprintf("Unable to decode JSON at %s", path), 0)
+	}
+
+	return j, nil
+
+}
+
+func (j *JSON) NameExists(name string) bool {
+
+	for _, item := range j.Credentials {
+		if item.Name == name {
+			return true
+		}
+	}
+
+	return false
+
+}
+
 func (j *JSON) Export(path string) errors.Error {
 
 	bytes, err := json.MarshalIndent(j, "", "  ")
