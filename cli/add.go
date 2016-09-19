@@ -1,24 +1,18 @@
 package cli
 
 import (
-	"bufio"
 	"fmt"
-	"io/ioutil"
 	"os"
-	"regexp"
 	"strings"
 	"time"
 
 	"github.com/adrienkohlbecker/errors"
-	"github.com/mattn/go-isatty"
 	"github.com/spf13/cobra"
 
 	"github.com/adrienkohlbecker/ejson-kms/crypto"
 	"github.com/adrienkohlbecker/ejson-kms/kms"
 	"github.com/adrienkohlbecker/ejson-kms/model"
 )
-
-var nameRegexp = regexp.MustCompile("^[a-z_][a-z0-9_]*$")
 
 const docAdd = `
 Add a credential to a credentials file.
@@ -96,13 +90,13 @@ func (cmd *addCmd) Execute(args []string) errors.Error {
 		return errors.WrapPrefix(err, "Unable to read from Stdin", 0)
 	}
 
-	fmt.Printf("KMS: Encrypting plaintext for %s\n", cmd.name)
-
 	svc, err := kms.Service()
 	if err != nil {
 		return errors.WrapPrefix(err, "Unable to open AWS session", 0)
 	}
 
+	fmt.Printf("KMS: Encrypting plaintext for %s\n", cmd.name)
+	now := time.Now().UTC().Truncate(time.Second)
 	ciphertext, err := crypto.Encrypt(svc, cmd.creds.KMSKeyArn, []byte(plaintext), cmd.creds.Context)
 	if err != nil {
 		return errors.WrapPrefix(err, "Unable to encrypt credential", 0)
@@ -111,7 +105,7 @@ func (cmd *addCmd) Execute(args []string) errors.Error {
 	cred := model.Credential{
 		Name:        cmd.name,
 		Description: cmd.description,
-		AddedAt:     time.Now().UTC().Truncate(time.Second),
+		AddedAt:     now,
 		RotatedAt:   nil,
 		Value:       ciphertext,
 	}
@@ -126,21 +120,4 @@ func (cmd *addCmd) Execute(args []string) errors.Error {
 	fmt.Printf("Exported new credentials file at: %s\n", cmd.credsPath)
 
 	return nil
-}
-
-func readFromStdin() (string, errors.Error) {
-
-	if isatty.IsTerminal(os.Stdin.Fd()) {
-		fmt.Println("Please enter the value and press Ctrl+D:")
-	}
-
-	reader := bufio.NewReader(os.Stdin)
-	bytes, err := ioutil.ReadAll(reader)
-	if err != nil {
-		return "", errors.WrapPrefix(err, "Unable to read from stdin", 0)
-	}
-
-	value := strings.TrimSpace(string(bytes))
-	return value, nil
-
 }
