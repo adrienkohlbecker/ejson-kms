@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/adrienkohlbecker/errors"
@@ -43,6 +44,11 @@ func init() {
 func (cmd *initCmd) Parse(args []string) errors.Error {
 	if cmd.credsPath == "" {
 		return errors.Errorf("No path provided")
+	}
+
+	_, err := os.Stat(cmd.credsPath)
+	if err == nil {
+		return errors.Errorf(fmt.Sprintf("A file already exists at %s", cmd.credsPath), 0)
 	}
 
 	if cmd.kmsKeyARN == "" {
