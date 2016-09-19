@@ -12,6 +12,7 @@ import (
 	"github.com/adrienkohlbecker/ejson-kms/formatter"
 	"github.com/adrienkohlbecker/ejson-kms/kms"
 	"github.com/adrienkohlbecker/ejson-kms/model"
+	"github.com/adrienkohlbecker/ejson-kms/utils"
 )
 
 const docExport = `
@@ -44,17 +45,10 @@ func init() {
 }
 
 func (cmd *exportCmd) Parse(args []string) errors.Error {
-	if cmd.credsPath == "" {
-		return errors.Errorf("No path provided")
-	}
 
-	stat, err := os.Stat(cmd.credsPath)
+	err := utils.ValidCredentialsPath(cmd.credsPath)
 	if err != nil {
-		return errors.WrapPrefix(err, fmt.Sprintf("Unable to find credentials file at %s", cmd.credsPath), 0)
-	}
-
-	if stat.IsDir() {
-		return errors.Errorf("Credentials file is a directory: %s", cmd.credsPath)
+		return err
 	}
 
 	creds, err := model.Import(cmd.credsPath)
@@ -63,16 +57,11 @@ func (cmd *exportCmd) Parse(args []string) errors.Error {
 	}
 	cmd.creds = creds
 
-	switch cmd.format {
-	case "bash":
-		cmd.formatter = formatter.Bash
-	case "dotenv":
-		cmd.formatter = formatter.Dotenv
-	case "json":
-		cmd.formatter = formatter.JSON
-	default:
-		return errors.Errorf("Unknown format %s", cmd.format)
+	formatter, err := utils.ValidFormatterFromArg(cmd.format)
+	if err != nil {
+		return err
 	}
+	cmd.formatter = formatter
 
 	return nil
 }
@@ -81,7 +70,7 @@ func (cmd *exportCmd) Execute(args []string) errors.Error {
 
 	svc, err := kms.Service()
 	if err != nil {
-		return errors.WrapPrefix(err, "Unable to open AWS session", 0)
+		return err
 	}
 
 	items := make(chan formatter.Item, len(cmd.creds.Credentials))

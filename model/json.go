@@ -10,9 +10,9 @@ import (
 )
 
 type JSON struct {
-	KMSKeyArn   string            `json:"kms_key_arn"`
-	Context     map[string]string `json:"context"`
-	Credentials []Credential      `json:"credentials"`
+	KMSKeyArn   string             `json:"kms_key_arn"`
+	Context     map[string]*string `json:"context"`
+	Credentials []Credential       `json:"credentials"`
 }
 
 type Credential struct {

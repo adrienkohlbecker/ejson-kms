@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/adrienkohlbecker/ejson-kms/crypto"
 	"github.com/adrienkohlbecker/ejson-kms/kms"
 	"github.com/adrienkohlbecker/ejson-kms/model"
+	"github.com/adrienkohlbecker/ejson-kms/utils"
 )
 
 const docRotate = `
@@ -21,8 +21,8 @@ Rotate a credential from a credentials file.
 type rotateCmd struct {
 	credsPath string
 	name      string
-	value     string
-	creds     *model.JSON
+
+	creds *model.JSON
 }
 
 func (cmd *rotateCmd) Cobra() *cobra.Command {
@@ -43,29 +43,21 @@ func init() {
 }
 
 func (cmd *rotateCmd) Parse(args []string) errors.Error {
-	if cmd.credsPath == "" {
-		return errors.Errorf("No path provided")
-	}
 
-	stat, err := os.Stat(cmd.credsPath)
+	err := utils.ValidCredentialsPath(cmd.credsPath)
 	if err != nil {
-		return errors.WrapPrefix(err, fmt.Sprintf("Unable to find credentials file at %s", cmd.credsPath), 0)
+		return err
 	}
 
-	if stat.IsDir() {
-		return errors.Errorf("Credentials file is a directory: %s", cmd.credsPath)
+	name, err := utils.HasOneArgument(args)
+	if err != nil {
+		return err
 	}
+	cmd.name = name
 
-	if len(args) == 1 {
-		cmd.name = args[0]
-	} else if len(args) > 0 {
-		return errors.Errorf("More than one name provided")
-	} else {
-		return errors.Errorf("No name provided")
-	}
-
-	if !nameRegexp.MatchString(cmd.name) {
-		return errors.Errorf("Invalid format for name: must be lowercase, can contain letters, digits and underscores, and cannot start with a number.")
+	err = utils.ValidName(cmd.name)
+	if err != nil {
+		return err
 	}
 
 	creds, err := model.Import(cmd.credsPath)
@@ -83,14 +75,14 @@ func (cmd *rotateCmd) Parse(args []string) errors.Error {
 
 func (cmd *rotateCmd) Execute(args []string) errors.Error {
 
-	plaintext, err := readFromStdin()
+	plaintext, err := utils.ReadFromStdin()
 	if err != nil {
-		return errors.WrapPrefix(err, "Unable to read from Stdin", 0)
+		return err
 	}
 
 	svc, err := kms.Service()
 	if err != nil {
-		return errors.WrapPrefix(err, "Unable to open AWS session", 0)
+		return err
 	}
 
 	for i, item := range cmd.creds.Credentials {

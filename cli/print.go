@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/adrienkohlbecker/errors"
@@ -11,6 +10,7 @@ import (
 	"github.com/adrienkohlbecker/ejson-kms/crypto"
 	"github.com/adrienkohlbecker/ejson-kms/kms"
 	"github.com/adrienkohlbecker/ejson-kms/model"
+	"github.com/adrienkohlbecker/ejson-kms/utils"
 )
 
 const docPrint = `
@@ -19,8 +19,9 @@ Print a credentials file in it's decrypted form.
 
 type printCmd struct {
 	credsPath string
-	creds     *model.JSON
 	name      string
+
+	creds *model.JSON
 }
 
 func (cmd *printCmd) Cobra() *cobra.Command {
@@ -41,29 +42,21 @@ func init() {
 }
 
 func (cmd *printCmd) Parse(args []string) errors.Error {
-	if cmd.credsPath == "" {
-		return errors.Errorf("No path provided")
-	}
 
-	stat, err := os.Stat(cmd.credsPath)
+	err := utils.ValidCredentialsPath(cmd.credsPath)
 	if err != nil {
-		return errors.WrapPrefix(err, fmt.Sprintf("Unable to find credentials file at %s", cmd.credsPath), 0)
+		return err
 	}
 
-	if stat.IsDir() {
-		return errors.Errorf("Credentials file is a directory: %s", cmd.credsPath)
+	name, err := utils.HasOneArgument(args)
+	if err != nil {
+		return err
 	}
+	cmd.name = name
 
-	if len(args) == 1 {
-		cmd.name = args[0]
-	} else if len(args) > 0 {
-		return errors.Errorf("More than one name provided")
-	} else {
-		return errors.Errorf("No name provided")
-	}
-
-	if !nameRegexp.MatchString(cmd.name) {
-		return errors.Errorf("Invalid format for name: must be lowercase, can contain letters, digits and underscores, and cannot start with a number.")
+	err = utils.ValidName(cmd.name)
+	if err != nil {
+		return err
 	}
 
 	creds, err := model.Import(cmd.credsPath)
@@ -83,7 +76,7 @@ func (cmd *printCmd) Execute(args []string) errors.Error {
 
 	svc, err := kms.Service()
 	if err != nil {
-		return errors.WrapPrefix(err, "Unable to open AWS session", 0)
+		return err
 	}
 
 	for _, item := range cmd.creds.Credentials {

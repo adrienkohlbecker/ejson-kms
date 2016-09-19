@@ -21,23 +21,18 @@ func Service() (KMS, errors.Error) {
 
 	sess, err := session.NewSession()
 	if err != nil {
-		return nil, errors.WrapPrefix(err, "Failed to create AWS session", 0)
+		return nil, errors.WrapPrefix(err, "Unable to create AWS session", 0)
 	}
 
 	return kms.New(sess), nil
 
 }
 
-func GenerateDataKey(svc KMS, kmsKeyArn string, context map[string]string) (DataKey, errors.Error) {
-
-	awsContext := make(map[string]*string)
-	for key, value := range context {
-		awsContext[key] = aws.String(value)
-	}
+func GenerateDataKey(svc KMS, kmsKeyArn string, context map[string]*string) (DataKey, errors.Error) {
 
 	params := &kms.GenerateDataKeyInput{
 		KeyId:             aws.String(kmsKeyArn), // Required
-		EncryptionContext: awsContext,
+		EncryptionContext: context,
 		GrantTokens:       []*string{},
 		KeySpec:           aws.String("AES_256"),
 	}
@@ -51,16 +46,11 @@ func GenerateDataKey(svc KMS, kmsKeyArn string, context map[string]string) (Data
 
 }
 
-func DecryptDataKey(svc KMS, ciphertext []byte, context map[string]string) (DataKey, errors.Error) {
-
-	awsContext := make(map[string]*string)
-	for key, value := range context {
-		awsContext[key] = aws.String(value)
-	}
+func DecryptDataKey(svc KMS, ciphertext []byte, context map[string]*string) (DataKey, errors.Error) {
 
 	params := &kms.DecryptInput{
 		CiphertextBlob:    ciphertext,
-		EncryptionContext: awsContext,
+		EncryptionContext: context,
 		GrantTokens:       []*string{},
 	}
 

@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/adrienkohlbecker/errors"
@@ -11,6 +10,7 @@ import (
 	"github.com/adrienkohlbecker/ejson-kms/crypto"
 	"github.com/adrienkohlbecker/ejson-kms/kms"
 	"github.com/adrienkohlbecker/ejson-kms/model"
+	"github.com/adrienkohlbecker/ejson-kms/utils"
 )
 
 const docRotateMasterKey = `
@@ -20,7 +20,8 @@ Rotate a credential from a credentials file.
 type rotateMasterKeyCmd struct {
 	credsPath    string
 	newKmsKeyARN string
-	creds        *model.JSON
+
+	creds *model.JSON
 }
 
 func (cmd *rotateMasterKeyCmd) Cobra() *cobra.Command {
@@ -41,26 +42,17 @@ func init() {
 }
 
 func (cmd *rotateMasterKeyCmd) Parse(args []string) errors.Error {
-	if cmd.credsPath == "" {
-		return errors.Errorf("No path provided")
-	}
 
-	stat, err := os.Stat(cmd.credsPath)
+	err := utils.ValidCredentialsPath(cmd.credsPath)
 	if err != nil {
-		return errors.WrapPrefix(err, fmt.Sprintf("Unable to find credentials file at %s", cmd.credsPath), 0)
+		return err
 	}
 
-	if stat.IsDir() {
-		return errors.Errorf("Credentials file is a directory: %s", cmd.credsPath)
+	newKmsKeyARN, err := utils.HasOneArgument(args)
+	if err != nil {
+		return err
 	}
-
-	if len(args) == 1 {
-		cmd.newKmsKeyARN = args[0]
-	} else if len(args) > 0 {
-		return errors.Errorf("More than one new key ARN provided")
-	} else {
-		return errors.Errorf("No new key ARN provided")
-	}
+	cmd.newKmsKeyARN = newKmsKeyARN
 
 	creds, err := model.Import(cmd.credsPath)
 	if err != nil {
@@ -75,7 +67,7 @@ func (cmd *rotateMasterKeyCmd) Execute(args []string) errors.Error {
 
 	svc, err := kms.Service()
 	if err != nil {
-		return errors.WrapPrefix(err, "Unable to open AWS session", 0)
+		return err
 	}
 
 	for i, item := range cmd.creds.Credentials {

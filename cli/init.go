@@ -2,13 +2,13 @@ package cli
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/adrienkohlbecker/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/adrienkohlbecker/ejson-kms/model"
+	"github.com/adrienkohlbecker/ejson-kms/utils"
 )
 
 const docInit = `
@@ -19,7 +19,8 @@ type initCmd struct {
 	kmsKeyARN  string
 	credsPath  string
 	rawContext []string
-	context    map[string]string
+
+	context map[string]*string
 }
 
 func (cmd *initCmd) Cobra() *cobra.Command {
@@ -42,26 +43,20 @@ func init() {
 }
 
 func (cmd *initCmd) Parse(args []string) errors.Error {
-	if cmd.credsPath == "" {
-		return errors.Errorf("No path provided")
+
+	err := utils.ValidNewCredentialsPath(cmd.credsPath)
+	if err != nil {
+		return err
 	}
 
-	_, err := os.Stat(cmd.credsPath)
-	if err == nil {
-		return errors.Errorf(fmt.Sprintf("A file already exists at %s", cmd.credsPath), 0)
+	context, err := utils.ValidContextFromCLI(cmd.rawContext)
+	if err != nil {
+		return err
 	}
+	cmd.context = context
 
 	if cmd.kmsKeyARN == "" {
 		return errors.Errorf("No KMS Key ARN provided")
-	}
-
-	cmd.context = make(map[string]string)
-	for _, item := range cmd.rawContext {
-		splitted := strings.SplitN(item, "=", 2)
-		if len(splitted) != 2 {
-			return errors.Errorf("Invalid format for context")
-		}
-		cmd.context[splitted[0]] = splitted[1]
 	}
 
 	return nil
