@@ -90,9 +90,13 @@ func TestFatal(t *testing.T) {
 
 	t.Run("with debug", func(t *testing.T) {
 
-		os.Setenv("EJSON_KMS_DEBUG", "1")
+		goErr := os.Setenv("EJSON_KMS_DEBUG", "1")
+		assert.NoError(t, goErr)
+
 		out := captureStderr(t, func() { Fatal(cmd, err) })
-		os.Unsetenv("EJSON_KMS_DEBUG")
+
+		goErr = os.Unsetenv("EJSON_KMS_DEBUG")
+		assert.NoError(t, goErr)
 
 		assert.Contains(t, out, "TestFatal: err := errors.Errorf(\"an error\")")
 
