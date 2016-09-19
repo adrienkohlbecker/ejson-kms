@@ -1,0 +1,2 @@
+export MY_CREDENTIAL="my value"
+export ANOTHER_ONE="string with \"quotes\""
