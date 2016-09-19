@@ -1,0 +1,15 @@
+{
+  "kms_key_arn": "arn:aws:kms:eu-west-1:000390721279:alias/ejson-kms",
+  "context": {
+    "KEY": "VALUE"
+  },
+  "credentials": [
+    {
+      "name": "test_cred",
+      "desctiption": "Some Description",
+      "added_at": "2016-09-19T14:21:22Z",
+      "rotated_at": null,
+      "ciphertext": "EJK1];AQEDAHhZurRVk3ZWIqpympXccBmx1cOFJmQj8RBnIk01CJMnTAAAAH4wfAYJKoZIhvcNAQcGoG8wbQIBADBoBgkqhkiG9w0BBwEwHgYJYIZIAWUDBAEuMBEEDCgMdhWkV5uphiD5DQIBEIA7kkXS7izLJ9X4x5spWTqWjLmSY/dtcQBeaXSlzcQA5Hqd+dvdMShqcEvd3RfUzZGR89qZYzrTsfybRA4=;4vukkc/Z8K9rSkex+s7XpphIIldqNcPJjhvhOixiq6RM7pMfijLMsvTNEyQKLw=="
+    }
+  ]
+}

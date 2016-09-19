@@ -1,2 +1,2 @@
 dist/*
-*.json
+.credentials.json
