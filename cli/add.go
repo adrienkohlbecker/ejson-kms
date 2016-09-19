@@ -35,13 +35,12 @@ type addCmd struct {
 func (cmd *addCmd) Cobra() *cobra.Command {
 
 	c := &cobra.Command{
-		Use:   "add",
+		Use:   "add NAME",
 		Short: "Add a credential to a credentials file.",
 		Long:  strings.TrimSpace(docAdd),
 	}
 
 	c.Flags().StringVar(&cmd.credsPath, "path", ".credentials.json", "The path of the generated file.")
-	c.Flags().StringVar(&cmd.name, "name", "", "Name of the credential in snake case format.")
 	c.Flags().StringVar(&cmd.description, "description", "", "Description of the credential.")
 
 	return c
@@ -63,6 +62,14 @@ func (cmd *addCmd) Parse(args []string) errors.Error {
 
 	if stat.IsDir() {
 		return errors.Errorf("Credentials file is a directory: %s", cmd.credsPath)
+	}
+
+	if len(args) == 1 {
+		cmd.name = args[0]
+	} else if len(args) > 0 {
+		return errors.Errorf("More than one name provided")
+	} else {
+		return errors.Errorf("No name provided")
 	}
 
 	if !nameRegexp.MatchString(cmd.name) {
