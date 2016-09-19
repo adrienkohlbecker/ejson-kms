@@ -79,7 +79,7 @@ func (cmd *rotateMasterKeyCmd) Execute(args []string) errors.Error {
 		}
 
 		fmt.Printf("KMS: Encrypting new plaintext for %s\n", item.Name)
-		ciphertext, loopErr := crypto.Encrypt(svc, cmd.newKmsKeyARN, []byte(oldPlaintext), cmd.creds.Context)
+		ciphertext, loopErr := crypto.Encrypt(svc, cmd.newKmsKeyARN, oldPlaintext, cmd.creds.Context)
 		if loopErr != nil {
 			return errors.WrapPrefix(loopErr, "Unable to encrypt credential", 0)
 		}

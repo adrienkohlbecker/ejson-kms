@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Unofficial bash strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -eu
+set -o pipefail
+IFS=$'\n\t'
+
+gometalinter \
+  --vendor \
+  --deadline=60s \
+  --exclude="should have comment or be unexported" \
+  --disable=dupl \
+  ./...

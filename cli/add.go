@@ -22,7 +22,6 @@ type addCmd struct {
 	credsPath   string
 	name        string
 	description string
-	value       string
 	creds       *model.JSON
 }
 
