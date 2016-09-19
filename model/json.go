@@ -20,7 +20,7 @@ type Credential struct {
 	Description string     `json:"desctiption"`
 	AddedAt     time.Time  `json:"added_at"`
 	RotatedAt   *time.Time `json:"rotated_at"`
-	Value       string     `json:"value"`
+	Ciphertext  string     `json:"ciphertext"`
 }
 
 func Import(path string) (*JSON, errors.Error) {

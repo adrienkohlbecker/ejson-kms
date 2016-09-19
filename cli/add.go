@@ -100,7 +100,7 @@ func (cmd *addCmd) Execute(args []string) errors.Error {
 		Description: cmd.description,
 		AddedAt:     now,
 		RotatedAt:   nil,
-		Value:       ciphertext,
+		Ciphertext:  ciphertext,
 	}
 
 	cmd.creds.Credentials = append(cmd.creds.Credentials, cred)

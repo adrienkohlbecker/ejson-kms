@@ -83,7 +83,7 @@ func (cmd *printCmd) Execute(args []string) errors.Error {
 
 		if item.Name == cmd.name {
 
-			plaintext, loopErr := crypto.Decrypt(svc, item.Value, cmd.creds.Context)
+			plaintext, loopErr := crypto.Decrypt(svc, item.Ciphertext, cmd.creds.Context)
 			if loopErr != nil {
 				return errors.WrapPrefix(loopErr, fmt.Sprintf("Unable to decrypt credential: %s", item.Name), 0)
 			}

@@ -77,7 +77,7 @@ func (cmd *exportCmd) Execute(args []string) errors.Error {
 
 	for _, item := range cmd.creds.Credentials {
 
-		plaintext, loopErr := crypto.Decrypt(svc, item.Value, cmd.creds.Context)
+		plaintext, loopErr := crypto.Decrypt(svc, item.Ciphertext, cmd.creds.Context)
 		if loopErr != nil {
 			return errors.WrapPrefix(loopErr, fmt.Sprintf("Unable to decrypt credential: %s", item.Name), 0)
 		}
