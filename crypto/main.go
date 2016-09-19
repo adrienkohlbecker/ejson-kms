@@ -26,7 +26,8 @@ func Encrypt(svc kms.KMS, kmsKeyArn string, plaintext []byte, name string, conte
 		return "", err
 	}
 
-	encoded := Encode(Msg{ciphertext: ciphertext, keyCiphertext: key.Ciphertext})
+	msg := &Encrypted{Ciphertext: ciphertext, KeyCiphertext: key.Ciphertext}
+	encoded := msg.Encode()
 
 	return encoded, nil
 
@@ -46,12 +47,12 @@ func Decrypt(svc kms.KMS, encoded string, name string, context map[string]*strin
 		return []byte{}, err
 	}
 
-	key, err := kms.DecryptDataKey(svc, decoded.keyCiphertext, name, context)
+	key, err := kms.DecryptDataKey(svc, decoded.KeyCiphertext, name, context)
 	if err != nil {
 		return []byte{}, err
 	}
 
-	plaintext, err := DecryptBytes(key.Plaintext, decoded.ciphertext)
+	plaintext, err := DecryptBytes(key.Plaintext, decoded.Ciphertext)
 	if err != nil {
 		return []byte{}, err
 	}

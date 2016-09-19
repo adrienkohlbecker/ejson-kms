@@ -8,8 +8,8 @@ import (
 
 func TestEncode(t *testing.T) {
 
-	input := Msg{ciphertext: []byte("ciphertext"), keyCiphertext: []byte("keyCiphertext")}
-	out := Encode(input)
+	input := &Encrypted{Ciphertext: []byte("ciphertext"), KeyCiphertext: []byte("keyCiphertext")}
+	out := input.Encode()
 	assert.Equal(t, out, "EJK1];a2V5Q2lwaGVydGV4dA==;Y2lwaGVydGV4dA==")
 
 }
@@ -21,7 +21,7 @@ func TestDecode(t *testing.T) {
 		input := "EJK1];a2V5Q2lwaGVydGV4dA==;Y2lwaGVydGV4dA=="
 		out, err := Decode(input)
 		assert.NoError(t, err)
-		assert.Equal(t, out, Msg{ciphertext: []byte("ciphertext"), keyCiphertext: []byte("keyCiphertext")})
+		assert.Equal(t, out, &Encrypted{Ciphertext: []byte("ciphertext"), KeyCiphertext: []byte("keyCiphertext")})
 
 	})
 
