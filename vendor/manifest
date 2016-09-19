@@ -1,0 +1,13 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "github.com/aws/aws-sdk-go",
+			"repository": "https://github.com/aws/aws-sdk-go",
+			"vcs": "git",
+			"revision": "b2dc98bb584e48b0f5f39c93110633173c5da43c",
+			"branch": "master",
+			"notests": true
+		}
+	]
+}
