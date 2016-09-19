@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Unofficial bash strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -eu
+set -o pipefail
+IFS=$'\n\t'
+
+env GOOS=linux GOARCH=amd64 go build -v -o dist/ejson-kms-linux github.com/adrienkohlbecker/ejson-kms
