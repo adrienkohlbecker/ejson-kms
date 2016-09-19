@@ -61,7 +61,7 @@ func (j *JSON) Export(path string) errors.Error {
 
 	bytes = append(bytes, []byte("\n")...)
 
-	err = ioutil.WriteFile(path, bytes, 0700)
+	err = ioutil.WriteFile(path, bytes, 0644)
 	if err != nil {
 		return errors.WrapPrefix(err, fmt.Sprintf("Unable to write file at path %s", path), 0)
 	}
