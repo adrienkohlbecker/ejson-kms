@@ -1,12 +1,13 @@
 package cli
 
 import (
-	"adrienkohlbecker/errors"
 	"fmt"
 	"strings"
 
-	"github.com/adrienkohlbecker/ejson-kms/model"
+	"github.com/adrienkohlbecker/errors"
 	"github.com/spf13/cobra"
+
+	"github.com/adrienkohlbecker/ejson-kms/model"
 )
 
 const docInit = `

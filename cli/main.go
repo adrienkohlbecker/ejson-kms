@@ -1,10 +1,10 @@
 package cli
 
 import (
-	"adrienkohlbecker/errors"
 	"fmt"
 	"os"
 
+	"github.com/adrienkohlbecker/errors"
 	"github.com/spf13/cobra"
 )
 
