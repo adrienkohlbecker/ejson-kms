@@ -8,36 +8,46 @@ import (
 	"github.com/adrienkohlbecker/errors"
 )
 
-const magicPrefix = "EJK1]"
+// MagicPrefix is a string prepended to all ciphertexts in the JSON representation.
+// It will allow versioning the algorithm in the future.
+const MagicPrefix = "EJK1]"
 
-type msg struct {
+// Msg is a struct representation of a encrypted credential.
+// It contains the ciphertext of both the credential and the data key.
+type Msg struct {
 	ciphertext    []byte
 	keyCiphertext []byte
 }
 
-func encode(encoded msg) string {
-	return fmt.Sprintf("%s;%s;%s", magicPrefix, base64.StdEncoding.EncodeToString(encoded.keyCiphertext), base64.StdEncoding.EncodeToString(encoded.ciphertext))
+// Encode takes a raw message and encodes it for the JSON representation.
+// The format is:
+//
+//   magicPrefix + ";" + base64(keyCiphertext) + ";" + base64(ciphertext)
+func Encode(encoded Msg) string {
+	return fmt.Sprintf("%s;%s;%s", MagicPrefix, base64.StdEncoding.EncodeToString(encoded.keyCiphertext), base64.StdEncoding.EncodeToString(encoded.ciphertext))
 }
 
-func decode(encoded string) (msg, errors.Error) {
-	values := strings.SplitN(encoded, ";", 3)
+// Decode takes a string from the JSON representation and decodes the
+// ciphertext and keyCiphertext, while validating the format.
+func Decode(encoded string) (Msg, errors.Error) {
+	values := strings.Split(encoded, ";")
 	if len(values) != 3 {
-		return msg{}, errors.Errorf("Invalid format for encoded string %s", encoded)
+		return Msg{}, errors.Errorf("Invalid format for encoded string %s", encoded)
 	}
 
-	if values[0] != magicPrefix {
-		return msg{}, errors.Errorf("Invalid format for encoded string %s", encoded)
+	if values[0] != MagicPrefix {
+		return Msg{}, errors.Errorf("Invalid format for encoded string %s", encoded)
 	}
 
 	keyCiphertext, err := base64.StdEncoding.DecodeString(values[1])
 	if err != nil {
-		return msg{}, errors.WrapPrefix(err, "Unable to base64 decode keyCiphertext", 0)
+		return Msg{}, errors.WrapPrefix(err, "Unable to base64 decode keyCiphertext", 0)
 	}
 
 	ciphertext, err := base64.StdEncoding.DecodeString(values[2])
 	if err != nil {
-		return msg{}, errors.WrapPrefix(err, "Unable to base64 decode ciphertext", 0)
+		return Msg{}, errors.WrapPrefix(err, "Unable to base64 decode ciphertext", 0)
 	}
 
-	return msg{keyCiphertext: keyCiphertext, ciphertext: ciphertext}, nil
+	return Msg{keyCiphertext: keyCiphertext, ciphertext: ciphertext}, nil
 }

@@ -5,37 +5,53 @@ import (
 	"github.com/adrienkohlbecker/errors"
 )
 
-func Encrypt(svc kms.KMS, kmsKeyArn string, plaintext []byte, context map[string]*string) (string, errors.Error) {
+// Encrypt is the main entrypoint for encrypting credentials.
+//
+// It takes the ARN of the KMS key to use for data key generation, the plaintext
+// to encrypt, the name of the credential (for logging purposes), and a key-value
+// context to add to the generated key, and returns the encrypted and string
+// encoded ciphertext.
+//
+// Note that the name of the credential is automatically added to the context
+// under the key "credential"
+func Encrypt(svc kms.KMS, kmsKeyArn string, plaintext []byte, name string, context map[string]*string) (string, errors.Error) {
 
-	key, err := kms.GenerateDataKey(svc, kmsKeyArn, context)
+	key, err := kms.GenerateDataKey(svc, kmsKeyArn, name, context)
 	if err != nil {
 		return "", err
 	}
 
-	ciphertext, err := encryptBytes(key.Plaintext, plaintext)
+	ciphertext, err := EncryptBytes(key.Plaintext, plaintext)
 	if err != nil {
 		return "", err
 	}
 
-	encoded := encode(msg{ciphertext: ciphertext, keyCiphertext: key.Ciphertext})
+	encoded := Encode(Msg{ciphertext: ciphertext, keyCiphertext: key.Ciphertext})
 
 	return encoded, nil
 
 }
 
-func Decrypt(svc kms.KMS, encoded string, context map[string]*string) ([]byte, errors.Error) {
+// Decrypt is the main entrypoint for encrypting credentials.
+// It takes the string-encoded ciphertext, the name of the credential
+// (for logging purposes) and a key-value context that was added to the generated
+// key for this credential, and returns the decoded and decrypted plaintext.
+//
+// Note that the name of the credential is automatically added to the context
+// under the key "credential"
+func Decrypt(svc kms.KMS, encoded string, name string, context map[string]*string) ([]byte, errors.Error) {
 
-	decoded, err := decode(encoded)
+	decoded, err := Decode(encoded)
 	if err != nil {
 		return []byte{}, err
 	}
 
-	key, err := kms.DecryptDataKey(svc, decoded.keyCiphertext, context)
+	key, err := kms.DecryptDataKey(svc, decoded.keyCiphertext, name, context)
 	if err != nil {
 		return []byte{}, err
 	}
 
-	plaintext, err := decryptBytes(key.Plaintext, decoded.ciphertext)
+	plaintext, err := DecryptBytes(key.Plaintext, decoded.ciphertext)
 	if err != nil {
 		return []byte{}, err
 	}
