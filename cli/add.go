@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/adrienkohlbecker/errors"
+	"github.com/mattn/go-isatty"
 	"github.com/spf13/cobra"
 
 	"github.com/adrienkohlbecker/ejson-kms/crypto"
@@ -82,14 +83,10 @@ func (cmd *addCmd) Parse(args []string) errors.Error {
 
 func (cmd *addCmd) Execute(args []string) errors.Error {
 
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("Please enter the value and press Ctrl+D:")
-	bytes, err := ioutil.ReadAll(reader)
+	plaintext, err := readFromStdin()
 	if err != nil {
-		return errors.WrapPrefix(err, "Unable to read from stdin", 0)
+		return errors.WrapPrefix(err, "Unable to read from Stdin", 0)
 	}
-
-	plaintext := strings.TrimSpace(string(bytes))
 
 	fmt.Printf("KMS: Encrypting plaintext for %s\n", cmd.name)
 
@@ -116,4 +113,21 @@ func (cmd *addCmd) Execute(args []string) errors.Error {
 	fmt.Printf("Exported new credentials file at: %s\n", cmd.credsPath)
 
 	return nil
+}
+
+func readFromStdin() (string, errors.Error) {
+
+	if isatty.IsTerminal(os.Stdin.Fd()) {
+		fmt.Println("Please enter the value and press Ctrl+D:")
+	}
+
+	reader := bufio.NewReader(os.Stdin)
+	bytes, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return "", errors.WrapPrefix(err, "Unable to read from stdin", 0)
+	}
+
+	value := strings.TrimSpace(string(bytes))
+	return value, nil
+
 }
