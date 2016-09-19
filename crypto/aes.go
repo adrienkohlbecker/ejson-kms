@@ -9,7 +9,7 @@ import (
 	"github.com/adrienkohlbecker/errors"
 )
 
-func gcm(key []byte) (cipher.AEAD, errors.Error) {
+func aesgcm(key []byte) (cipher.AEAD, errors.Error) {
 
 	c, err := aes.NewCipher(key)
 	if err != nil {
@@ -40,9 +40,9 @@ func nonce(size int) ([]byte, errors.Error) {
 
 func encryptBytes(key []byte, plaintext []byte) ([]byte, errors.Error) {
 
-	aead, err := gcm(key)
+	aead, err := aesgcm(key)
 	if err != nil {
-		return []byte{}, errors.WrapPrefix(err, "Unable to initialize GCM cipher", 0)
+		return []byte{}, errors.WrapPrefix(err, "Unable to initialize AES-GCM cipher", 0)
 	}
 
 	nonce, err := nonce(aead.NonceSize())
@@ -58,9 +58,9 @@ func encryptBytes(key []byte, plaintext []byte) ([]byte, errors.Error) {
 
 func decryptBytes(key []byte, bytes []byte) ([]byte, errors.Error) {
 
-	aead, err := gcm(key)
+	aead, err := aesgcm(key)
 	if err != nil {
-		return []byte{}, errors.WrapPrefix(err, "Unable to initialize GCM cipher", 0)
+		return []byte{}, errors.WrapPrefix(err, "Unable to initialize AES-GCM cipher", 0)
 	}
 
 	nonceSize := aead.NonceSize()
