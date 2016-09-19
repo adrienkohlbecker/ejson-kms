@@ -2,6 +2,14 @@
 	"version": 0,
 	"dependencies": [
 		{
+			"importpath": "github.com/adrienkohlbecker/errors",
+			"repository": "https://github.com/adrienkohlbecker/errors",
+			"vcs": "git",
+			"revision": "2b36bc76a9c8d86322384abd03057a176eab47ef",
+			"branch": "master",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/aws/aws-sdk-go",
 			"repository": "https://github.com/aws/aws-sdk-go",
 			"vcs": "git",
