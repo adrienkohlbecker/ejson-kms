@@ -7,16 +7,21 @@ import (
 	"github.com/aws/aws-sdk-go/service/kms"
 )
 
+// DataKey is a structure used to hold the ciphertext and plaintext of
+// a generated KMS data key.
 type DataKey struct {
 	Ciphertext []byte
 	Plaintext  []byte
 }
 
+// KMS is the interface that is implemented by kms.KMS.
 type KMS interface {
 	GenerateDataKey(*kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error)
 	Decrypt(*kms.DecryptInput) (*kms.DecryptOutput, error)
 }
 
+// Service creates a new AWS session (reads credentials and settings from
+// the environment), and returns a ready-to-use KMS instance.
 func Service() (KMS, errors.Error) {
 
 	sess, err := session.NewSession()
@@ -28,10 +33,18 @@ func Service() (KMS, errors.Error) {
 
 }
 
+// GenerateDataKey creates a encryption key that can be use to locally encrypt
+// data. The key length is 256 bits. It returns both the plaintext of the key
+// for immediate use, and it's encrypted version using the KMS master key for
+// storage.
+//
+// A context can be given as key-value pairs. These are stored with the key,
+// logged through AWS CloudTrail (if enabled), and must be provided as is
+// for each future use of the data key
 func GenerateDataKey(svc KMS, kmsKeyArn string, context map[string]*string) (DataKey, errors.Error) {
 
 	params := &kms.GenerateDataKeyInput{
-		KeyId:             aws.String(kmsKeyArn), // Required
+		KeyId:             aws.String(kmsKeyArn),
 		EncryptionContext: context,
 		GrantTokens:       []*string{},
 		KeySpec:           aws.String("AES_256"),
@@ -46,6 +59,8 @@ func GenerateDataKey(svc KMS, kmsKeyArn string, context map[string]*string) (Dat
 
 }
 
+// DecryptDataKey takes an encrypted data key and associated context, and
+// returns the key plaintext (along with the ciphertext for consistency)
 func DecryptDataKey(svc KMS, ciphertext []byte, context map[string]*string) (DataKey, errors.Error) {
 
 	params := &kms.DecryptInput{
