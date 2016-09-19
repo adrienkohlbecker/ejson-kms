@@ -1,9 +1,6 @@
 package crypto
 
 import (
-	"encoding/base64"
-	"fmt"
-
 	"github.com/adrienkohlbecker/ejson-kms/kms"
 	"github.com/adrienkohlbecker/errors"
 )
@@ -20,7 +17,7 @@ func Encrypt(svc kms.KMS, kmsKeyArn string, plaintext []byte, context map[string
 		return "", errors.WrapPrefix(err, "Unable to encrypt ciphertext", 0)
 	}
 
-	encoded := fmt.Sprintf("%s;%s;%s", magicPrefix, base64.StdEncoding.EncodeToString(key.Ciphertext), base64.StdEncoding.EncodeToString(ciphertext))
+	encoded := encode(msg{ciphertext: ciphertext, keyCiphertext: key.Ciphertext})
 
 	return encoded, nil
 

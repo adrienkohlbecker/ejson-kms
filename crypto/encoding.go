@@ -34,7 +34,7 @@ func decode(encoded string) (msg, errors.Error) {
 		return msg{}, errors.WrapPrefix(err, "Unable to base64 decode keyCiphertext", 0)
 	}
 
-	ciphertext, err := base64.StdEncoding.DecodeString(values[1])
+	ciphertext, err := base64.StdEncoding.DecodeString(values[2])
 	if err != nil {
 		return msg{}, errors.WrapPrefix(err, "Unable to base64 decode ciphertext", 0)
 	}
