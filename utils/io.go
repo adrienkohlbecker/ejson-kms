@@ -20,7 +20,8 @@ import (
 func ReadFromFile(file *os.File) (string, errors.Error) {
 
 	if isatty.IsTerminal(file.Fd()) {
-		fmt.Println("Please enter the value and press Ctrl+D:")
+		// Note: not covered by tests, need a way to test IsTerminal
+		fmt.Println("Please enter the value and press Enter then Ctrl+D:")
 	}
 
 	reader := bufio.NewReader(file)
