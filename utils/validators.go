@@ -12,6 +12,7 @@ import (
 
 var nameRegexp = regexp.MustCompile("^[a-z_][a-z0-9_]*$")
 
+// ValidCredentialsPath checks for an existing path that is not a directory.
 func ValidCredentialsPath(path string) errors.Error {
 
 	if path == "" {
@@ -31,6 +32,7 @@ func ValidCredentialsPath(path string) errors.Error {
 
 }
 
+// ValidNewCredentialsPath checks for a valid path that does not exist.
 func ValidNewCredentialsPath(path string) errors.Error {
 
 	if path == "" {
@@ -46,6 +48,10 @@ func ValidNewCredentialsPath(path string) errors.Error {
 
 }
 
+// ValidName checks if the provided string is valid as a credential name.
+//
+// It must be only lowercase letters, digits or underscores.
+// It cannot start with a letter.
 func ValidName(name string) errors.Error {
 
 	if !nameRegexp.MatchString(name) {
@@ -55,6 +61,8 @@ func ValidName(name string) errors.Error {
 	return nil
 }
 
+// HasOneArgument checks that the provided string slice has one (and only one)
+// value that is not empty, and returns it.
 func HasOneArgument(args []string) (string, errors.Error) {
 
 	var value string
@@ -66,15 +74,22 @@ func HasOneArgument(args []string) (string, errors.Error) {
 		return "", errors.Errorf("No argument provided")
 	}
 
+	if value == "" {
+		return "", errors.Errorf("Empty argument")
+	}
+
 	return value, nil
 }
 
-func ValidContextFromCLI(raw []string) (map[string]*string, errors.Error) {
+// ValidContext parses the CLI form of key-value pairs used for contexts.
+// The format must be key1=value1. Keys and values are not checked for
+// a specific format
+func ValidContext(raw []string) (map[string]*string, errors.Error) {
 
 	context := make(map[string]*string)
 
 	for _, item := range raw {
-		splitted := strings.SplitN(item, "=", 2)
+		splitted := strings.Split(item, "=")
 		if len(splitted) != 2 {
 			return context, errors.Errorf("Invalid format for context")
 		}
@@ -84,7 +99,9 @@ func ValidContextFromCLI(raw []string) (map[string]*string, errors.Error) {
 	return context, nil
 }
 
-func ValidFormatterFromArg(format string) (formatter.Formatter, errors.Error) {
+// ValidFormatter parses the formatter string argument into a formatter
+// method. Supported values are "bash", "dotenv" and "json".
+func ValidFormatter(format string) (formatter.Formatter, errors.Error) {
 
 	var ret formatter.Formatter
 

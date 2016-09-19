@@ -49,7 +49,7 @@ func (cmd *initCmd) Parse(args []string) errors.Error {
 		return err
 	}
 
-	context, err := utils.ValidContextFromCLI(cmd.rawContext)
+	context, err := utils.ValidContext(cmd.rawContext)
 	if err != nil {
 		return err
 	}

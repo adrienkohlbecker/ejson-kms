@@ -57,7 +57,7 @@ func (cmd *exportCmd) Parse(args []string) errors.Error {
 	}
 	cmd.creds = creds
 
-	formatter, err := utils.ValidFormatterFromArg(cmd.format)
+	formatter, err := utils.ValidFormatter(cmd.format)
 	if err != nil {
 		return err
 	}

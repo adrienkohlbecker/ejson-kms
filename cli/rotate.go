@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -75,7 +76,7 @@ func (cmd *rotateCmd) Parse(args []string) errors.Error {
 
 func (cmd *rotateCmd) Execute(args []string) errors.Error {
 
-	plaintext, err := utils.ReadFromStdin()
+	plaintext, err := utils.ReadFromFile(os.Stdin)
 	if err != nil {
 		return err
 	}
