@@ -5,25 +5,37 @@ set -eu
 set -o pipefail
 IFS=$'\n\t'
 
-COVER_PATH=${COVER_PATH:=".artifacts"}
-mkdir -p $COVER_PATH
+REPORTS_PATH=${REPORTS_PATH:=".artifacts"}
+mkdir -p "$REPORTS_PATH"
 
 PKGS=$(go list ./... | grep -v /vendor/)
-PKGS_DELIM=$(echo $PKGS | sed -e 's/ /,/g')
+PKGS_DELIM=$(echo "$PKGS" | tr '\n' ',')
 
 for PKG in $PKGS; do
 
-  PKG_UNDERSCORE=$(echo $PKG | sed 's|github.com/adrienkohlbecker/||' | sed 's|/|_|g')
+  PKG_UNDERSCORE=$(echo "$PKG" | sed 's|github.com/adrienkohlbecker/||' | sed 's|/|_|g')
 
-  go test -v \
+  exec 5>&1
+  OUT=$(go test -v \
     -covermode=count \
-    -coverprofile=$COVER_PATH/$PKG_UNDERSCORE.coverprofile \
-    -coverpkg $PKGS_DELIM \
-    $PKG \
-    | go-junit-report > $COVER_PATH/$PKG_UNDERSCORE.xml
+    -coverprofile="$REPORTS_PATH/$PKG_UNDERSCORE.coverprofile" \
+    -coverpkg="$PKGS_DELIM" \
+    "$PKG" 2>&1 \
+    | grep -v "warning: no packages being tested depend on" \
+    | grep -v "coverage: " \
+    | tee >(cat - >&5)
+  )
+  echo "$OUT" | go-junit-report > "$REPORTS_PATH/$PKG_UNDERSCORE.xml"
 
 done
 
-gocovmerge $COVER_PATH/*.coverprofile > $COVER_PATH/cover.out
-rm $COVER_PATH/*.coverprofile
-go tool cover -html=$COVER_PATH/cover.out > $COVER_PATH/cover.html
+gocovmerge "$REPORTS_PATH"/*.coverprofile > "$REPORTS_PATH/cover.out"
+rm "$REPORTS_PATH"/*.coverprofile
+
+if [ ! -z "${CIRCLECI:-}" ]; then
+  go tool cover -html="$REPORTS_PATH/cover.out" > "$REPORTS_PATH/cover.html"
+
+  if [ ! -z "${COVERALLS_TOKEN:-}" ]; then
+    goveralls -coverprofile="$REPORTS_PATH/cover.out" -service=circle-ci -repotoken="$COVERALLS_TOKEN"
+  fi
+fi
