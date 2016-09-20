@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Unofficial bash strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -eu
+set -o pipefail
+IFS=$'\n\t'
+
+COVER_PATH=${COVER_PATH:=".artifacts"}
+mkdir -p $COVER_PATH
+
+PKGS=$(go list ./... | grep -v /vendor/)
+PKGS_DELIM=$(echo $PKGS | sed -e 's/ /,/g')
+
+for PKG in $PKGS; do
+
+  PKG_UNDERSCORE=$(echo $PKG | sed 's|github.com/adrienkohlbecker/||' | sed 's|/|_|g')
+
+  go test -v \
+    -covermode=count \
+    -coverprofile=$COVER_PATH/$PKG_UNDERSCORE.coverprofile \
+    -coverpkg $PKGS_DELIM \
+    $PKG \
+    | go-junit-report > $COVER_PATH/$PKG_UNDERSCORE.xml
+
+done
+
+gocovmerge $COVER_PATH/*.coverprofile > $COVER_PATH/cover.out
+rm $COVER_PATH/*.coverprofile
+go tool cover -html=$COVER_PATH/cover.out > $COVER_PATH/cover.html
