@@ -10,7 +10,7 @@ import (
 
 var testContext = map[string]*string{"ABC": nil}
 
-const testKeyARN = "my-key-arn"
+const testKeyID = "my-key-id"
 
 const (
 	testKeyPlaintext  = "-abcdefabcdefabcdefabcdefabcdef-"
@@ -24,11 +24,11 @@ func TestEncrypt(t *testing.T) {
 
 	t.Run("working", func(t *testing.T) {
 
-		svc := kms_mock.GenerateDataKey(t, testKeyARN, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := kms_mock.GenerateDataKey(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
 
 		crypto_mock.WithConstRandReader(testConstantNonce, func() {
 
-			cipher := NewCipher(svc, testKeyARN, testContext)
+			cipher := NewCipher(client, testKeyID, testContext)
 			encoded, err := cipher.Encrypt(testPlaintext)
 			assert.NoError(t, err)
 			assert.Equal(t, encoded, testCiphertext)
@@ -39,9 +39,9 @@ func TestEncrypt(t *testing.T) {
 
 	t.Run("with aws error", func(t *testing.T) {
 
-		svc := kms_mock.GenerateDataKeyWithError("testing errors")
+		client := kms_mock.GenerateDataKeyWithError("testing errors")
 
-		cipher := NewCipher(svc, testKeyARN, testContext)
+		cipher := NewCipher(client, testKeyID, testContext)
 		_, err := cipher.Encrypt(testPlaintext)
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "Unable to generate data key")
@@ -50,11 +50,11 @@ func TestEncrypt(t *testing.T) {
 
 	t.Run("with encrypt error", func(t *testing.T) {
 
-		svc := kms_mock.GenerateDataKey(t, testKeyARN, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := kms_mock.GenerateDataKey(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
 
 		crypto_mock.WithErrorRandReader("testing error", func() {
 
-			cipher := NewCipher(svc, testKeyARN, testContext)
+			cipher := NewCipher(client, testKeyID, testContext)
 			_, err := cipher.Encrypt(testPlaintext)
 			assert.Error(t, err)
 			assert.Contains(t, err.Error(), "Unable to generate nonce")
@@ -68,9 +68,9 @@ func TestDecrypt(t *testing.T) {
 
 	t.Run("working", func(t *testing.T) {
 
-		svc := kms_mock.Decrypt(t, testKeyARN, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := kms_mock.Decrypt(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
 
-		cipher := NewCipher(svc, testKeyARN, testContext)
+		cipher := NewCipher(client, testKeyID, testContext)
 		plaintext, err := cipher.Decrypt(testCiphertext)
 		if assert.NoError(t, err) {
 			assert.Equal(t, plaintext, testPlaintext)
@@ -80,8 +80,8 @@ func TestDecrypt(t *testing.T) {
 
 	t.Run("with decode error", func(t *testing.T) {
 
-		svc := &kms_mock.KMS{}
-		cipher := NewCipher(svc, testKeyARN, testContext)
+		client := &kms_mock.Client{}
+		cipher := NewCipher(client, testKeyID, testContext)
 		_, err := cipher.Decrypt("abc")
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Invalid format for encoded string")
@@ -91,9 +91,9 @@ func TestDecrypt(t *testing.T) {
 
 	t.Run("with aws error", func(t *testing.T) {
 
-		svc := kms_mock.DecryptWithError("testing errors")
+		client := kms_mock.DecryptWithError("testing errors")
 
-		cipher := NewCipher(svc, testKeyARN, testContext)
+		cipher := NewCipher(client, testKeyID, testContext)
 		_, err := cipher.Decrypt(testCiphertext)
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Unable to decrypt key ciphertext")
@@ -103,9 +103,9 @@ func TestDecrypt(t *testing.T) {
 
 	t.Run("with decrypt error", func(t *testing.T) {
 
-		svc := kms_mock.Decrypt(t, testKeyARN, testContext, testKeyCiphertext, "notlongenough")
+		client := kms_mock.Decrypt(t, testKeyID, testContext, testKeyCiphertext, "notlongenough")
 
-		cipher := NewCipher(svc, testKeyARN, testContext)
+		cipher := NewCipher(client, testKeyID, testContext)
 		_, err := cipher.Decrypt(testCiphertext)
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Expected key size of 32, got 13")

@@ -12,18 +12,18 @@ import (
 var testContext = map[string]*string{"ABC": nil}
 
 const (
-	testKeyARN        = "my-key-arn"
+	testKeyID         = "my-key-id"
 	testKeyCiphertext = "ciphertextblob"
 	testKeyPlaintext  = "plaintext"
 )
 
-func TestService(t *testing.T) {
+func TestNewClient(t *testing.T) {
 
 	t.Run("valid", func(t *testing.T) {
 
-		s, err := Service()
+		s, err := NewClient()
 		if assert.NoError(t, err) {
-			assert.Implements(t, new(KMS), s)
+			assert.Implements(t, new(Client), s)
 		}
 
 	})
@@ -38,7 +38,7 @@ func TestService(t *testing.T) {
 		goErr = os.Setenv("AWS_SDK_LOAD_CONFIG", "1")
 		assert.NoError(t, goErr)
 
-		_, err := Service()
+		_, err := NewClient()
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Unable to create AWS session")
 		}
@@ -56,14 +56,14 @@ func TestGenerateDataKey(t *testing.T) {
 
 	t.Run("without AWS error", func(t *testing.T) {
 
-		svc := kms_mock.GenerateDataKey(t, testKeyARN, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := kms_mock.GenerateDataKey(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
 
 		expected := DataKey{
 			Ciphertext: []byte(testKeyCiphertext),
 			Plaintext:  []byte(testKeyPlaintext),
 		}
 
-		key, err := GenerateDataKey(svc, testKeyARN, testContext)
+		key, err := GenerateDataKey(client, testKeyID, testContext)
 		assert.NoError(t, err)
 		assert.Equal(t, key, expected)
 
@@ -71,9 +71,9 @@ func TestGenerateDataKey(t *testing.T) {
 
 	t.Run("with AWS error", func(t *testing.T) {
 
-		svc := kms_mock.GenerateDataKeyWithError("testing errors")
+		client := kms_mock.GenerateDataKeyWithError("testing errors")
 
-		_, err := GenerateDataKey(svc, testKeyARN, testContext)
+		_, err := GenerateDataKey(client, testKeyID, testContext)
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Unable to generate data key")
 			assert.Contains(t, err.Error(), "testing errors")
@@ -87,14 +87,14 @@ func TestDecryptDataKey(t *testing.T) {
 
 	t.Run("without AWS error", func(t *testing.T) {
 
-		svc := kms_mock.Decrypt(t, testKeyARN, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := kms_mock.Decrypt(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
 
 		expected := DataKey{
 			Ciphertext: []byte(testKeyCiphertext),
 			Plaintext:  []byte(testKeyPlaintext),
 		}
 
-		key, err := DecryptDataKey(svc, []byte(testKeyCiphertext), testContext)
+		key, err := DecryptDataKey(client, []byte(testKeyCiphertext), testContext)
 		assert.NoError(t, err)
 		assert.Equal(t, key, expected)
 
@@ -102,9 +102,9 @@ func TestDecryptDataKey(t *testing.T) {
 
 	t.Run("with AWS error", func(t *testing.T) {
 
-		svc := kms_mock.DecryptWithError("testing errors")
+		client := kms_mock.DecryptWithError("testing errors")
 
-		_, err := DecryptDataKey(svc, []byte(testKeyCiphertext), testContext)
+		_, err := DecryptDataKey(client, []byte(testKeyCiphertext), testContext)
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Unable to decrypt key ciphertext")
 			assert.Contains(t, err.Error(), "testing errors")

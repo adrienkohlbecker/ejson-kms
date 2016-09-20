@@ -17,9 +17,9 @@ func TestImport(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, j)
 
-		assert.NotEmpty(t, j.KMSKeyArn)
-		assert.NotEmpty(t, j.Context)
-		assert.Equal(t, *j.Context["KEY"], "VALUE")
+		assert.NotEmpty(t, j.KMSKeyID)
+		assert.NotEmpty(t, j.EncryptionContext)
+		assert.Equal(t, *j.EncryptionContext["KEY"], "VALUE")
 		if assert.Equal(t, len(j.Credentials), 1) {
 
 			cred := j.Credentials[0]
@@ -37,7 +37,7 @@ func TestImport(t *testing.T) {
 
 		_, err := Import("./testdata/invalid.json")
 		if assert.Error(t, err) {
-			assert.Contains(t, err.Error(), "Unable to decode JSON")
+			assert.Contains(t, err.Error(), "Unable to decode Store")
 		}
 
 	})
@@ -53,14 +53,14 @@ func TestImport(t *testing.T) {
 
 }
 
-func TestNameExists(t *testing.T) {
+func TestContains(t *testing.T) {
 
-	j := &JSON{Credentials: []Credential{
+	j := &Store{Credentials: []Credential{
 		Credential{Name: "test_cred"},
 	}}
 
-	assert.True(t, j.NameExists("test_cred"))
-	assert.False(t, j.NameExists("other"))
+	assert.True(t, j.Contains("test_cred"))
+	assert.False(t, j.Contains("other"))
 
 }
 
@@ -90,7 +90,7 @@ func TestExport(t *testing.T) {
 		dir, goErr := ioutil.TempDir(os.TempDir(), "read-from-file")
 		assert.NoError(t, goErr)
 
-		j := &JSON{}
+		j := &Store{}
 		err := j.Export(dir)
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Unable to write file")

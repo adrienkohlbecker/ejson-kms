@@ -8,22 +8,22 @@ import (
 // Cipher is a struct containing the configuration for crypto operations on
 // a single credentials file.
 type Cipher struct {
-	// Svc is the AWS KMS client
-	Svc kms.KMS
+	// Client is the AWS KMS client
+	Client kms.Client
 
-	// KmsKeyArn is the ARN of the master key to use for key wrapping
-	KmsKeyArn string
+	// KMSKeyID is the ID of the master key to use for key wrapping
+	KMSKeyID string
 
 	// Context is a key-value store of arbitrary values added to the data keys
 	Context map[string]*string
 }
 
 // NewCipher returns an initialized Cipher.
-func NewCipher(svc kms.KMS, kmsKeyArn string, context map[string]*string) *Cipher {
+func NewCipher(client kms.Client, kmsKeyID string, context map[string]*string) *Cipher {
 	return &Cipher{
-		Svc:       svc,
-		KmsKeyArn: kmsKeyArn,
-		Context:   context,
+		Client:   client,
+		KMSKeyID: kmsKeyID,
+		Context:  context,
 	}
 }
 
@@ -33,20 +33,18 @@ func NewCipher(svc kms.KMS, kmsKeyArn string, context map[string]*string) *Ciphe
 // and string-encoded ciphertext.
 func (c *Cipher) Encrypt(plaintext string) (string, errors.Error) {
 
-	key, err := kms.GenerateDataKey(c.Svc, c.KmsKeyArn, c.Context)
+	key, err := kms.GenerateDataKey(c.Client, c.KMSKeyID, c.Context)
 	if err != nil {
 		return "", err
 	}
 
-	ciphertext, err := EncryptBytes(key.Plaintext, []byte(plaintext))
+	ciphertext, err := encryptBytes(key.Plaintext, []byte(plaintext))
 	if err != nil {
 		return "", err
 	}
 
-	msg := &Encrypted{Ciphertext: ciphertext, KeyCiphertext: key.Ciphertext}
-	encoded := msg.Encode()
-
-	return encoded, nil
+	encrypted := &encrypted{keyCiphertext: key.Ciphertext, ciphertext: ciphertext}
+	return encrypted.encode(), nil
 
 }
 
@@ -56,17 +54,17 @@ func (c *Cipher) Encrypt(plaintext string) (string, errors.Error) {
 // and decrypted plaintext.
 func (c *Cipher) Decrypt(encoded string) (string, errors.Error) {
 
-	decoded, err := Decode(encoded)
+	encrypted, err := decode(encoded)
 	if err != nil {
 		return "", err
 	}
 
-	key, err := kms.DecryptDataKey(c.Svc, decoded.KeyCiphertext, c.Context)
+	key, err := kms.DecryptDataKey(c.Client, encrypted.keyCiphertext, c.Context)
 	if err != nil {
 		return "", err
 	}
 
-	plaintext, err := DecryptBytes(key.Plaintext, decoded.Ciphertext)
+	plaintext, err := decryptBytes(key.Plaintext, encrypted.ciphertext)
 	if err != nil {
 		return "", err
 	}

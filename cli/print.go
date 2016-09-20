@@ -21,7 +21,7 @@ type printCmd struct {
 	credsPath string
 	name      string
 
-	creds *model.JSON
+	creds *model.Store
 }
 
 func (cmd *printCmd) Cobra() *cobra.Command {
@@ -65,7 +65,7 @@ func (cmd *printCmd) Parse(args []string) errors.Error {
 	}
 	cmd.creds = creds
 
-	if !cmd.creds.NameExists(cmd.name) {
+	if !cmd.creds.Contains(cmd.name) {
 		return errors.Errorf("The credential `%s` does not exist", cmd.name)
 	}
 
@@ -74,12 +74,12 @@ func (cmd *printCmd) Parse(args []string) errors.Error {
 
 func (cmd *printCmd) Execute(args []string) errors.Error {
 
-	svc, err := kms.Service()
+	client, err := kms.NewClient()
 	if err != nil {
 		return err
 	}
 
-	cipher := crypto.NewCipher(svc, cmd.creds.KMSKeyArn, cmd.creds.Context)
+	cipher := crypto.NewCipher(client, cmd.creds.KMSKeyID, cmd.creds.EncryptionContext)
 
 	for _, item := range cmd.creds.Credentials {
 

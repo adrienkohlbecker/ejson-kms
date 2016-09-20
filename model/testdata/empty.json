@@ -1,6 +1,6 @@
 {
-  "kms_key_arn": "arn:aws:kms:eu-west-1:000390721279:alias/ejson-kms",
-  "context": {
+  "kms_key_id": "arn:aws:kms:eu-west-1:000390721279:alias/ejson-kms",
+  "encryption_context": {
     "KEY": "VALUE"
   },
   "credentials": [

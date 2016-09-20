@@ -81,22 +81,23 @@ func HasOneArgument(args []string) (string, errors.Error) {
 	return value, nil
 }
 
-// ValidContext parses the CLI form of key-value pairs used for contexts.
+// ValidEncryptionContext parses the CLI form of key-value pairs used for
+// encryption contexts.
 // The format must be key1=value1. Keys and values are not checked for
 // a specific format
-func ValidContext(raw []string) (map[string]*string, errors.Error) {
+func ValidEncryptionContext(raw []string) (map[string]*string, errors.Error) {
 
-	context := make(map[string]*string)
+	encryptionContext := make(map[string]*string)
 
 	for _, item := range raw {
 		splitted := strings.Split(item, "=")
 		if len(splitted) != 2 {
-			return context, errors.Errorf("Invalid format for context")
+			return encryptionContext, errors.Errorf("Invalid format for encryption context")
 		}
-		context[splitted[0]] = &splitted[1]
+		encryptionContext[splitted[0]] = &splitted[1]
 	}
 
-	return context, nil
+	return encryptionContext, nil
 }
 
 // ValidFormatter parses the formatter string argument into a formatter

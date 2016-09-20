@@ -9,26 +9,26 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type KMS struct {
+type Client struct {
 	internalGenerateDataKey func(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error)
 	internalDecrypt         func(*kms.DecryptInput) (*kms.DecryptOutput, error)
 }
 
-func (m *KMS) GenerateDataKey(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error) {
+func (m *Client) GenerateDataKey(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error) {
 	return m.internalGenerateDataKey(params)
 }
-func (m *KMS) Decrypt(params *kms.DecryptInput) (*kms.DecryptOutput, error) {
+func (m *Client) Decrypt(params *kms.DecryptInput) (*kms.DecryptOutput, error) {
 	return m.internalDecrypt(params)
 }
 
-func GenerateDataKey(t *testing.T, kmsKeyARN string, context map[string]*string, keyCiphertext string, keyPlaintext string) *KMS {
+func GenerateDataKey(t *testing.T, kmsKeyID string, encryptionContext map[string]*string, keyCiphertext string, keyPlaintext string) *Client {
 
-	mock := &KMS{}
+	mock := &Client{}
 	mock.internalGenerateDataKey = func(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error) {
 
 		expected := &kms.GenerateDataKeyInput{
-			KeyId:             aws.String(kmsKeyARN),
-			EncryptionContext: context,
+			KeyId:             aws.String(kmsKeyID),
+			EncryptionContext: encryptionContext,
 			GrantTokens:       []*string{},
 			KeySpec:           aws.String("AES_256"),
 		}
@@ -37,7 +37,7 @@ func GenerateDataKey(t *testing.T, kmsKeyARN string, context map[string]*string,
 
 		return &kms.GenerateDataKeyOutput{
 			CiphertextBlob: []byte(keyCiphertext),
-			KeyId:          aws.String(kmsKeyARN),
+			KeyId:          aws.String(kmsKeyID),
 			Plaintext:      []byte(keyPlaintext),
 		}, nil
 
@@ -47,9 +47,9 @@ func GenerateDataKey(t *testing.T, kmsKeyARN string, context map[string]*string,
 
 }
 
-func GenerateDataKeyWithError(str string) *KMS {
+func GenerateDataKeyWithError(str string) *Client {
 
-	mock := &KMS{}
+	mock := &Client{}
 	mock.internalGenerateDataKey = func(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error) {
 		return nil, fmt.Errorf(str)
 	}
@@ -58,9 +58,9 @@ func GenerateDataKeyWithError(str string) *KMS {
 
 }
 
-func Decrypt(t *testing.T, testKeyARN string, testContext map[string]*string, testKeyCiphertext string, testKeyPlaintext string) *KMS {
+func Decrypt(t *testing.T, testKeyID string, testContext map[string]*string, testKeyCiphertext string, testKeyPlaintext string) *Client {
 
-	mock := &KMS{}
+	mock := &Client{}
 	mock.internalDecrypt = func(params *kms.DecryptInput) (*kms.DecryptOutput, error) {
 
 		expected := &kms.DecryptInput{
@@ -72,7 +72,7 @@ func Decrypt(t *testing.T, testKeyARN string, testContext map[string]*string, te
 		assert.Equal(t, expected, params)
 
 		return &kms.DecryptOutput{
-			KeyId:     aws.String(testKeyARN),
+			KeyId:     aws.String(testKeyID),
 			Plaintext: []byte(testKeyPlaintext),
 		}, nil
 
@@ -81,8 +81,8 @@ func Decrypt(t *testing.T, testKeyARN string, testContext map[string]*string, te
 	return mock
 }
 
-func DecryptWithError(str string) *KMS {
-	mock := &KMS{}
+func DecryptWithError(str string) *Client {
+	mock := &Client{}
 	mock.internalDecrypt = func(params *kms.DecryptInput) (*kms.DecryptOutput, error) {
 		return nil, fmt.Errorf(str)
 	}

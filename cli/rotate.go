@@ -23,7 +23,7 @@ type rotateCmd struct {
 	credsPath string
 	name      string
 
-	creds *model.JSON
+	creds *model.Store
 }
 
 func (cmd *rotateCmd) Cobra() *cobra.Command {
@@ -67,7 +67,7 @@ func (cmd *rotateCmd) Parse(args []string) errors.Error {
 	}
 	cmd.creds = creds
 
-	if !cmd.creds.NameExists(cmd.name) {
+	if !cmd.creds.Contains(cmd.name) {
 		return errors.Errorf("No credential with the given name has been found. Use the `add` command")
 	}
 
@@ -81,12 +81,12 @@ func (cmd *rotateCmd) Execute(args []string) errors.Error {
 		return err
 	}
 
-	svc, err := kms.Service()
+	client, err := kms.NewClient()
 	if err != nil {
 		return err
 	}
 
-	cipher := crypto.NewCipher(svc, cmd.creds.KMSKeyArn, cmd.creds.Context)
+	cipher := crypto.NewCipher(client, cmd.creds.KMSKeyID, cmd.creds.EncryptionContext)
 	now := time.Now().UTC().Truncate(time.Second)
 
 	for i, item := range cmd.creds.Credentials {

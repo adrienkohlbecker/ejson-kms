@@ -18,16 +18,16 @@ Rotate a credential from a credentials file.
 `
 
 type rotateMasterKeyCmd struct {
-	credsPath    string
-	newKmsKeyARN string
+	credsPath   string
+	newKMSKeyID string
 
-	creds *model.JSON
+	creds *model.Store
 }
 
 func (cmd *rotateMasterKeyCmd) Cobra() *cobra.Command {
 
 	c := &cobra.Command{
-		Use:   "rotate-master-key NEW_KMS_KEY_ARN",
+		Use:   "rotate-master-key NEW_KMS_KEY_ID",
 		Short: "Rotate a master key from a credentials file.",
 		Long:  strings.TrimSpace(docRotateMasterKey),
 	}
@@ -48,11 +48,11 @@ func (cmd *rotateMasterKeyCmd) Parse(args []string) errors.Error {
 		return err
 	}
 
-	newKmsKeyARN, err := utils.HasOneArgument(args)
+	newKMSKeyID, err := utils.HasOneArgument(args)
 	if err != nil {
 		return err
 	}
-	cmd.newKmsKeyARN = newKmsKeyARN
+	cmd.newKMSKeyID = newKMSKeyID
 
 	creds, err := model.Import(cmd.credsPath)
 	if err != nil {
@@ -65,13 +65,13 @@ func (cmd *rotateMasterKeyCmd) Parse(args []string) errors.Error {
 
 func (cmd *rotateMasterKeyCmd) Execute(args []string) errors.Error {
 
-	svc, err := kms.Service()
+	client, err := kms.NewClient()
 	if err != nil {
 		return err
 	}
 
-	cipher := crypto.NewCipher(svc, cmd.creds.KMSKeyArn, cmd.creds.Context)
-	newCipher := crypto.NewCipher(svc, cmd.newKmsKeyARN, cmd.creds.Context)
+	cipher := crypto.NewCipher(client, cmd.creds.KMSKeyID, cmd.creds.EncryptionContext)
+	newCipher := crypto.NewCipher(client, cmd.newKMSKeyID, cmd.creds.EncryptionContext)
 
 	for i, item := range cmd.creds.Credentials {
 
@@ -92,7 +92,7 @@ func (cmd *rotateMasterKeyCmd) Execute(args []string) errors.Error {
 
 	}
 
-	cmd.creds.KMSKeyArn = cmd.newKmsKeyARN
+	cmd.creds.KMSKeyID = cmd.newKMSKeyID
 
 	err = cmd.creds.Export(cmd.credsPath)
 	if err != nil {

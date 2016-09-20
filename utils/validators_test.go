@@ -168,14 +168,14 @@ func TestHasOneArgument(t *testing.T) {
 
 }
 
-func TestValidContext(t *testing.T) {
+func TestValidEncryptionContext(t *testing.T) {
 
 	t.Run("valid", func(t *testing.T) {
 
 		def := "DEF"
 		jkl := "JKL"
 
-		value, err := ValidContext([]string{"ABC=DEF", "GHI=JKL"})
+		value, err := ValidEncryptionContext([]string{"ABC=DEF", "GHI=JKL"})
 		assert.NoError(t, err)
 		assert.Exactly(t, map[string]*string{"ABC": &def, "GHI": &jkl}, value)
 
@@ -186,9 +186,9 @@ func TestValidContext(t *testing.T) {
 
 		t.Run(fmt.Sprintf("invalid %s", item), func(t *testing.T) {
 
-			_, err := ValidContext([]string{item})
+			_, err := ValidEncryptionContext([]string{item})
 			if assert.Error(t, err) {
-				assert.Contains(t, err.Error(), "Invalid format for context")
+				assert.Contains(t, err.Error(), "Invalid format for encryption context")
 			}
 
 		})

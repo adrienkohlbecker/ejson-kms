@@ -10,11 +10,11 @@ import (
 
 // Constants for input sizes with nacl/secretbox
 const (
-	NonceSize = 24
-	KeySize   = 32
+	nonceSize = 24
+	keySize   = 32
 )
 
-// Nonce generates a random nonce using a cryptographically secure random source.
+// randomNonce generates a random nonce using a cryptographically secure random source.
 //
 // From crypto/rand documentation:
 //
@@ -22,32 +22,32 @@ const (
 //   On OpenBSD, Reader uses getentropy(2).
 //   On other Unix-like systems, Reader reads from /dev/urandom.
 //   On Windows systems, Reader uses the CryptGenRandom API.
-func Nonce() ([NonceSize]byte, errors.Error) {
+func randomNonce() ([nonceSize]byte, errors.Error) {
 
-	nonce := [NonceSize]byte{}
+	nonce := [nonceSize]byte{}
 
 	_, err := io.ReadFull(rand.Reader, nonce[:])
 	if err != nil {
-		return [NonceSize]byte{}, errors.WrapPrefix(err, "Unable to generate nonce", 0)
+		return [nonceSize]byte{}, errors.WrapPrefix(err, "Unable to generate nonce", 0)
 	}
 
 	return nonce, nil
 
 }
 
-// EncryptBytes uses nacl/secretbox to encrypt a plaintext. A random nonce
+// encryptBytes uses nacl/secretbox to encrypt a plaintext. A random nonce
 // is generated for each call. The return value is the nonce + ciphertext
 // in a single byte slice.
-func EncryptBytes(keyBytes []byte, plaintext []byte) ([]byte, errors.Error) {
+func encryptBytes(keyBytes []byte, plaintext []byte) ([]byte, errors.Error) {
 
-	if len(keyBytes) != KeySize {
-		return []byte{}, errors.Errorf("Expected key size of %d, got %d", KeySize, len(keyBytes))
+	if len(keyBytes) != keySize {
+		return []byte{}, errors.Errorf("Expected key size of %d, got %d", keySize, len(keyBytes))
 	}
 
-	var key [KeySize]byte
-	copy(key[:], keyBytes[:KeySize])
+	var key [keySize]byte
+	copy(key[:], keyBytes[:keySize])
 
-	nonce, err := Nonce()
+	nonce, err := randomNonce()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -58,25 +58,25 @@ func EncryptBytes(keyBytes []byte, plaintext []byte) ([]byte, errors.Error) {
 
 }
 
-// DecryptBytes uses nacl/secretbox to decrypt a ciphertext. The input must
+// decryptBytes uses nacl/secretbox to decrypt a ciphertext. The input must
 // take the form nonce + ciphertext in a single byte slice.
-func DecryptBytes(keyBytes []byte, bytes []byte) ([]byte, errors.Error) {
+func decryptBytes(keyBytes []byte, bytes []byte) ([]byte, errors.Error) {
 
-	if len(keyBytes) != KeySize {
-		return []byte{}, errors.Errorf("Expected key size of %d, got %d", KeySize, len(keyBytes))
+	if len(keyBytes) != keySize {
+		return []byte{}, errors.Errorf("Expected key size of %d, got %d", keySize, len(keyBytes))
 	}
 
-	if len(bytes) < KeySize {
+	if len(bytes) < keySize {
 		return []byte{}, errors.Errorf("Invalid ciphertext")
 	}
 
-	var key [KeySize]byte
-	copy(key[:], keyBytes[:KeySize])
+	var key [keySize]byte
+	copy(key[:], keyBytes[:keySize])
 
-	var nonce [NonceSize]byte
-	copy(nonce[:], bytes[:NonceSize])
+	var nonce [nonceSize]byte
+	copy(nonce[:], bytes[:nonceSize])
 
-	ciphertext := bytes[NonceSize:]
+	ciphertext := bytes[nonceSize:]
 
 	plaintext, ok := secretbox.Open([]byte{}, ciphertext, &nonce, &key)
 	if !ok {

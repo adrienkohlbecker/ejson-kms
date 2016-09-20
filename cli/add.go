@@ -23,7 +23,7 @@ type addCmd struct {
 	credsPath   string
 	name        string
 	description string
-	creds       *model.JSON
+	creds       *model.Store
 }
 
 func (cmd *addCmd) Cobra() *cobra.Command {
@@ -68,7 +68,7 @@ func (cmd *addCmd) Parse(args []string) errors.Error {
 	}
 	cmd.creds = creds
 
-	if cmd.creds.NameExists(cmd.name) {
+	if cmd.creds.Contains(cmd.name) {
 		return errors.Errorf("A credential with the same name already exists. Use the `rotate` command")
 	}
 
@@ -82,7 +82,7 @@ func (cmd *addCmd) Execute(args []string) errors.Error {
 		return err
 	}
 
-	svc, err := kms.Service()
+	client, err := kms.NewClient()
 	if err != nil {
 		return err
 	}
@@ -90,7 +90,7 @@ func (cmd *addCmd) Execute(args []string) errors.Error {
 	fmt.Printf("KMS: Encrypting plaintext for %s\n", cmd.name)
 
 	now := time.Now().UTC().Truncate(time.Second)
-	cipher := crypto.NewCipher(svc, cmd.creds.KMSKeyArn, cmd.creds.Context)
+	cipher := crypto.NewCipher(client, cmd.creds.KMSKeyID, cmd.creds.EncryptionContext)
 
 	ciphertext, err := cipher.Encrypt(plaintext)
 	if err != nil {

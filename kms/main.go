@@ -14,15 +14,15 @@ type DataKey struct {
 	Plaintext  []byte
 }
 
-// KMS is the interface that is implemented by kms.KMS.
-type KMS interface {
+// Client is the interface that is implemented by kms.KMS.
+type Client interface {
 	GenerateDataKey(*kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error)
 	Decrypt(*kms.DecryptInput) (*kms.DecryptOutput, error)
 }
 
-// Service creates a new AWS session (reads credentials and settings from
+// NewClient creates a new AWS session (reads credentials and settings from
 // the environment), and returns a ready-to-use KMS instance.
-func Service() (KMS, errors.Error) {
+func NewClient() (Client, errors.Error) {
 
 	sess, err := session.NewSession()
 	if err != nil {
@@ -38,19 +38,19 @@ func Service() (KMS, errors.Error) {
 // for immediate use, and it's encrypted version using the KMS master key for
 // storage.
 //
-// A context can be given as key-value pairs. These are stored with the key,
-// logged through AWS CloudTrail (if enabled), and must be provided as is
-// for each future use of the data key.
-func GenerateDataKey(svc KMS, kmsKeyArn string, context map[string]*string) (DataKey, errors.Error) {
+// An encryptionContext can be given as key-value pairs. These are stored with
+// the key, logged through AWS CloudTrail (if enabled), and must be provided
+// as is for each future use of the data key.
+func GenerateDataKey(client Client, kmsKeyID string, encryptionContext map[string]*string) (DataKey, errors.Error) {
 
 	params := &kms.GenerateDataKeyInput{
-		KeyId:             aws.String(kmsKeyArn),
-		EncryptionContext: context,
+		KeyId:             aws.String(kmsKeyID),
+		EncryptionContext: encryptionContext,
 		GrantTokens:       []*string{},
 		KeySpec:           aws.String("AES_256"), // to generate a 32 bytes key for secretbox
 	}
 
-	resp, err := svc.GenerateDataKey(params)
+	resp, err := client.GenerateDataKey(params)
 	if err != nil {
 		return DataKey{}, errors.WrapPrefix(err, "Unable to generate data key", 0)
 	}
@@ -59,17 +59,17 @@ func GenerateDataKey(svc KMS, kmsKeyArn string, context map[string]*string) (Dat
 
 }
 
-// DecryptDataKey takes an encrypted data key and associated context, and
-// returns the key plaintext (along with the ciphertext for consistency).
-func DecryptDataKey(svc KMS, ciphertext []byte, context map[string]*string) (DataKey, errors.Error) {
+// DecryptDataKey takes an encrypted data key and associated encryptionContext,
+// and returns the key plaintext (along with the ciphertext for consistency).
+func DecryptDataKey(client Client, ciphertext []byte, encryptionContext map[string]*string) (DataKey, errors.Error) {
 
 	params := &kms.DecryptInput{
 		CiphertextBlob:    ciphertext,
-		EncryptionContext: context,
+		EncryptionContext: encryptionContext,
 		GrantTokens:       []*string{},
 	}
 
-	resp, err := svc.Decrypt(params)
+	resp, err := client.Decrypt(params)
 	if err != nil {
 		return DataKey{}, errors.WrapPrefix(err, "Unable to decrypt key ciphertext", 0)
 	}

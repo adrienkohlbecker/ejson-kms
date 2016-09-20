@@ -21,7 +21,7 @@ Export a credentials file in it's decrypted form.
 
 type exportCmd struct {
 	credsPath string
-	creds     *model.JSON
+	creds     *model.Store
 	format    string
 	formatter formatter.Formatter
 }
@@ -68,13 +68,13 @@ func (cmd *exportCmd) Parse(args []string) errors.Error {
 
 func (cmd *exportCmd) Execute(args []string) errors.Error {
 
-	svc, err := kms.Service()
+	client, err := kms.NewClient()
 	if err != nil {
 		return err
 	}
 
 	items := make(chan formatter.Item, len(cmd.creds.Credentials))
-	cipher := crypto.NewCipher(svc, cmd.creds.KMSKeyArn, cmd.creds.Context)
+	cipher := crypto.NewCipher(client, cmd.creds.KMSKeyID, cmd.creds.EncryptionContext)
 
 	for _, item := range cmd.creds.Credentials {
 

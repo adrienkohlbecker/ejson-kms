@@ -16,11 +16,11 @@ Create a new credentials file.
 `
 
 type initCmd struct {
-	kmsKeyARN  string
-	credsPath  string
-	rawContext []string
+	kmsKeyID             string
+	credsPath            string
+	rawEncryptionContext []string
 
-	context map[string]*string
+	encryptionContext map[string]*string
 }
 
 func (cmd *initCmd) Cobra() *cobra.Command {
@@ -31,9 +31,9 @@ func (cmd *initCmd) Cobra() *cobra.Command {
 		Long:  strings.TrimSpace(docInit),
 	}
 
-	c.Flags().StringVar(&cmd.kmsKeyARN, "kms-key-arn", "", "The KMS Key ARN of your master encryption key for this file.")
+	c.Flags().StringVar(&cmd.kmsKeyID, "kms-key-id", "", "The KMS Key ID of your master encryption key for this file.")
 	c.Flags().StringVar(&cmd.credsPath, "path", ".credentials.json", "The path of the generated file.")
-	c.Flags().StringSliceVar(&cmd.rawContext, "context", make([]string, 0), "Context to add to the data keys, in the form \"KEY1=VALUE1,KEY2=VALUE2\".")
+	c.Flags().StringSliceVar(&cmd.rawEncryptionContext, "encryption-ontext", make([]string, 0), "Encryption context to add to the data keys, in the form \"KEY1=VALUE1,KEY2=VALUE2\".")
 
 	return c
 }
@@ -49,14 +49,14 @@ func (cmd *initCmd) Parse(args []string) errors.Error {
 		return err
 	}
 
-	context, err := utils.ValidContext(cmd.rawContext)
+	encryptionContext, err := utils.ValidEncryptionContext(cmd.rawEncryptionContext)
 	if err != nil {
 		return err
 	}
-	cmd.context = context
+	cmd.encryptionContext = encryptionContext
 
-	if cmd.kmsKeyARN == "" {
-		return errors.Errorf("No KMS Key ARN provided")
+	if cmd.kmsKeyID == "" {
+		return errors.Errorf("No KMS Key ID provided")
 	}
 
 	return nil
@@ -64,9 +64,9 @@ func (cmd *initCmd) Parse(args []string) errors.Error {
 
 func (cmd *initCmd) Execute(args []string) errors.Error {
 
-	j := &model.JSON{}
-	j.KMSKeyArn = cmd.kmsKeyARN
-	j.Context = cmd.context
+	j := &model.Store{}
+	j.KMSKeyID = cmd.kmsKeyID
+	j.EncryptionContext = cmd.encryptionContext
 	j.Credentials = make([]model.Credential, 0)
 
 	err := j.Export(cmd.credsPath)

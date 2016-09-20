@@ -7,13 +7,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNonce(t *testing.T) {
+func TestRandomNonce(t *testing.T) {
 
 	t.Run("working", func(t *testing.T) {
 
-		nonce, err := Nonce()
+		nonce, err := randomNonce()
 		assert.NoError(t, err)
-		assert.Equal(t, NonceSize, len(nonce))
+		assert.Equal(t, nonceSize, len(nonce))
 
 	})
 
@@ -21,7 +21,7 @@ func TestNonce(t *testing.T) {
 
 		crypto_mock.WithErrorRandReader("testing error", func() {
 
-			_, err := Nonce()
+			_, err := randomNonce()
 			if assert.Error(t, err) {
 				assert.Contains(t, err.Error(), "Unable to generate nonce")
 			}
@@ -38,7 +38,7 @@ func TestEncryptBytes(t *testing.T) {
 
 		keyBytes := []byte("-abcdefabcdefabcdefabcdefabcdef-")
 		plaintext := []byte("plaintext")
-		ciphertext, err := EncryptBytes(keyBytes, plaintext)
+		ciphertext, err := encryptBytes(keyBytes, plaintext)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, ciphertext)
 
@@ -48,7 +48,7 @@ func TestEncryptBytes(t *testing.T) {
 
 		keyBytes := []byte("abcdef")
 		plaintext := []byte("plaintext")
-		_, err := EncryptBytes(keyBytes, plaintext)
+		_, err := encryptBytes(keyBytes, plaintext)
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Expected key size of 32, got 6")
 		}
@@ -61,7 +61,7 @@ func TestEncryptBytes(t *testing.T) {
 
 			keyBytes := []byte("-abcdefabcdefabcdefabcdefabcdef-")
 			plaintext := []byte("plaintext")
-			_, err := EncryptBytes(keyBytes, plaintext)
+			_, err := encryptBytes(keyBytes, plaintext)
 			if assert.Error(t, err) {
 				assert.Contains(t, err.Error(), "Unable to generate nonce")
 			}
@@ -79,7 +79,7 @@ func TestDecryptBytes(t *testing.T) {
 		ciphertext := []byte("fV\x12,\x18\x9cd\xc2\xcbp/\xf1e\xd9}\xd6%j\x05Q\xc7\x1e\xf5\x99\xf8f\xe1\x99=G\x8dp\xb0\xf7\xca\xc8++Կ\x06\xe7i'\xa0\xb6}x\xa6")
 		keyBytes := []byte("-abcdefabcdefabcdefabcdefabcdef-")
 
-		plaintext, err := DecryptBytes(keyBytes, ciphertext)
+		plaintext, err := decryptBytes(keyBytes, ciphertext)
 		assert.NoError(t, err)
 		assert.Equal(t, plaintext, []byte(plaintext))
 
@@ -90,7 +90,7 @@ func TestDecryptBytes(t *testing.T) {
 		ciphertext := []byte("fV\x12,\x18\x9cd\xc2\xcbp/\xf1e\xd9}\xd6%j\x05Q\xc7\x1e\xf5\x99\xf8f\xe1\x99=G\x8dp\xb0\xf7\xca\xc8++Կ\x06\xe7i'\xa0\xb6}x\xa6")
 		keyBytes := []byte("abcdef")
 
-		_, err := DecryptBytes(keyBytes, ciphertext)
+		_, err := decryptBytes(keyBytes, ciphertext)
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Expected key size of 32, got 6")
 		}
@@ -102,7 +102,7 @@ func TestDecryptBytes(t *testing.T) {
 		ciphertext := []byte("abcdef")
 		keyBytes := []byte("-abcdefabcdefabcdefabcdefabcdef-")
 
-		_, err := DecryptBytes(keyBytes, ciphertext)
+		_, err := decryptBytes(keyBytes, ciphertext)
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Invalid ciphertext")
 		}
@@ -114,7 +114,7 @@ func TestDecryptBytes(t *testing.T) {
 		ciphertext := []byte("-abcdefabcdefabcdefabcdefabcdef-")
 		keyBytes := []byte("-abcdefabcdefabcdefabcdefabcdef-")
 
-		_, err := DecryptBytes(keyBytes, ciphertext)
+		_, err := decryptBytes(keyBytes, ciphertext)
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Unable to decrypt ciphertext")
 		}
