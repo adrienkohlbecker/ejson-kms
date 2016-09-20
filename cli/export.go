@@ -83,7 +83,7 @@ func (cmd *exportCmd) Execute(args []string) errors.Error {
 			return errors.WrapPrefix(loopErr, fmt.Sprintf("Unable to decrypt credential: %s", item.Name), 0)
 		}
 
-		items <- formatter.Item{Credential: item, Plaintext: string(plaintext)}
+		items <- formatter.Item{Credential: item, Plaintext: plaintext}
 
 	}
 

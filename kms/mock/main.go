@@ -9,21 +9,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type Mock struct {
+type KMS struct {
 	internalGenerateDataKey func(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error)
 	internalDecrypt         func(*kms.DecryptInput) (*kms.DecryptOutput, error)
 }
 
-func (m *Mock) GenerateDataKey(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error) {
+func (m *KMS) GenerateDataKey(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error) {
 	return m.internalGenerateDataKey(params)
 }
-func (m *Mock) Decrypt(params *kms.DecryptInput) (*kms.DecryptOutput, error) {
+func (m *KMS) Decrypt(params *kms.DecryptInput) (*kms.DecryptOutput, error) {
 	return m.internalDecrypt(params)
 }
 
-func MockGenerateDataKey(t *testing.T, kmsKeyARN string, context map[string]*string, keyCiphertext string, keyPlaintext string) *Mock {
+func GenerateDataKey(t *testing.T, kmsKeyARN string, context map[string]*string, keyCiphertext string, keyPlaintext string) *KMS {
 
-	mock := &Mock{}
+	mock := &KMS{}
 	mock.internalGenerateDataKey = func(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error) {
 
 		expected := &kms.GenerateDataKeyInput{
@@ -47,9 +47,9 @@ func MockGenerateDataKey(t *testing.T, kmsKeyARN string, context map[string]*str
 
 }
 
-func MockGenerateDataKeyWithError(str string) *Mock {
+func GenerateDataKeyWithError(str string) *KMS {
 
-	mock := &Mock{}
+	mock := &KMS{}
 	mock.internalGenerateDataKey = func(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error) {
 		return nil, fmt.Errorf(str)
 	}
@@ -58,9 +58,9 @@ func MockGenerateDataKeyWithError(str string) *Mock {
 
 }
 
-func MockDecrypt(t *testing.T, testKeyARN string, testContext map[string]*string, testKeyCiphertext string, testKeyPlaintext string) *Mock {
+func Decrypt(t *testing.T, testKeyARN string, testContext map[string]*string, testKeyCiphertext string, testKeyPlaintext string) *KMS {
 
-	mock := &Mock{}
+	mock := &KMS{}
 	mock.internalDecrypt = func(params *kms.DecryptInput) (*kms.DecryptOutput, error) {
 
 		expected := &kms.DecryptInput{
@@ -81,8 +81,8 @@ func MockDecrypt(t *testing.T, testKeyARN string, testContext map[string]*string
 	return mock
 }
 
-func MockDecryptWithError(str string) *Mock {
-	mock := &Mock{}
+func DecryptWithError(str string) *KMS {
+	mock := &KMS{}
 	mock.internalDecrypt = func(params *kms.DecryptInput) (*kms.DecryptOutput, error) {
 		return nil, fmt.Errorf(str)
 	}

@@ -99,7 +99,7 @@ func (cmd *rotateCmd) Execute(args []string) errors.Error {
 				return errors.WrapPrefix(loopErr, fmt.Sprintf("Unable to decrypt credential: %s", item.Name), 0)
 			}
 
-			if string(oldPlaintext) == plaintext {
+			if oldPlaintext == plaintext {
 				return errors.Errorf("Trying to rotate a credential and giving the same value")
 			}
 

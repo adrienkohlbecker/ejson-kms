@@ -7,7 +7,9 @@ IFS=$'\n\t'
 
 gometalinter \
   --vendor \
-  --deadline=60s \
+  --tests \
+  --deadline=300s \
+  --concurrency=1 \
   --exclude="should have comment or be unexported" \
   --disable=dupl \
   ./...

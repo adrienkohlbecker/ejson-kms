@@ -24,7 +24,7 @@ func TestEncrypt(t *testing.T) {
 
 	t.Run("working", func(t *testing.T) {
 
-		svc := kms_mock.MockGenerateDataKey(t, testKeyARN, testContext, testKeyCiphertext, testKeyPlaintext)
+		svc := kms_mock.GenerateDataKey(t, testKeyARN, testContext, testKeyCiphertext, testKeyPlaintext)
 
 		crypto_mock.WithConstRandReader(testConstantNonce, func() {
 
@@ -39,7 +39,7 @@ func TestEncrypt(t *testing.T) {
 
 	t.Run("with aws error", func(t *testing.T) {
 
-		svc := kms_mock.MockGenerateDataKeyWithError("testing errors")
+		svc := kms_mock.GenerateDataKeyWithError("testing errors")
 
 		cipher := NewCipher(svc, testKeyARN, testContext)
 		_, err := cipher.Encrypt(testPlaintext)
@@ -50,7 +50,7 @@ func TestEncrypt(t *testing.T) {
 
 	t.Run("with encrypt error", func(t *testing.T) {
 
-		svc := kms_mock.MockGenerateDataKey(t, testKeyARN, testContext, testKeyCiphertext, testKeyPlaintext)
+		svc := kms_mock.GenerateDataKey(t, testKeyARN, testContext, testKeyCiphertext, testKeyPlaintext)
 
 		crypto_mock.WithErrorRandReader("testing error", func() {
 
@@ -68,7 +68,7 @@ func TestDecrypt(t *testing.T) {
 
 	t.Run("working", func(t *testing.T) {
 
-		svc := kms_mock.MockDecrypt(t, testKeyARN, testContext, testKeyCiphertext, testKeyPlaintext)
+		svc := kms_mock.Decrypt(t, testKeyARN, testContext, testKeyCiphertext, testKeyPlaintext)
 
 		cipher := NewCipher(svc, testKeyARN, testContext)
 		plaintext, err := cipher.Decrypt(testCiphertext)
@@ -80,7 +80,7 @@ func TestDecrypt(t *testing.T) {
 
 	t.Run("with decode error", func(t *testing.T) {
 
-		svc := &kms_mock.Mock{}
+		svc := &kms_mock.KMS{}
 		cipher := NewCipher(svc, testKeyARN, testContext)
 		_, err := cipher.Decrypt("abc")
 		if assert.Error(t, err) {
@@ -91,7 +91,7 @@ func TestDecrypt(t *testing.T) {
 
 	t.Run("with aws error", func(t *testing.T) {
 
-		svc := kms_mock.MockDecryptWithError("testing errors")
+		svc := kms_mock.DecryptWithError("testing errors")
 
 		cipher := NewCipher(svc, testKeyARN, testContext)
 		_, err := cipher.Decrypt(testCiphertext)
@@ -103,7 +103,7 @@ func TestDecrypt(t *testing.T) {
 
 	t.Run("with decrypt error", func(t *testing.T) {
 
-		svc := kms_mock.MockDecrypt(t, testKeyARN, testContext, testKeyCiphertext, "notlongenough")
+		svc := kms_mock.Decrypt(t, testKeyARN, testContext, testKeyCiphertext, "notlongenough")
 
 		cipher := NewCipher(svc, testKeyARN, testContext)
 		_, err := cipher.Decrypt(testCiphertext)

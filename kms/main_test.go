@@ -56,7 +56,7 @@ func TestGenerateDataKey(t *testing.T) {
 
 	t.Run("without AWS error", func(t *testing.T) {
 
-		svc := kms_mock.MockGenerateDataKey(t, testKeyARN, testContext, testKeyCiphertext, testKeyPlaintext)
+		svc := kms_mock.GenerateDataKey(t, testKeyARN, testContext, testKeyCiphertext, testKeyPlaintext)
 
 		expected := DataKey{
 			Ciphertext: []byte(testKeyCiphertext),
@@ -71,7 +71,7 @@ func TestGenerateDataKey(t *testing.T) {
 
 	t.Run("with AWS error", func(t *testing.T) {
 
-		svc := kms_mock.MockGenerateDataKeyWithError("testing errors")
+		svc := kms_mock.GenerateDataKeyWithError("testing errors")
 
 		_, err := GenerateDataKey(svc, testKeyARN, testContext)
 		if assert.Error(t, err) {
@@ -87,7 +87,7 @@ func TestDecryptDataKey(t *testing.T) {
 
 	t.Run("without AWS error", func(t *testing.T) {
 
-		svc := kms_mock.MockDecrypt(t, testKeyARN, testContext, testKeyCiphertext, testKeyPlaintext)
+		svc := kms_mock.Decrypt(t, testKeyARN, testContext, testKeyCiphertext, testKeyPlaintext)
 
 		expected := DataKey{
 			Ciphertext: []byte(testKeyCiphertext),
@@ -102,7 +102,7 @@ func TestDecryptDataKey(t *testing.T) {
 
 	t.Run("with AWS error", func(t *testing.T) {
 
-		svc := kms_mock.MockDecryptWithError("testing errors")
+		svc := kms_mock.DecryptWithError("testing errors")
 
 		_, err := DecryptDataKey(svc, []byte(testKeyCiphertext), testContext)
 		if assert.Error(t, err) {
