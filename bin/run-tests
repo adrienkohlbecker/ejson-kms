@@ -8,10 +8,7 @@ IFS=$'\n\t'
 REPORTS_PATH=${REPORTS_PATH:=".artifacts"}
 mkdir -p "$REPORTS_PATH"
 
-PKGS=$(go list ./... | grep -v /vendor/)
-PKGS_DELIM=$(echo "$PKGS" | tr '\n' ',')
-
-for PKG in $PKGS; do
+for PKG in $(go list ./... | grep -v /vendor/); do
 
   PKG_UNDERSCORE=$(echo "$PKG" | sed 's|github.com/adrienkohlbecker/||' | sed 's|/|_|g')
 
@@ -19,9 +16,7 @@ for PKG in $PKGS; do
   OUT=$(go test -v \
     -covermode=count \
     -coverprofile="$REPORTS_PATH/$PKG_UNDERSCORE.coverprofile" \
-    -coverpkg="$PKGS_DELIM" \
     "$PKG" 2>&1 \
-    | grep -v "warning: no packages being tested depend on" \
     | grep -v "coverage: " \
     | tee >(cat - >&5)
   )
