@@ -5,4 +5,11 @@ set -eu
 set -o pipefail
 IFS=$'\n\t'
 
-shellcheck bin/*
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+  ./vendor/shellcheck-0.4.4-linux bin/*
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  shellcheck bin/*
+else
+  echo "unsupported os"
+  exit 1
+fi
