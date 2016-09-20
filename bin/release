@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Unofficial bash strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -eu
+set -o pipefail
+IFS=$'\n\t'
+
+VERSION=$1
+SHA1=$(git rev-parse HEAD)
+BUILT_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+git tag --sign --local-user="0x20CC21AF" --annotate --message "$VERSION" "$VERSION" HEAD
+
+VERSION=$VERSION SHA1=$SHA1 BUILT_AT=$BUILT_AT GOOS=darwin GOARCH=amd64 bin/build
+VERSION=$VERSION SHA1=$SHA1 BUILT_AT=$BUILT_AT GOOS=linux GOARCH=amd64 bin/build
+VERSION=$VERSION SHA1=$SHA1 BUILT_AT=$BUILT_AT GOOS=windows GOARCH=amd64 bin/build

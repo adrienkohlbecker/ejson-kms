@@ -1,8 +1,0 @@
-#!/bin/bash
-
-# Unofficial bash strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
-set -eu
-set -o pipefail
-IFS=$'\n\t'
-
-env GOOS=darwin GOARCH=amd64 go build -v -o dist/ejson-kms-darwin github.com/adrienkohlbecker/ejson-kms

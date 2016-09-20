@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Unofficial bash strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -eu
+set -o pipefail
+IFS=$'\n\t'
+
+OUTPUT=".dist/ejson-kms-$VERSION-$GOOS-$GOARCH"
+
+if [ "$GOOS" = "windows" ]; then
+  OUTPUT="$OUTPUT.exe"
+fi
+
+mkdir -p .dist
+env go build \
+  -v \
+  -ldflags "-X 'github.com/adrienkohlbecker/ejson-kms/cli.Version=$VERSION' -X 'github.com/adrienkohlbecker/ejson-kms/cli.SHA1=$SHA1' -X 'github.com/adrienkohlbecker/ejson-kms/cli.BuiltAt=$BUILT_AT'" \
+  -o "$OUTPUT" \
+  github.com/adrienkohlbecker/ejson-kms
+
+gpg --local-user "0x20CC21AF" --armor --detach-sign "$OUTPUT"
+gpg --verify "$OUTPUT.asc"
