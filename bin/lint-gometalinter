@@ -1,15 +1,17 @@
 #!/bin/bash
 
 # Unofficial bash strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
-set -eu
+set -eux
 set -o pipefail
 IFS=$'\n\t'
 
+# gotype override fixes issue with gotype, see https://github.com/golang/go/issues/12703
 gometalinter \
   --vendor \
   --tests \
   --deadline=300s \
-  --concurrency=1 \
+  --concurrency="$(nproc)" \
   --exclude="should have comment or be unexported" \
+  --linter="gotype:sh -c 'go test -i {path} && gotype -a -e {path}':^(?P<path>.*?\.go):(?P<line>\d+):(?P<col>\d+):\s*(?P<message>.*)$" \
   --disable=dupl \
   ./...
