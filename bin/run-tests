@@ -12,6 +12,8 @@ PKGS=$(go list ./... | grep -v /vendor/)
 
 if [ ! -z "${CIRCLECI:-}" ]; then
 
+  PKGS_DELIM=$(echo "$PKGS" | tr '\n' ',')
+
   for PKG in $PKGS; do
 
     PKG_UNDERSCORE=$(echo "$PKG" | sed 's|github.com/adrienkohlbecker/||' | sed 's|/|_|g')
@@ -20,7 +22,9 @@ if [ ! -z "${CIRCLECI:-}" ]; then
     OUT=$(go test -v \
       -covermode=count \
       -coverprofile="$REPORTS_PATH/$PKG_UNDERSCORE.coverprofile" \
+      -coverpkg="$PKGS_DELIM" \
       "$PKG" 2>&1 \
+      | grep -v "warning: no packages being tested depend on" \
       | grep -v "coverage: " \
       | tee >(cat - >&5)
     )
