@@ -18,8 +18,21 @@ Complete documentation is available at https://github.com/adrienkohlbecker/ejson
 `
 
 // App is the main ejson-kms command.
-var App = &cobra.Command{
-	Use:   "ejson-kms",
-	Short: "ejson-kms manages your secrets using Amazon KMS and a simple JSON file",
-	Long:  strings.TrimSpace(docApp),
+func App() *cobra.Command {
+
+	var cmd = &cobra.Command{
+		Use:   "ejson-kms",
+		Short: "ejson-kms manages your secrets using Amazon KMS and a simple JSON file",
+		Long:  strings.TrimSpace(docApp),
+	}
+
+	cmd.AddCommand(addCmd())
+	cmd.AddCommand(exportCmd())
+	cmd.AddCommand(initCmd())
+	cmd.AddCommand(rotateKMSKeyCmd())
+	cmd.AddCommand(rotateCmd())
+	cmd.AddCommand(versionCmd())
+
+	return cmd
+
 }

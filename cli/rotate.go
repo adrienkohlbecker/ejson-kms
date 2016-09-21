@@ -30,10 +30,6 @@ ejson-kms rotate password
 cat tls-cert.key | ejson-kms rotate tls_key
 `
 
-func init() {
-	App.AddCommand(rotateCmd())
-}
-
 func rotateCmd() *cobra.Command {
 
 	cmd := &cobra.Command{

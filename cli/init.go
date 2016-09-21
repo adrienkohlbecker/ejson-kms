@@ -31,10 +31,6 @@ ejson-kms init --kms-key-id="alias/MyAliasName" --encryption-context="KEY1=VALUE
 ejson-kms init --kms-key-id="12345678-1234-1234-1234-123456789012" --path="secrets.json"
 `
 
-func init() {
-	App.AddCommand(initCmd())
-}
-
 func initCmd() *cobra.Command {
 
 	cmd := &cobra.Command{

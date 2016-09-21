@@ -30,10 +30,6 @@ ejson-kms export --format=json
 ejson-kms export --path=secrets.json --format=dotenv
 `
 
-func init() {
-	App.AddCommand(exportCmd())
-}
-
 func exportCmd() *cobra.Command {
 
 	cmd := &cobra.Command{

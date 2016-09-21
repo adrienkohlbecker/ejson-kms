@@ -10,7 +10,7 @@ import (
 
 func main() {
 
-	err := cli.App.Execute()
+	err := cli.App().Execute()
 	if err != nil {
 
 		// Error contents is already printed out by cobra

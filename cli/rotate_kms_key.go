@@ -24,10 +24,6 @@ const exampleRotateKMSKey = `
 ejson-kms rotate-kms-key arn:aws:kms:us-east-1:123456789012:alias/MyAliasName
 `
 
-func init() {
-	App.AddCommand(rotateKMSKeyCmd())
-}
-
 func rotateKMSKeyCmd() *cobra.Command {
 
 	cmd := &cobra.Command{

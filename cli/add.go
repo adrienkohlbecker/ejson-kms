@@ -36,10 +36,6 @@ ejson-kms add password --description="Nuclear launch code"
 cat tls-cert.key | ejson-kms add tls_key
 `
 
-func init() {
-	App.AddCommand(addCmd())
-}
-
 func addCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
