@@ -80,21 +80,14 @@ func (cmd *printCmd) Execute(args []string) errors.Error {
 	}
 
 	cipher := crypto.NewCipher(client, cmd.creds.KMSKeyID, cmd.creds.EncryptionContext)
+	item := cmd.creds.Find(cmd.name)
 
-	for _, item := range cmd.creds.Credentials {
-
-		if item.Name == cmd.name {
-
-			plaintext, loopErr := cipher.Decrypt(item.Ciphertext)
-			if loopErr != nil {
-				return errors.WrapPrefix(loopErr, fmt.Sprintf("Unable to decrypt credential: %s", item.Name), 0)
-			}
-
-			fmt.Printf("%s", plaintext)
-
-		}
-
+	plaintext, err := cipher.Decrypt(item.Ciphertext)
+	if err != nil {
+		return errors.WrapPrefix(err, fmt.Sprintf("Unable to decrypt credential: %s", item.Name), 0)
 	}
+
+	fmt.Printf("%s", plaintext)
 
 	return nil
 }

@@ -80,15 +80,7 @@ func Load(path string) (*Store, errors.Error) {
 // Contains is a convenience wrapper to check for the existence of a given
 // credential in the file.
 func (j *Store) Contains(name string) bool {
-
-	for _, item := range j.Credentials {
-		if item.Name == name {
-			return true
-		}
-	}
-
-	return false
-
+	return j.Find(name) != nil
 }
 
 // Save takes a Store struct and writes it to disk to the given path.
@@ -119,7 +111,7 @@ func (j *Store) Add(client kms.Client, plaintext string, name string, descriptio
 
 	ciphertext, err := cipher.Encrypt(plaintext)
 	if err != nil {
-		return errors.WrapPrefix(err, "Unable to encrypt credential", 0)
+		return err
 	}
 
 	cred := &Credential{
@@ -144,10 +136,10 @@ func (j *Store) ExportPlaintext(client kms.Client) (chan formatter.Item, errors.
 
 	for _, item := range j.Credentials {
 
-		plaintext, loopErr := cipher.Decrypt(item.Ciphertext)
-		if loopErr != nil {
+		plaintext, err := cipher.Decrypt(item.Ciphertext)
+		if err != nil {
 			close(items)
-			return items, errors.WrapPrefix(loopErr, fmt.Sprintf("Unable to decrypt credential: %s", item.Name), 0)
+			return items, err
 		}
 
 		items <- formatter.Item{Name: item.Name, Plaintext: plaintext}
@@ -156,5 +148,20 @@ func (j *Store) ExportPlaintext(client kms.Client) (chan formatter.Item, errors.
 
 	close(items)
 	return items, nil
+
+}
+
+// Find returns the credential corresponding to a name
+func (j *Store) Find(name string) *Credential {
+
+	for _, item := range j.Credentials {
+
+		if item.Name == name {
+			return item
+		}
+
+	}
+
+	return nil
 
 }

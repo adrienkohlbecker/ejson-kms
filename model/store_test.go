@@ -162,7 +162,7 @@ func TestAdd(t *testing.T) {
 		crypto_mock.WithErrorRandReader("testing errors", func() {
 			err := store.Add(client, testPlaintext, testName, testDescription)
 			if assert.Error(t, err) {
-				assert.Contains(t, err.Error(), "Unable to encrypt credential")
+				assert.Contains(t, err.Error(), "Unable to generate nonce")
 			}
 		})
 
@@ -224,12 +224,22 @@ func TestExportPlaintext(t *testing.T) {
 		client = kms_mock.DecryptWithError("testing error")
 		items, err := store.ExportPlaintext(client)
 		if assert.Error(t, err) {
-			assert.Contains(t, err.Error(), "Unable to decrypt credential")
+			assert.Contains(t, err.Error(), "Unable to decrypt key ciphertext")
 		}
 
 		_, open := <-items
 		assert.False(t, open)
 
 	})
+
+}
+
+func TestFind(t *testing.T) {
+
+	cred := &Credential{Name: "my_cred"}
+	store := &Store{Credentials: []*Credential{cred}}
+
+	assert.Equal(t, store.Find("my_cred"), cred)
+	assert.Nil(t, store.Find("other"))
 
 }
