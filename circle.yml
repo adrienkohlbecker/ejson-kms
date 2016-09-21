@@ -9,6 +9,6 @@ dependencies:
 
 test:
   override:
+    - docker run -v $CIRCLE_TEST_REPORTS:/circle -e REPORTS_PATH=/circle -e COVERALLS_TOKEN=$COVERALLS_TOKEN -e CIRCLECI=$CIRCLECI ejson-kms bin/run-tests
     - docker run ejson-kms bin/lint-shellcheck
     - docker run ejson-kms bin/lint-gometalinter
-    - docker run -v $CIRCLE_TEST_REPORTS:/circle -e REPORTS_PATH=/circle -e COVERALLS_TOKEN=$COVERALLS_TOKEN -e CIRCLECI=$CIRCLECI ejson-kms bin/run-tests
