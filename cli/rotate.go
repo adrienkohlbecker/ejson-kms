@@ -17,84 +17,71 @@ const docRotate = `
 Rotate a credential from a credentials file.
 `
 
-type rotateCmd struct {
-	credsPath string
-	name      string
-
-	creds *model.Store
+func init() {
+	App.AddCommand(rotateCmd())
 }
 
-func (cmd *rotateCmd) Cobra() *cobra.Command {
+func rotateCmd() *cobra.Command {
 
-	c := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "rotate NAME",
 		Short: "Rotate a credential from a credentials file.",
 		Long:  strings.TrimSpace(docRotate),
 	}
 
-	c.Flags().StringVar(&cmd.credsPath, "path", ".credentials.json", "The path of the generated file.")
+	var storePath = ".credentials.json"
+	cmd.Flags().StringVar(&storePath, "path", storePath, "The path of the generated file.")
 
-	return c
-}
+	cmd.RunE = func(_ *cobra.Command, args []string) error {
 
-func init() {
-	addCommand(app, &rotateCmd{})
-}
+		err := utils.ValidCredentialsPath(storePath)
+		if err != nil {
+			return err
+		}
 
-func (cmd *rotateCmd) Parse(args []string) errors.Error {
+		name, err := utils.HasOneArgument(args)
+		if err != nil {
+			return err
+		}
 
-	err := utils.ValidCredentialsPath(cmd.credsPath)
-	if err != nil {
-		return err
+		err = utils.ValidName(name)
+		if err != nil {
+			return err
+		}
+
+		store, err := model.Load(storePath)
+		if err != nil {
+			return errors.WrapPrefix(err, "Unable to load JSON", 0)
+		}
+
+		if !store.Contains(name) {
+			return errors.Errorf("No credential with the given name has been found. Use the `add` command")
+		}
+
+		plaintext, err := utils.ReadFromFile(os.Stdin)
+		if err != nil {
+			return err
+		}
+
+		client, err := kms.NewClient()
+		if err != nil {
+			return err
+		}
+
+		err = store.Rotate(client, name, plaintext)
+		if err != nil {
+			return errors.WrapPrefix(err, "Unable to rotate credential", 0)
+		}
+
+		err = store.Save(storePath)
+		if err != nil {
+			return errors.WrapPrefix(err, "Unable to save JSON", 0)
+		}
+
+		fmt.Printf("Exported new credentials file at: %s\n", storePath)
+
+		return nil
 	}
 
-	name, err := utils.HasOneArgument(args)
-	if err != nil {
-		return err
-	}
-	cmd.name = name
-
-	err = utils.ValidName(cmd.name)
-	if err != nil {
-		return err
-	}
-
-	creds, err := model.Load(cmd.credsPath)
-	if err != nil {
-		return errors.WrapPrefix(err, "Unable to load JSON", 0)
-	}
-	cmd.creds = creds
-
-	if !cmd.creds.Contains(cmd.name) {
-		return errors.Errorf("No credential with the given name has been found. Use the `add` command")
-	}
-
-	return nil
-}
-
-func (cmd *rotateCmd) Execute(args []string) errors.Error {
-
-	plaintext, err := utils.ReadFromFile(os.Stdin)
-	if err != nil {
-		return err
-	}
-
-	client, err := kms.NewClient()
-	if err != nil {
-		return err
-	}
-
-	err = cmd.creds.Rotate(client, cmd.name, plaintext)
-	if err != nil {
-		return errors.WrapPrefix(err, "Unable to rotate credential", 0)
-	}
-
-	err = cmd.creds.Save(cmd.credsPath)
-	if err != nil {
-		return errors.WrapPrefix(err, "Unable to save JSON", 0)
-	}
-
-	fmt.Printf("Exported new credentials file at: %s\n", cmd.credsPath)
-
-	return nil
+	return cmd
 }

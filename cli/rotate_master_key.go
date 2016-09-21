@@ -16,70 +16,58 @@ const docRotateMasterKey = `
 Rotate a credential from a credentials file.
 `
 
-type rotateMasterKeyCmd struct {
-	credsPath   string
-	newKMSKeyID string
-
-	creds *model.Store
+func init() {
+	App.AddCommand(rotateMasterKeyCmd())
 }
 
-func (cmd *rotateMasterKeyCmd) Cobra() *cobra.Command {
+func rotateMasterKeyCmd() *cobra.Command {
 
-	c := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "rotate-master-key NEW_KMS_KEY_ID",
 		Short: "Rotate a master key from a credentials file.",
 		Long:  strings.TrimSpace(docRotateMasterKey),
 	}
 
-	c.Flags().StringVar(&cmd.credsPath, "path", ".credentials.json", "The path of the generated file.")
+	var storePath = ".credentials.json"
+	cmd.Flags().StringVar(&storePath, "path", storePath, "The path of the generated file.")
 
-	return c
-}
+	cmd.RunE = func(_ *cobra.Command, args []string) error {
 
-func init() {
-	addCommand(app, &rotateMasterKeyCmd{})
-}
+		err := utils.ValidCredentialsPath(storePath)
+		if err != nil {
+			return err
+		}
 
-func (cmd *rotateMasterKeyCmd) Parse(args []string) errors.Error {
+		newKMSKeyID, err := utils.HasOneArgument(args)
+		if err != nil {
+			return err
+		}
 
-	err := utils.ValidCredentialsPath(cmd.credsPath)
-	if err != nil {
-		return err
+		store, err := model.Load(storePath)
+		if err != nil {
+			return errors.WrapPrefix(err, "Unable to load JSON", 0)
+		}
+
+		client, err := kms.NewClient()
+		if err != nil {
+			return err
+		}
+
+		err = store.RotateMasterKey(client, newKMSKeyID)
+		if err != nil {
+			return errors.WrapPrefix(err, "Unable to rotate the master key", 0)
+		}
+
+		err = store.Save(storePath)
+		if err != nil {
+			return errors.WrapPrefix(err, "Unable to save JSON", 0)
+		}
+
+		fmt.Printf("Exported new credentials file at: %s\n", storePath)
+
+		return nil
+
 	}
 
-	newKMSKeyID, err := utils.HasOneArgument(args)
-	if err != nil {
-		return err
-	}
-	cmd.newKMSKeyID = newKMSKeyID
-
-	creds, err := model.Load(cmd.credsPath)
-	if err != nil {
-		return errors.WrapPrefix(err, "Unable to load JSON", 0)
-	}
-	cmd.creds = creds
-
-	return nil
-}
-
-func (cmd *rotateMasterKeyCmd) Execute(args []string) errors.Error {
-
-	client, err := kms.NewClient()
-	if err != nil {
-		return err
-	}
-
-	err = cmd.creds.RotateMasterKey(client, cmd.newKMSKeyID)
-	if err != nil {
-		return errors.WrapPrefix(err, "Unable to rotate the master key", 0)
-	}
-
-	err = cmd.creds.Save(cmd.credsPath)
-	if err != nil {
-		return errors.WrapPrefix(err, "Unable to save JSON", 0)
-	}
-
-	fmt.Printf("Exported new credentials file at: %s\n", cmd.credsPath)
-
-	return nil
+	return cmd
 }

@@ -3,37 +3,25 @@ package cli
 import (
 	"fmt"
 
-	"github.com/adrienkohlbecker/errors"
 	"github.com/spf13/cobra"
 )
 
-var (
-	Version string
-	SHA1    string
-	BuiltAt string
-)
+func init() {
+	App.AddCommand(versionCmd())
+}
 
-type versionCmd struct{}
+func versionCmd() *cobra.Command {
 
-func (cmd *versionCmd) Cobra() *cobra.Command {
-
-	c := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "version",
 		Short: "Prints the version of ejson-kms",
 	}
 
-	return c
-}
+	cmd.RunE = func(_ *cobra.Command, args []string) error {
+		fmt.Printf("ejson-kms %s (%s) built %s\n", version, sha1, builtAt)
+		return nil
+	}
 
-func init() {
-	addCommand(app, &versionCmd{})
-}
+	return cmd
 
-func (cmd *versionCmd) Parse(args []string) errors.Error {
-	return nil
-}
-
-func (cmd *versionCmd) Execute(args []string) errors.Error {
-	fmt.Printf("ejson-kms %s (%s) built %s\n", Version, SHA1, BuiltAt)
-	return nil
 }

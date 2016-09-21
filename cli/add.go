@@ -17,85 +17,78 @@ const docAdd = `
 Add a credential to a credentials file.
 `
 
-type addCmd struct {
-	credsPath   string
-	name        string
-	description string
-	creds       *model.Store
+func init() {
+	App.AddCommand(addCmd())
 }
 
-func (cmd *addCmd) Cobra() *cobra.Command {
+func addCmd() *cobra.Command {
 
-	c := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "add NAME",
 		Short: "Add a credential to a credentials file.",
 		Long:  strings.TrimSpace(docAdd),
 	}
 
-	c.Flags().StringVar(&cmd.credsPath, "path", ".credentials.json", "The path of the generated file.")
-	c.Flags().StringVar(&cmd.description, "description", "", "Description of the credential.")
+	var (
+		storePath   = ".credentials.json"
+		description = ""
+	)
 
-	return c
-}
+	cmd.Flags().StringVar(&storePath, "path", storePath, "The path of the generated file.")
+	cmd.Flags().StringVar(&description, "description", description, "Description of the credential.")
 
-func init() {
-	addCommand(app, &addCmd{})
-}
+	cmd.RunE = func(_ *cobra.Command, args []string) error {
 
-func (cmd *addCmd) Parse(args []string) errors.Error {
+		err := utils.ValidCredentialsPath(storePath)
+		if err != nil {
+			return err
+		}
 
-	err := utils.ValidCredentialsPath(cmd.credsPath)
-	if err != nil {
-		return err
+		name, err := utils.HasOneArgument(args)
+		if err != nil {
+			return err
+		}
+
+		err = utils.ValidName(name)
+		if err != nil {
+			return err
+		}
+
+		store, err := model.Load(storePath)
+		if err != nil {
+			return errors.WrapPrefix(err, "Unable to load JSON", 0)
+		}
+
+		if store.Contains(name) {
+			return errors.Errorf("A credential with the same name already exists. Use the `rotate` command")
+		}
+
+		plaintext, err := utils.ReadFromFile(os.Stdin)
+		if err != nil {
+			return err
+		}
+
+		client, err := kms.NewClient()
+		if err != nil {
+			return err
+		}
+
+		err = store.Add(client, plaintext, name, description)
+		if err != nil {
+			return errors.WrapPrefix(err, "Unable to add credential", 0)
+		}
+
+		err = store.Save(storePath)
+		if err != nil {
+			return errors.WrapPrefix(err, "Unable to save JSON", 0)
+		}
+
+		fmt.Printf("Exported new credentials file at: %s\n", storePath)
+
+		return nil
+
 	}
 
-	name, err := utils.HasOneArgument(args)
-	if err != nil {
-		return err
-	}
-	cmd.name = name
+	return cmd
 
-	err = utils.ValidName(cmd.name)
-	if err != nil {
-		return err
-	}
-
-	creds, err := model.Load(cmd.credsPath)
-	if err != nil {
-		return errors.WrapPrefix(err, "Unable to load JSON", 0)
-	}
-	cmd.creds = creds
-
-	if cmd.creds.Contains(cmd.name) {
-		return errors.Errorf("A credential with the same name already exists. Use the `rotate` command")
-	}
-
-	return nil
-}
-
-func (cmd *addCmd) Execute(args []string) errors.Error {
-
-	plaintext, err := utils.ReadFromFile(os.Stdin)
-	if err != nil {
-		return err
-	}
-
-	client, err := kms.NewClient()
-	if err != nil {
-		return err
-	}
-
-	err = cmd.creds.Add(client, plaintext, cmd.name, cmd.description)
-	if err != nil {
-		return errors.WrapPrefix(err, "Unable to add credential", 0)
-	}
-
-	err = cmd.creds.Save(cmd.credsPath)
-	if err != nil {
-		return errors.WrapPrefix(err, "Unable to save JSON", 0)
-	}
-
-	fmt.Printf("Exported new credentials file at: %s\n", cmd.credsPath)
-
-	return nil
 }

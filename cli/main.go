@@ -1,42 +1,24 @@
 package cli
 
 import (
-	"os"
+	"strings"
 
-	"github.com/adrienkohlbecker/ejson-kms/utils"
-	"github.com/adrienkohlbecker/errors"
 	"github.com/spf13/cobra"
 )
 
-type command interface {
-	Cobra() *cobra.Command
-	Parse(args []string) errors.Error
-	Execute(args []string) errors.Error
-}
+var (
+	version string
+	sha1    string
+	builtAt string
+)
 
-func Execute() error {
-	return app.Execute()
-}
+const docApp = `
+ejson-kms manages your secrets using Amazon KMS and a simple JSON file.
+Complete documentation is available at https://github.com/adrienkohlbecker/ejson-kms
+`
 
-func addCommand(app *cobra.Command, cmd command) {
-
-	cobraCmd := cmd.Cobra()
-	cobraCmd.Run = func(thisCmd *cobra.Command, args []string) {
-
-		err := cmd.Parse(args)
-		if err != nil {
-			utils.Fatal(cobraCmd, err)
-			os.Exit(1)
-		}
-
-		err = cmd.Execute(args)
-		if err != nil {
-			utils.Fatal(cobraCmd, err)
-			os.Exit(1)
-		}
-
-	}
-
-	app.AddCommand(cobraCmd)
-
+var App = &cobra.Command{
+	Use:   "ejson-kms",
+	Short: "ejson-kms manages your secrets using Amazon KMS and a simple JSON file",
+	Long:  strings.TrimSpace(docApp),
 }

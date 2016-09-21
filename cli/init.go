@@ -15,63 +15,55 @@ const docInit = `
 Create a new credentials file.
 `
 
-type initCmd struct {
-	kmsKeyID             string
-	credsPath            string
-	rawEncryptionContext []string
-
-	encryptionContext map[string]*string
+func init() {
+	App.AddCommand(initCmd())
 }
 
-func (cmd *initCmd) Cobra() *cobra.Command {
+func initCmd() *cobra.Command {
 
-	c := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "init",
 		Short: "Create a new credentials file",
 		Long:  strings.TrimSpace(docInit),
 	}
 
-	c.Flags().StringVar(&cmd.kmsKeyID, "kms-key-id", "", "The KMS Key ID of your master encryption key for this file.")
-	c.Flags().StringVar(&cmd.credsPath, "path", ".credentials.json", "The path of the generated file.")
-	c.Flags().StringSliceVar(&cmd.rawEncryptionContext, "encryption-ontext", make([]string, 0), "Encryption context to add to the data keys, in the form \"KEY1=VALUE1,KEY2=VALUE2\".")
+	var (
+		kmsKeyID             = ""
+		storePath            = ".credentials.json"
+		rawEncryptionContext = make([]string, 0)
+	)
 
-	return c
-}
+	cmd.Flags().StringVar(&kmsKeyID, "kms-key-id", kmsKeyID, "The KMS Key ID of your master encryption key for this file.")
+	cmd.Flags().StringVar(&storePath, "path", storePath, "The path of the generated file.")
+	cmd.Flags().StringSliceVar(&rawEncryptionContext, "encryption-ontext", rawEncryptionContext, "Encryption context to add to the data keys, in the form \"KEY1=VALUE1,KEY2=VALUE2\".")
 
-func init() {
-	addCommand(app, &initCmd{})
-}
+	cmd.RunE = func(_ *cobra.Command, args []string) error {
 
-func (cmd *initCmd) Parse(args []string) errors.Error {
+		err := utils.ValidNewCredentialsPath(storePath)
+		if err != nil {
+			return err
+		}
 
-	err := utils.ValidNewCredentialsPath(cmd.credsPath)
-	if err != nil {
-		return err
+		encryptionContext, err := utils.ValidEncryptionContext(rawEncryptionContext)
+		if err != nil {
+			return err
+		}
+
+		if kmsKeyID == "" {
+			return errors.Errorf("No KMS Key ID provided")
+		}
+
+		store := model.NewStore(kmsKeyID, encryptionContext)
+
+		err = store.Save(storePath)
+		if err != nil {
+			return errors.WrapPrefix(err, "Unable to save JSON", 0)
+		}
+
+		fmt.Printf("Exported new credentials file at: %s\n", storePath)
+		return nil
+
 	}
 
-	encryptionContext, err := utils.ValidEncryptionContext(cmd.rawEncryptionContext)
-	if err != nil {
-		return err
-	}
-	cmd.encryptionContext = encryptionContext
-
-	if cmd.kmsKeyID == "" {
-		return errors.Errorf("No KMS Key ID provided")
-	}
-
-	return nil
-}
-
-func (cmd *initCmd) Execute(args []string) errors.Error {
-
-	store := model.NewStore(cmd.kmsKeyID, cmd.encryptionContext)
-
-	err := store.Save(cmd.credsPath)
-	if err != nil {
-		return errors.WrapPrefix(err, "Unable to save JSON", 0)
-	}
-
-	fmt.Printf("Exported new credentials file at: %s\n", cmd.credsPath)
-
-	return nil
+	return cmd
 }

@@ -7,7 +7,6 @@ import (
 	"github.com/adrienkohlbecker/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/adrienkohlbecker/ejson-kms/formatter"
 	"github.com/adrienkohlbecker/ejson-kms/kms"
 	"github.com/adrienkohlbecker/ejson-kms/model"
 	"github.com/adrienkohlbecker/ejson-kms/utils"
@@ -17,69 +16,61 @@ const docExport = `
 Export a credentials file in it's decrypted form.
 `
 
-type exportCmd struct {
-	credsPath string
-	creds     *model.Store
-	format    string
-	formatter formatter.Formatter
+func init() {
+	App.AddCommand(exportCmd())
 }
 
-func (cmd *exportCmd) Cobra() *cobra.Command {
+func exportCmd() *cobra.Command {
 
-	c := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "export",
 		Short: "Export a credentials file in it's decrypted form.",
 		Long:  strings.TrimSpace(docExport),
 	}
 
-	c.Flags().StringVar(&cmd.credsPath, "path", ".credentials.json", "The path of the generated file.")
-	c.Flags().StringVar(&cmd.format, "format", "bash", "The format of the generated output (bash|dotenv|json)")
+	var (
+		storePath = ".credentials.json"
+		format    = "bash"
+	)
 
-	return c
-}
+	cmd.Flags().StringVar(&storePath, "path", storePath, "The path of the generated file.")
+	cmd.Flags().StringVar(&format, "format", format, "The format of the generated output (bash|dotenv|json)")
 
-func init() {
-	addCommand(app, &exportCmd{})
-}
+	cmd.RunE = func(_ *cobra.Command, args []string) error {
 
-func (cmd *exportCmd) Parse(args []string) errors.Error {
+		err := utils.ValidCredentialsPath(storePath)
+		if err != nil {
+			return err
+		}
 
-	err := utils.ValidCredentialsPath(cmd.credsPath)
-	if err != nil {
-		return err
+		store, err := model.Load(storePath)
+		if err != nil {
+			return errors.WrapPrefix(err, "Unable to load JSON", 0)
+		}
+
+		formatter, err := utils.ValidFormatter(format)
+		if err != nil {
+			return err
+		}
+
+		client, err := kms.NewClient()
+		if err != nil {
+			return err
+		}
+
+		items, err := store.ExportPlaintext(client)
+		if err != nil {
+			return errors.WrapPrefix(err, "Unable to export items", 0)
+		}
+
+		err = formatter(os.Stdout, items)
+		if err != nil {
+			return errors.WrapPrefix(err, "Unable to export items", 0)
+		}
+
+		return nil
 	}
 
-	creds, err := model.Load(cmd.credsPath)
-	if err != nil {
-		return errors.WrapPrefix(err, "Unable to load JSON", 0)
-	}
-	cmd.creds = creds
+	return cmd
 
-	formatter, err := utils.ValidFormatter(cmd.format)
-	if err != nil {
-		return err
-	}
-	cmd.formatter = formatter
-
-	return nil
-}
-
-func (cmd *exportCmd) Execute(args []string) errors.Error {
-
-	client, err := kms.NewClient()
-	if err != nil {
-		return err
-	}
-
-	items, err := cmd.creds.ExportPlaintext(client)
-	if err != nil {
-		return errors.WrapPrefix(err, "Unable to export items", 0)
-	}
-
-	err = cmd.formatter(os.Stdout, items)
-	if err != nil {
-		return errors.WrapPrefix(err, "Unable to export items", 0)
-	}
-
-	return nil
 }

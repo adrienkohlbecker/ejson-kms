@@ -5,8 +5,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/adrienkohlbecker/errors"
-	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -71,35 +69,5 @@ func captureStderr(t *testing.T, f func()) string {
 	assert.NoError(t, err)
 
 	return string(b)
-
-}
-
-func TestFatal(t *testing.T) {
-
-	cmd := &cobra.Command{Use: "testing"}
-	err := errors.Errorf("an error")
-
-	t.Run("no debug", func(t *testing.T) {
-
-		out := captureStderr(t, func() { Fatal(cmd, err) })
-
-		assert.Contains(t, out, "testing --help")
-		assert.Contains(t, out, "an error")
-
-	})
-
-	t.Run("with debug", func(t *testing.T) {
-
-		goErr := os.Setenv("EJSON_KMS_DEBUG", "1")
-		assert.NoError(t, goErr)
-
-		out := captureStderr(t, func() { Fatal(cmd, err) })
-
-		goErr = os.Unsetenv("EJSON_KMS_DEBUG")
-		assert.NoError(t, goErr)
-
-		assert.Contains(t, out, "TestFatal: err := errors.Errorf(\"an error\")")
-
-	})
 
 }
