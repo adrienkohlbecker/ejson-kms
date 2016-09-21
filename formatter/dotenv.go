@@ -13,7 +13,7 @@ import (
 //
 // It outputs the decrypted secrets in the form:
 //
-//   MY_CREDENTIAL="my value"
+//   MY_SECRET="my value"
 //   ANOTHER_ONE="string with \"quotes\""
 //
 // The secret names are capitalized and the values are quoted as Go strings.

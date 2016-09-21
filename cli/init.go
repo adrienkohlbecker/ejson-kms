@@ -52,7 +52,7 @@ func initCmd() *cobra.Command {
 
 	cmd.RunE = func(_ *cobra.Command, args []string) error {
 
-		err := utils.ValidNewCredentialsPath(storePath)
+		err := utils.ValidNewSecretsPath(storePath)
 		if err != nil {
 			return errors.WrapPrefix(err, "Invalid path", 0)
 		}

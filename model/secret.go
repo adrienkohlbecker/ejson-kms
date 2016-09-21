@@ -1,7 +1,7 @@
 package model
 
-// Credential represents a given secret
-type Credential struct {
+// Secret represents a given secret
+type Secret struct {
 	// Name is the name of the secret used during exporting.
 	// As such, by convention and for ease of use in bash scripts (for example),
 	// it must be comprised of lowercase characters, digits and underscores only.

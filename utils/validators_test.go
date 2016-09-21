@@ -11,11 +11,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestValidCredentialsPath(t *testing.T) {
+func TestValidSecretsPath(t *testing.T) {
 
 	t.Run("empty path", func(t *testing.T) {
 
-		err := ValidCredentialsPath("")
+		err := ValidSecretsPath("")
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "No path provided")
 		}
@@ -24,7 +24,7 @@ func TestValidCredentialsPath(t *testing.T) {
 
 	t.Run("unexisting path", func(t *testing.T) {
 
-		err := ValidCredentialsPath("not-a-real-path")
+		err := ValidSecretsPath("not-a-real-path")
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Unable to find secrets file")
 		}
@@ -36,9 +36,9 @@ func TestValidCredentialsPath(t *testing.T) {
 		dir, goErr := ioutil.TempDir(os.TempDir(), "valid-secrets-path")
 		assert.NoError(t, goErr)
 
-		err := ValidCredentialsPath(dir)
+		err := ValidSecretsPath(dir)
 		if assert.Error(t, err) {
-			assert.Contains(t, err.Error(), "Credentials file is a directory")
+			assert.Contains(t, err.Error(), "Secrets file is a directory")
 		}
 
 		goErr = os.Remove(dir)
@@ -51,7 +51,7 @@ func TestValidCredentialsPath(t *testing.T) {
 		tmpfile, goErr := ioutil.TempFile(os.TempDir(), "valid-secrets-path")
 		assert.NoError(t, goErr)
 
-		err := ValidCredentialsPath(tmpfile.Name())
+		err := ValidSecretsPath(tmpfile.Name())
 		assert.NoError(t, err)
 
 		goErr = tmpfile.Close()
@@ -63,11 +63,11 @@ func TestValidCredentialsPath(t *testing.T) {
 
 }
 
-func TestValidNewCredentialsPath(t *testing.T) {
+func TestValidNewSecretsPath(t *testing.T) {
 
 	t.Run("empty path", func(t *testing.T) {
 
-		err := ValidNewCredentialsPath("")
+		err := ValidNewSecretsPath("")
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "No path provided")
 		}
@@ -76,7 +76,7 @@ func TestValidNewCredentialsPath(t *testing.T) {
 
 	t.Run("valid unexisting path", func(t *testing.T) {
 
-		err := ValidNewCredentialsPath("not-a-real-path")
+		err := ValidNewSecretsPath("not-a-real-path")
 		assert.NoError(t, err)
 
 	})
@@ -86,7 +86,7 @@ func TestValidNewCredentialsPath(t *testing.T) {
 		tmpfile, goErr := ioutil.TempFile(os.TempDir(), "valid-secrets-path")
 		assert.NoError(t, goErr)
 
-		err := ValidNewCredentialsPath(tmpfile.Name())
+		err := ValidNewSecretsPath(tmpfile.Name())
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "A file already exists")
 		}

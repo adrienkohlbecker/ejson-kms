@@ -39,7 +39,7 @@ func TestNewStore(t *testing.T) {
 	assert.Equal(t, testKeyID, store.KMSKeyID)
 	assert.Equal(t, 1, store.Version)
 	assert.Equal(t, testContext, store.EncryptionContext)
-	assert.Equal(t, []*Credential{}, store.Credentials)
+	assert.Equal(t, []*Secret{}, store.Secrets)
 
 }
 
@@ -54,9 +54,9 @@ func TestLoad(t *testing.T) {
 		assert.NotEmpty(t, j.KMSKeyID)
 		assert.NotEmpty(t, j.EncryptionContext)
 		assert.Equal(t, *j.EncryptionContext["KEY"], "VALUE")
-		if assert.Equal(t, len(j.Credentials), 1) {
+		if assert.Equal(t, len(j.Secrets), 1) {
 
-			cred := j.Credentials[0]
+			cred := j.Secrets[0]
 			assert.Equal(t, cred.Name, "test_cred")
 			assert.Equal(t, cred.Description, "Some Description")
 			assert.NotEmpty(t, cred.Ciphertext)
@@ -87,8 +87,8 @@ func TestLoad(t *testing.T) {
 
 func TestContains(t *testing.T) {
 
-	j := &Store{Credentials: []*Credential{
-		&Credential{Name: "test_cred"},
+	j := &Store{Secrets: []*Secret{
+		&Secret{Name: "test_cred"},
 	}}
 
 	assert.True(t, j.Contains("test_cred"))
@@ -149,8 +149,8 @@ func TestAdd(t *testing.T) {
 			assert.NoError(t, err)
 		})
 
-		if assert.Len(t, store.Credentials, 1) {
-			cred := store.Credentials[0]
+		if assert.Len(t, store.Secrets, 1) {
+			cred := store.Secrets[0]
 			assert.Equal(t, cred.Name, testName)
 			assert.Equal(t, cred.Description, testDescription)
 			assert.Equal(t, cred.Ciphertext, testCiphertext)
@@ -242,8 +242,8 @@ func TestExportPlaintext(t *testing.T) {
 
 func TestFind(t *testing.T) {
 
-	cred := &Credential{Name: "my_cred"}
-	store := &Store{Credentials: []*Credential{cred}}
+	cred := &Secret{Name: "my_cred"}
+	store := &Store{Secrets: []*Secret{cred}}
 
 	assert.Equal(t, store.Find("my_cred"), cred)
 	assert.Nil(t, store.Find("other"))

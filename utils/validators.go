@@ -12,8 +12,8 @@ import (
 
 var nameRegexp = regexp.MustCompile("^[a-z_][a-z0-9_]*$")
 
-// ValidCredentialsPath checks for an existing path that is not a directory.
-func ValidCredentialsPath(path string) errors.Error {
+// ValidSecretsPath checks for an existing path that is not a directory.
+func ValidSecretsPath(path string) errors.Error {
 
 	if path == "" {
 		return errors.Errorf("No path provided")
@@ -25,15 +25,15 @@ func ValidCredentialsPath(path string) errors.Error {
 	}
 
 	if stat.IsDir() {
-		return errors.Errorf("Credentials file is a directory: %s", path)
+		return errors.Errorf("Secrets file is a directory: %s", path)
 	}
 
 	return nil
 
 }
 
-// ValidNewCredentialsPath checks for a valid path that does not exist.
-func ValidNewCredentialsPath(path string) errors.Error {
+// ValidNewSecretsPath checks for a valid path that does not exist.
+func ValidNewSecretsPath(path string) errors.Error {
 
 	if path == "" {
 		return errors.Errorf("No path provided")

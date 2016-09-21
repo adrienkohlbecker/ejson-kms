@@ -38,7 +38,7 @@ func rotateKMSKeyCmd() *cobra.Command {
 
 	cmd.RunE = func(_ *cobra.Command, args []string) error {
 
-		err := utils.ValidCredentialsPath(storePath)
+		err := utils.ValidSecretsPath(storePath)
 		if err != nil {
 			return errors.WrapPrefix(err, "Invalid path", 0)
 		}

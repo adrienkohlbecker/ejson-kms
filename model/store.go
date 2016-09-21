@@ -41,8 +41,8 @@ type Store struct {
 	// in the file, since KMS uses it as part of the decryption process.
 	EncryptionContext map[string]*string `json:"encryption_context"`
 
-	// Credentials is a list of secrets
-	Credentials []*Credential `json:"secrets"`
+	// Secrets is a list of secrets
+	Secrets []*Secret `json:"secrets"`
 }
 
 // NewStore returns a new empty store
@@ -52,7 +52,7 @@ func NewStore(kmsKeyID string, encryptionContext map[string]*string) *Store {
 		KMSKeyID:          kmsKeyID,
 		Version:           1,
 		EncryptionContext: encryptionContext,
-		Credentials:       make([]*Credential, 0),
+		Secrets:       make([]*Secret, 0),
 	}
 
 }
@@ -113,13 +113,13 @@ func (j *Store) Add(client kms.Client, plaintext string, name string, descriptio
 		return err
 	}
 
-	cred := &Credential{
+	cred := &Secret{
 		Name:        name,
 		Description: description,
 		Ciphertext:  ciphertext,
 	}
 
-	j.Credentials = append(j.Credentials, cred)
+	j.Secrets = append(j.Secrets, cred)
 	return nil
 
 }
@@ -128,10 +128,10 @@ func (j *Store) Add(client kms.Client, plaintext string, name string, descriptio
 // for formatting.
 func (j *Store) ExportPlaintext(client kms.Client) (chan formatter.Item, errors.Error) {
 
-	items := make(chan formatter.Item, len(j.Credentials))
+	items := make(chan formatter.Item, len(j.Secrets))
 	cipher := crypto.NewCipher(client, j.KMSKeyID, j.EncryptionContext)
 
-	for _, item := range j.Credentials {
+	for _, item := range j.Secrets {
 
 		plaintext, err := cipher.Decrypt(item.Ciphertext)
 		if err != nil {
@@ -149,9 +149,9 @@ func (j *Store) ExportPlaintext(client kms.Client) (chan formatter.Item, errors.
 }
 
 // Find returns the secret corresponding to a name
-func (j *Store) Find(name string) *Credential {
+func (j *Store) Find(name string) *Secret {
 
-	for _, item := range j.Credentials {
+	for _, item := range j.Secrets {
 
 		if item.Name == name {
 			return item
@@ -169,7 +169,7 @@ func (j *Store) RotateKMSKey(client kms.Client, newKMSKeyID string) errors.Error
 	oldCipher := crypto.NewCipher(client, j.KMSKeyID, j.EncryptionContext)
 	newCipher := crypto.NewCipher(client, newKMSKeyID, j.EncryptionContext)
 
-	for _, item := range j.Credentials {
+	for _, item := range j.Secrets {
 
 		oldPlaintext, err := oldCipher.Decrypt(item.Ciphertext)
 		if err != nil {

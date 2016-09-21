@@ -1,2 +1,2 @@
-MY_CREDENTIAL="my value"
+MY_SECRET="my value"
 ANOTHER_ONE="string with \"quotes\""

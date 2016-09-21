@@ -1,2 +1,2 @@
-export MY_CREDENTIAL="my value"
+export MY_SECRET="my value"
 export ANOTHER_ONE="string with \"quotes\""
