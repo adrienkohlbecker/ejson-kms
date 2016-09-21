@@ -51,23 +51,3 @@ func TestReadFromFile(t *testing.T) {
 	})
 
 }
-
-func captureStderr(t *testing.T, f func()) string {
-
-	original := os.Stderr
-	r, w, err := os.Pipe()
-	assert.NoError(t, err)
-
-	os.Stderr = w
-	f()
-	os.Stderr = original
-
-	err = w.Close()
-	assert.NoError(t, err)
-
-	b, err := ioutil.ReadAll(r)
-	assert.NoError(t, err)
-
-	return string(b)
-
-}
