@@ -9,7 +9,7 @@ import (
 
 // JSON implements the Formatter interface.
 //
-// It outputs the credentials as JSON:
+// It outputs the decrypted credentials as JSON:
 //
 //  {
 //    "my_credential": "my value",

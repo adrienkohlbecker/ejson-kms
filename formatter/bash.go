@@ -11,7 +11,7 @@ import (
 
 // Bash implements the Formatter interface.
 //
-// It outputs the credentials in the form:
+// It outputs the decrypted credentials in the form:
 //
 //   export MY_CREDENTIAL="my value"
 //   export ANOTHER_ONE="string with \"quotes\""

@@ -84,7 +84,7 @@ func (j *Store) Contains(name string) bool {
 }
 
 // Save takes a Store struct and writes it to disk to the given path.
-// The Store is pretty-printed and file permissions are set to 0644.
+// The JSON is pretty-printed and file permissions are set to 0644.
 func (j *Store) Save(path string) errors.Error {
 
 	bytes, err := json.MarshalIndent(j, "", "  ")

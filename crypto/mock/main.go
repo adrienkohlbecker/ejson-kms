@@ -14,10 +14,10 @@ func (r *constReader) Read(p []byte) (n int, err error) {
 	return len(r.nonce), nil
 }
 
-func WithConstRandReader(nonce string, f func()) {
+func WithConstRandReader(testNonce string, f func()) {
 
 	original := rand.Reader
-	rand.Reader = &constReader{nonce: nonce}
+	rand.Reader = &constReader{nonce: testNonce}
 
 	f()
 
@@ -33,10 +33,10 @@ func (r *errorReader) Read(p []byte) (n int, err error) {
 	return 0, fmt.Errorf(r.err)
 }
 
-func WithErrorRandReader(err string, f func()) {
+func WithErrorRandReader(testError string, f func()) {
 
 	original := rand.Reader
-	rand.Reader = &errorReader{err: err}
+	rand.Reader = &errorReader{err: testError}
 
 	f()
 

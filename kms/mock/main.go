@@ -21,14 +21,14 @@ func (m *Client) Decrypt(params *kms.DecryptInput) (*kms.DecryptOutput, error) {
 	return m.internalDecrypt(params)
 }
 
-func GenerateDataKey(t *testing.T, kmsKeyID string, encryptionContext map[string]*string, keyCiphertext string, keyPlaintext string) *Client {
+func GenerateDataKey(t *testing.T, testKeyID string, testEncryptionContext map[string]*string, testKeyCiphertext string, testKeyPlaintext string) *Client {
 
 	mock := &Client{}
 	mock.internalGenerateDataKey = func(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error) {
 
 		expected := &kms.GenerateDataKeyInput{
-			KeyId:             aws.String(kmsKeyID),
-			EncryptionContext: encryptionContext,
+			KeyId:             aws.String(testKeyID),
+			EncryptionContext: testEncryptionContext,
 			GrantTokens:       []*string{},
 			KeySpec:           aws.String("AES_256"),
 		}
@@ -36,9 +36,9 @@ func GenerateDataKey(t *testing.T, kmsKeyID string, encryptionContext map[string
 		assert.Equal(t, expected, params)
 
 		return &kms.GenerateDataKeyOutput{
-			CiphertextBlob: []byte(keyCiphertext),
-			KeyId:          aws.String(kmsKeyID),
-			Plaintext:      []byte(keyPlaintext),
+			CiphertextBlob: []byte(testKeyCiphertext),
+			KeyId:          aws.String(testKeyID),
+			Plaintext:      []byte(testKeyPlaintext),
 		}, nil
 
 	}
@@ -47,11 +47,11 @@ func GenerateDataKey(t *testing.T, kmsKeyID string, encryptionContext map[string
 
 }
 
-func GenerateDataKeyWithError(str string) *Client {
+func GenerateDataKeyWithError(testError string) *Client {
 
 	mock := &Client{}
 	mock.internalGenerateDataKey = func(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error) {
-		return nil, fmt.Errorf(str)
+		return nil, fmt.Errorf(testError)
 	}
 
 	return mock
@@ -81,10 +81,10 @@ func Decrypt(t *testing.T, testKeyID string, testContext map[string]*string, tes
 	return mock
 }
 
-func DecryptWithError(str string) *Client {
+func DecryptWithError(testError string) *Client {
 	mock := &Client{}
 	mock.internalDecrypt = func(params *kms.DecryptInput) (*kms.DecryptOutput, error) {
-		return nil, fmt.Errorf(str)
+		return nil, fmt.Errorf(testError)
 	}
 	return mock
 }

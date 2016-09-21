@@ -11,7 +11,7 @@ import (
 
 // Dotenv implements the Formatter interface.
 //
-// It outputs the credentials in the form:
+// It outputs the decrypted credentials in the form:
 //
 //   MY_CREDENTIAL="my value"
 //   ANOTHER_ONE="string with \"quotes\""
