@@ -26,6 +26,10 @@ type Store struct {
 	//   Alias Name Example - alias/MyAliasName
 	KMSKeyID string `json:"kms_key_id"`
 
+	// Version is the version of the JSON schema to use. For now there is only
+	// version 1.
+	Version int `json:"version"`
+
 	// Name/value pair that contains additional data to be authenticated during
 	// the encryption and decryption processes that use the key. This value is logged
 	// by AWS CloudTrail to provide context around the data encrypted by the key.
