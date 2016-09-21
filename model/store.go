@@ -66,27 +66,27 @@ func Load(path string) (*Store, errors.Error) {
 		return nil, errors.WrapPrefix(err, fmt.Sprintf("Unable to read file at %s", path), 0)
 	}
 
-	j := &Store{}
-	err = json.Unmarshal(bytes, j)
+	store := &Store{}
+	err = json.Unmarshal(bytes, store)
 	if err != nil {
 		return nil, errors.WrapPrefix(err, fmt.Sprintf("Unable to decode Store at %s", path), 0)
 	}
 
-	return j, nil
+	return store, nil
 
 }
 
 // Contains is a convenience wrapper to check for the existence of a given
 // secret in the file.
-func (j *Store) Contains(name string) bool {
-	return j.Find(name) != nil
+func (s *Store) Contains(name string) bool {
+	return s.Find(name) != nil
 }
 
 // Save takes a Store struct and writes it to disk to the given path.
 // The JSON is pretty-printed and file permissions are set to 0644.
-func (j *Store) Save(path string) errors.Error {
+func (s *Store) Save(path string) errors.Error {
 
-	bytes, err := json.MarshalIndent(j, "", "  ")
+	bytes, err := json.MarshalIndent(s, "", "  ")
 	if err != nil {
 		// Note: not covered by tests as no error can be hit with the current schema
 		return errors.WrapPrefix(err, "Unable to marshall Store", 0)
@@ -104,9 +104,9 @@ func (j *Store) Save(path string) errors.Error {
 }
 
 // Add adds a new secret to the store
-func (j *Store) Add(client kms.Client, plaintext string, name string, description string) errors.Error {
+func (s *Store) Add(client kms.Client, plaintext string, name string, description string) errors.Error {
 
-	cipher := crypto.NewCipher(client, j.KMSKeyID, j.EncryptionContext)
+	cipher := crypto.NewCipher(client, s.KMSKeyID, s.EncryptionContext)
 
 	ciphertext, err := cipher.Encrypt(plaintext)
 	if err != nil {
@@ -119,19 +119,19 @@ func (j *Store) Add(client kms.Client, plaintext string, name string, descriptio
 		Ciphertext:  ciphertext,
 	}
 
-	j.Secrets = append(j.Secrets, cred)
+	s.Secrets = append(s.Secrets, cred)
 	return nil
 
 }
 
 // ExportPlaintext deciphers all the secrets and publishes them to a channel
 // for formatting.
-func (j *Store) ExportPlaintext(client kms.Client) (chan formatter.Item, errors.Error) {
+func (s *Store) ExportPlaintext(client kms.Client) (chan formatter.Item, errors.Error) {
 
-	items := make(chan formatter.Item, len(j.Secrets))
-	cipher := crypto.NewCipher(client, j.KMSKeyID, j.EncryptionContext)
+	items := make(chan formatter.Item, len(s.Secrets))
+	cipher := crypto.NewCipher(client, s.KMSKeyID, s.EncryptionContext)
 
-	for _, item := range j.Secrets {
+	for _, item := range s.Secrets {
 
 		plaintext, err := cipher.Decrypt(item.Ciphertext)
 		if err != nil {
@@ -149,9 +149,9 @@ func (j *Store) ExportPlaintext(client kms.Client) (chan formatter.Item, errors.
 }
 
 // Find returns the secret corresponding to a name
-func (j *Store) Find(name string) *Secret {
+func (s *Store) Find(name string) *Secret {
 
-	for _, item := range j.Secrets {
+	for _, item := range s.Secrets {
 
 		if item.Name == name {
 			return item
@@ -164,12 +164,12 @@ func (j *Store) Find(name string) *Secret {
 }
 
 // RotateKMSKey re-encrypts all the secrets with the new given KMS key
-func (j *Store) RotateKMSKey(client kms.Client, newKMSKeyID string) errors.Error {
+func (s *Store) RotateKMSKey(client kms.Client, newKMSKeyID string) errors.Error {
 
-	oldCipher := crypto.NewCipher(client, j.KMSKeyID, j.EncryptionContext)
-	newCipher := crypto.NewCipher(client, newKMSKeyID, j.EncryptionContext)
+	oldCipher := crypto.NewCipher(client, s.KMSKeyID, s.EncryptionContext)
+	newCipher := crypto.NewCipher(client, newKMSKeyID, s.EncryptionContext)
 
-	for _, item := range j.Secrets {
+	for _, item := range s.Secrets {
 
 		oldPlaintext, err := oldCipher.Decrypt(item.Ciphertext)
 		if err != nil {
@@ -185,20 +185,20 @@ func (j *Store) RotateKMSKey(client kms.Client, newKMSKeyID string) errors.Error
 
 	}
 
-	j.KMSKeyID = newKMSKeyID
+	s.KMSKeyID = newKMSKeyID
 	return nil
 
 }
 
 // Rotate changes the plaintext of a stored secret. A new data key is generated.
-func (j *Store) Rotate(client kms.Client, name string, newPlaintext string) errors.Error {
+func (s *Store) Rotate(client kms.Client, name string, newPlaintext string) errors.Error {
 
-	item := j.Find(name)
+	item := s.Find(name)
 	if item == nil {
 		return errors.Errorf("Unable to find %s", name)
 	}
 
-	cipher := crypto.NewCipher(client, j.KMSKeyID, j.EncryptionContext)
+	cipher := crypto.NewCipher(client, s.KMSKeyID, s.EncryptionContext)
 
 	oldPlaintext, err := cipher.Decrypt(item.Ciphertext)
 	if err != nil {
