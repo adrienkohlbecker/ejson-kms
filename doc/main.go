@@ -21,7 +21,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	doc.GenManTree(app, header, "./doc/man")
+	err = doc.GenManTree(app, header, "./doc/man")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
