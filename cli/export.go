@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"os"
 	"strings"
 
 	"github.com/adrienkohlbecker/errors"
@@ -74,7 +73,7 @@ func exportCmd() *cobra.Command {
 			return errors.WrapPrefix(err, "Unable to export items", 0)
 		}
 
-		err = formatter(os.Stdout, items)
+		err = formatter(cmd.OutOrStdout(), items)
 		if err != nil {
 			return errors.WrapPrefix(err, "Unable to export items", 0)
 		}

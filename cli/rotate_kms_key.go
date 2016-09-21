@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/adrienkohlbecker/errors"
@@ -68,7 +67,7 @@ func rotateKMSKeyCmd() *cobra.Command {
 			return errors.WrapPrefix(err, "Unable to save JSON", 0)
 		}
 
-		fmt.Printf("Exported new secrets file at: %s\n", storePath)
+		cmd.Printf("Exported new secrets file at: %s\n", storePath)
 		return nil
 
 	}
