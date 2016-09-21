@@ -52,7 +52,7 @@ func NewStore(kmsKeyID string, encryptionContext map[string]*string) *Store {
 		KMSKeyID:          kmsKeyID,
 		Version:           1,
 		EncryptionContext: encryptionContext,
-		Secrets:       make([]*Secret, 0),
+		Secrets:           make([]*Secret, 0),
 	}
 
 }
