@@ -7,7 +7,6 @@ import (
 	"github.com/adrienkohlbecker/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/adrienkohlbecker/ejson-kms/crypto"
 	"github.com/adrienkohlbecker/ejson-kms/kms"
 	"github.com/adrienkohlbecker/ejson-kms/model"
 	"github.com/adrienkohlbecker/ejson-kms/utils"
@@ -70,29 +69,10 @@ func (cmd *rotateMasterKeyCmd) Execute(args []string) errors.Error {
 		return err
 	}
 
-	cipher := crypto.NewCipher(client, cmd.creds.KMSKeyID, cmd.creds.EncryptionContext)
-	newCipher := crypto.NewCipher(client, cmd.newKMSKeyID, cmd.creds.EncryptionContext)
-
-	for i, item := range cmd.creds.Credentials {
-
-		fmt.Printf("KMS: Decrypting old plaintext for %s\n", item.Name)
-		oldPlaintext, loopErr := cipher.Decrypt(item.Ciphertext)
-		if loopErr != nil {
-			return errors.WrapPrefix(loopErr, fmt.Sprintf("Unable to decrypt credential: %s", item.Name), 0)
-		}
-
-		fmt.Printf("KMS: Encrypting new plaintext for %s\n", item.Name)
-		ciphertext, loopErr := newCipher.Encrypt(oldPlaintext)
-		if loopErr != nil {
-			return errors.WrapPrefix(loopErr, "Unable to encrypt credential", 0)
-		}
-
-		item.Ciphertext = ciphertext
-		cmd.creds.Credentials[i] = item
-
+	err = cmd.creds.RotateMasterKey(client, cmd.newKMSKeyID)
+	if err != nil {
+		return errors.WrapPrefix(err, "Unable to rotate the master key", 0)
 	}
-
-	cmd.creds.KMSKeyID = cmd.newKMSKeyID
 
 	err = cmd.creds.Save(cmd.credsPath)
 	if err != nil {

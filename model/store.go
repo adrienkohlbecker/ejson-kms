@@ -166,6 +166,33 @@ func (j *Store) Find(name string) *Credential {
 
 }
 
+// RotateMasterKey re-encrypts all the credentials with the new given KMS key
+func (j *Store) RotateMasterKey(client kms.Client, newKMSKeyID string) errors.Error {
+
+	oldCipher := crypto.NewCipher(client, j.KMSKeyID, j.EncryptionContext)
+	newCipher := crypto.NewCipher(client, newKMSKeyID, j.EncryptionContext)
+
+	for _, item := range j.Credentials {
+
+		oldPlaintext, err := oldCipher.Decrypt(item.Ciphertext)
+		if err != nil {
+			return errors.WrapPrefix(err, fmt.Sprintf("Unable to decrypt credential: %s", item.Name), 0)
+		}
+
+		newCiphertext, err := newCipher.Encrypt(oldPlaintext)
+		if err != nil {
+			return errors.WrapPrefix(err, "Unable to encrypt credential", 0)
+		}
+
+		item.Ciphertext = newCiphertext
+
+	}
+
+	j.KMSKeyID = newKMSKeyID
+	return nil
+
+}
+
 // Rotate changes the plaintext of a stored credential. A new data key is generated.
 func (j *Store) Rotate(client kms.Client, name string, newPlaintext string) errors.Error {
 

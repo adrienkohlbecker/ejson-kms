@@ -27,6 +27,11 @@ const (
 	testCiphertext2   = "EJK1];Y2lwaGVydGV4dGJsb2I=;YWJjZGVmYWJjZGVmYWJjZGVmYWJjZGVm4iKh5QPWblMQEKL6IaIRtjBk+P6qXpI="
 	testName2         = "my_other_cred"
 	testDescription2  = "Some other description."
+
+	testKeyID2             = "my-other-key"
+	testKeyPlaintext2      = "-123456789012345678901234567890-"
+	testKeyCiphertext2     = "anotherciphertextblob"
+	testCiphertextOtherKey = "EJK1];YW5vdGhlcmNpcGhlcnRleHRibG9i;YWJjZGVmYWJjZGVmYWJjZGVmYWJjZGVmQV4vWDZmRgWgHcfvkFd0yP7uEoH1vw=="
 )
 
 func TestNewStore(t *testing.T) {
@@ -247,6 +252,70 @@ func TestFind(t *testing.T) {
 
 	assert.Equal(t, store.Find("my_cred"), cred)
 	assert.Nil(t, store.Find("other"))
+
+}
+
+func TestRotateMasterKey(t *testing.T) {
+
+	t.Run("working", func(t *testing.T) {
+
+		client := &kms_mock.Client{}
+		client.On("Decrypt", testKeyCiphertext, testContext).Return(testKeyID, testKeyPlaintext, nil).Once()
+		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
+		client.On("GenerateDataKey", testKeyID2, testContext).Return(testKeyCiphertext2, testKeyPlaintext2, nil).Once()
+
+		store := NewStore(testKeyID, testContext)
+
+		crypto_mock.WithConstRandReader(testConstantNonce, func() {
+			err := store.Add(client, testPlaintext, testName, testDescription)
+			assert.NoError(t, err)
+
+			err = store.RotateMasterKey(client, testKeyID2)
+			assert.NoError(t, err)
+		})
+
+		item := store.Find(testName)
+		assert.Equal(t, item.Ciphertext, testCiphertextOtherKey)
+		assert.Equal(t, store.KMSKeyID, testKeyID2)
+
+	})
+
+	t.Run("decrypt error", func(t *testing.T) {
+
+		client := &kms_mock.Client{}
+		client.On("Decrypt", testKeyCiphertext, testContext).Return("", "", errors.New("testing errors")).Once()
+		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
+
+		store := NewStore(testKeyID, testContext)
+
+		err := store.Add(client, testPlaintext, testName, testDescription)
+		assert.NoError(t, err)
+
+		err = store.RotateMasterKey(client, testKeyID2)
+		if assert.Error(t, err) {
+			assert.Contains(t, err.Error(), "Unable to decrypt credential")
+		}
+
+	})
+
+	t.Run("encrypt error", func(t *testing.T) {
+
+		client := &kms_mock.Client{}
+		client.On("Decrypt", testKeyCiphertext, testContext).Return(testKeyID, testKeyPlaintext, nil).Once()
+		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
+		client.On("GenerateDataKey", testKeyID2, testContext).Return("", "", errors.New("testing errors")).Once()
+
+		store := NewStore(testKeyID, testContext)
+
+		err := store.Add(client, testPlaintext, testName, testDescription)
+		assert.NoError(t, err)
+
+		err = store.RotateMasterKey(client, testKeyID2)
+		if assert.Error(t, err) {
+			assert.Contains(t, err.Error(), "Unable to encrypt credential")
+		}
+
+	})
 
 }
 
