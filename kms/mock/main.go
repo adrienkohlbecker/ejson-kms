@@ -21,7 +21,7 @@ func (m *Client) Decrypt(params *kms.DecryptInput) (*kms.DecryptOutput, error) {
 	return m.internalDecrypt(params)
 }
 
-func GenerateDataKey(t *testing.T, testKeyID string, testEncryptionContext map[string]*string, testKeyCiphertext string, testKeyPlaintext string) *Client {
+func New(t *testing.T, testKeyID string, testEncryptionContext map[string]*string, testKeyCiphertext string, testKeyPlaintext string) *Client {
 
 	mock := &Client{}
 	mock.internalGenerateDataKey = func(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error) {
@@ -42,30 +42,11 @@ func GenerateDataKey(t *testing.T, testKeyID string, testEncryptionContext map[s
 		}, nil
 
 	}
-
-	return mock
-
-}
-
-func GenerateDataKeyWithError(testError string) *Client {
-
-	mock := &Client{}
-	mock.internalGenerateDataKey = func(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error) {
-		return nil, fmt.Errorf(testError)
-	}
-
-	return mock
-
-}
-
-func Decrypt(t *testing.T, testKeyID string, testContext map[string]*string, testKeyCiphertext string, testKeyPlaintext string) *Client {
-
-	mock := &Client{}
 	mock.internalDecrypt = func(params *kms.DecryptInput) (*kms.DecryptOutput, error) {
 
 		expected := &kms.DecryptInput{
 			CiphertextBlob:    []byte(testKeyCiphertext),
-			EncryptionContext: testContext,
+			EncryptionContext: testEncryptionContext,
 			GrantTokens:       []*string{},
 		}
 
@@ -79,12 +60,19 @@ func Decrypt(t *testing.T, testKeyID string, testContext map[string]*string, tes
 	}
 
 	return mock
+
 }
 
-func DecryptWithError(testError string) *Client {
+func NewWithError(testError string) *Client {
+
 	mock := &Client{}
+	mock.internalGenerateDataKey = func(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error) {
+		return nil, fmt.Errorf(testError)
+	}
 	mock.internalDecrypt = func(params *kms.DecryptInput) (*kms.DecryptOutput, error) {
 		return nil, fmt.Errorf(testError)
 	}
+
 	return mock
+
 }

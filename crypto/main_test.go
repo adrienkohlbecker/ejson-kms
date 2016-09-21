@@ -24,7 +24,7 @@ func TestEncrypt(t *testing.T) {
 
 	t.Run("working", func(t *testing.T) {
 
-		client := kms_mock.GenerateDataKey(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := kms_mock.New(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
 
 		crypto_mock.WithConstRandReader(testConstantNonce, func() {
 
@@ -39,7 +39,7 @@ func TestEncrypt(t *testing.T) {
 
 	t.Run("with aws error", func(t *testing.T) {
 
-		client := kms_mock.GenerateDataKeyWithError("testing errors")
+		client := kms_mock.NewWithError("testing errors")
 
 		cipher := NewCipher(client, testKeyID, testContext)
 		_, err := cipher.Encrypt(testPlaintext)
@@ -50,7 +50,7 @@ func TestEncrypt(t *testing.T) {
 
 	t.Run("with encrypt error", func(t *testing.T) {
 
-		client := kms_mock.GenerateDataKey(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := kms_mock.New(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
 
 		crypto_mock.WithErrorRandReader("testing error", func() {
 
@@ -68,7 +68,7 @@ func TestDecrypt(t *testing.T) {
 
 	t.Run("working", func(t *testing.T) {
 
-		client := kms_mock.Decrypt(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := kms_mock.New(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
 
 		cipher := NewCipher(client, testKeyID, testContext)
 		plaintext, err := cipher.Decrypt(testCiphertext)
@@ -91,7 +91,7 @@ func TestDecrypt(t *testing.T) {
 
 	t.Run("with aws error", func(t *testing.T) {
 
-		client := kms_mock.DecryptWithError("testing errors")
+		client := kms_mock.NewWithError("testing errors")
 
 		cipher := NewCipher(client, testKeyID, testContext)
 		_, err := cipher.Decrypt(testCiphertext)
@@ -103,7 +103,7 @@ func TestDecrypt(t *testing.T) {
 
 	t.Run("with decrypt error", func(t *testing.T) {
 
-		client := kms_mock.Decrypt(t, testKeyID, testContext, testKeyCiphertext, "notlongenough")
+		client := kms_mock.New(t, testKeyID, testContext, testKeyCiphertext, "notlongenough")
 
 		cipher := NewCipher(client, testKeyID, testContext)
 		_, err := cipher.Decrypt(testCiphertext)

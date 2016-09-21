@@ -135,7 +135,7 @@ func TestAdd(t *testing.T) {
 
 	t.Run("working", func(t *testing.T) {
 
-		client := kms_mock.GenerateDataKey(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := kms_mock.New(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
 		store := NewStore(testKeyID, testContext)
 
 		crypto_mock.WithConstRandReader(testConstantNonce, func() {
@@ -156,7 +156,7 @@ func TestAdd(t *testing.T) {
 
 	t.Run("fails", func(t *testing.T) {
 
-		client := kms_mock.GenerateDataKey(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := kms_mock.New(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
 		store := NewStore(testKeyID, testContext)
 
 		crypto_mock.WithErrorRandReader("testing errors", func() {
@@ -176,7 +176,7 @@ func TestExportPlaintext(t *testing.T) {
 
 	t.Run("empty", func(t *testing.T) {
 
-		client := kms_mock.Decrypt(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := kms_mock.New(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
 		items, err := store.ExportPlaintext(client)
 		assert.NoError(t, err)
 
@@ -187,7 +187,7 @@ func TestExportPlaintext(t *testing.T) {
 
 	t.Run("working", func(t *testing.T) {
 
-		client := kms_mock.GenerateDataKey(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := kms_mock.New(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
 
 		err := store.Add(client, testPlaintext, testName, testDescription)
 		assert.NoError(t, err)
@@ -195,7 +195,6 @@ func TestExportPlaintext(t *testing.T) {
 		err = store.Add(client, testPlaintext2, testName2, testDescription2)
 		assert.NoError(t, err)
 
-		client = kms_mock.Decrypt(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
 		items, err := store.ExportPlaintext(client)
 		assert.NoError(t, err)
 
@@ -216,12 +215,12 @@ func TestExportPlaintext(t *testing.T) {
 
 	t.Run("fails", func(t *testing.T) {
 
-		client := kms_mock.GenerateDataKey(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := kms_mock.New(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
 
 		err := store.Add(client, testPlaintext, testName, testDescription)
 		assert.NoError(t, err)
 
-		client = kms_mock.DecryptWithError("testing error")
+		client = kms_mock.NewWithError("testing error")
 		items, err := store.ExportPlaintext(client)
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Unable to decrypt key ciphertext")
