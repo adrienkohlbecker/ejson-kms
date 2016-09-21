@@ -24,6 +24,7 @@ const (
 	testName          = "my_cred"
 	testDescription   = "Some description."
 	testPlaintext2    = "ghijklm"
+	testCiphertext2   = "EJK1];Y2lwaGVydGV4dGJsb2I=;YWJjZGVmYWJjZGVmYWJjZGVmYWJjZGVm4iKh5QPWblMQEKL6IaIRtjBk+P6qXpI="
 	testName2         = "my_other_cred"
 	testDescription2  = "Some other description."
 )
@@ -247,4 +248,98 @@ func TestFind(t *testing.T) {
 	assert.Equal(t, store.Find("my_cred"), cred)
 	assert.Nil(t, store.Find("other"))
 
+}
+
+func TestRotate(t *testing.T) {
+
+	t.Run("working", func(t *testing.T) {
+
+		client := &kms_mock.Client{}
+		client.On("Decrypt", testKeyCiphertext, testContext).Return(testKeyID, testKeyPlaintext, nil).Once()
+		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Twice()
+
+		store := NewStore(testKeyID, testContext)
+
+		crypto_mock.WithConstRandReader(testConstantNonce, func() {
+			err := store.Add(client, testPlaintext, testName, testDescription)
+			assert.NoError(t, err)
+
+			err = store.Rotate(client, testName, testPlaintext2)
+			assert.NoError(t, err)
+		})
+
+		item := store.Find(testName)
+		assert.Equal(t, item.Ciphertext, testCiphertext2)
+		if assert.NotNil(t, item.RotatedAt) {
+			assert.WithinDuration(t, *item.RotatedAt, time.Now(), 2*time.Second)
+		}
+
+	})
+
+	t.Run("cant find name", func(t *testing.T) {
+
+		client := &kms_mock.Client{}
+
+		store := NewStore(testKeyID, testContext)
+		err := store.Rotate(client, testName, testPlaintext)
+		if assert.Error(t, err) {
+			assert.Contains(t, err.Error(), "Unable to find")
+		}
+
+	})
+
+	t.Run("same value", func(t *testing.T) {
+
+		client := &kms_mock.Client{}
+		client.On("Decrypt", testKeyCiphertext, testContext).Return(testKeyID, testKeyPlaintext, nil).Once()
+		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
+
+		store := NewStore(testKeyID, testContext)
+
+		err := store.Add(client, testPlaintext, testName, testDescription)
+		assert.NoError(t, err)
+
+		err = store.Rotate(client, testName, testPlaintext)
+		if assert.Error(t, err) {
+			assert.Contains(t, err.Error(), "Trying to rotate a credential and giving the same value")
+		}
+
+	})
+
+	t.Run("decrypt error", func(t *testing.T) {
+
+		client := &kms_mock.Client{}
+		client.On("Decrypt", testKeyCiphertext, testContext).Return("", "", errors.New("testing errors")).Once()
+		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
+
+		store := NewStore(testKeyID, testContext)
+
+		err := store.Add(client, testPlaintext, testName, testDescription)
+		assert.NoError(t, err)
+
+		err = store.Rotate(client, testName, testPlaintext2)
+		if assert.Error(t, err) {
+			assert.Contains(t, err.Error(), "Unable to decrypt credential")
+		}
+
+	})
+
+	t.Run("encrypt error", func(t *testing.T) {
+
+		client := &kms_mock.Client{}
+		client.On("Decrypt", testKeyCiphertext, testContext).Return(testKeyID, testKeyPlaintext, nil).Once()
+		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
+		client.On("GenerateDataKey", testKeyID, testContext).Return("", "", errors.New("testing errors")).Once()
+
+		store := NewStore(testKeyID, testContext)
+
+		err := store.Add(client, testPlaintext, testName, testDescription)
+		assert.NoError(t, err)
+
+		err = store.Rotate(client, testName, testPlaintext2)
+		if assert.Error(t, err) {
+			assert.Contains(t, err.Error(), "Unable to encrypt credential")
+		}
+
+	})
 }

@@ -165,3 +165,35 @@ func (j *Store) Find(name string) *Credential {
 	return nil
 
 }
+
+// Rotate changes the plaintext of a stored credential. A new data key is generated.
+func (j *Store) Rotate(client kms.Client, name string, newPlaintext string) errors.Error {
+
+	item := j.Find(name)
+	if item == nil {
+		return errors.Errorf("Unable to find %s", name)
+	}
+
+	cipher := crypto.NewCipher(client, j.KMSKeyID, j.EncryptionContext)
+
+	oldPlaintext, err := cipher.Decrypt(item.Ciphertext)
+	if err != nil {
+		return errors.WrapPrefix(err, "Unable to decrypt credential", 0)
+	}
+
+	if oldPlaintext == newPlaintext {
+		return errors.Errorf("Trying to rotate a credential and giving the same value")
+	}
+
+	newCiphertext, err := cipher.Encrypt(newPlaintext)
+	if err != nil {
+		return errors.WrapPrefix(err, "Unable to encrypt credential", 0)
+	}
+
+	now := time.Now().UTC().Truncate(time.Second)
+	item.Ciphertext = newCiphertext
+	item.RotatedAt = &now
+
+	return nil
+
+}
