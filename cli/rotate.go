@@ -45,7 +45,6 @@ func rotateCmd() *cobra.Command {
 
 	var storePath = ".secrets.json"
 	cmd.Flags().StringVar(&storePath, "path", storePath, "path of the secrets file")
-	cmd.MarkFlagFilename("path", "json")
 
 	cmd.RunE = func(_ *cobra.Command, args []string) error {
 

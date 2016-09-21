@@ -5,10 +5,16 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+// Client is an implementation of kms.KMS with mock capabilities
 type Client struct {
 	mock.Mock
 }
 
+// GenerateDataKey is meant to replace kms.GenerateDataKey
+//
+//   client := &mock.Client{}
+//   client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil)
+//
 func (m *Client) GenerateDataKey(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error) {
 
 	args := m.Called(*params.KeyId, params.EncryptionContext)
@@ -19,6 +25,11 @@ func (m *Client) GenerateDataKey(params *kms.GenerateDataKeyInput) (*kms.Generat
 	}, args.Error(2)
 }
 
+// Decrypt is meant to replace kms.Decrypt
+//
+//   client := &mock.Client{}
+//   client.On("Decrypt", testKeyCiphertext, testContext).Return(testKeyID, testKeyPlaintext, nil)
+//
 func (m *Client) Decrypt(params *kms.DecryptInput) (*kms.DecryptOutput, error) {
 
 	args := m.Called(string(params.CiphertextBlob), params.EncryptionContext)

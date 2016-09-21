@@ -17,6 +17,7 @@ ejson-kms manages your secrets using Amazon KMS and a simple JSON file.
 Complete documentation is available at https://github.com/adrienkohlbecker/ejson-kms
 `
 
+// App is the main ejson-kms command.
 var App = &cobra.Command{
 	Use:   "ejson-kms",
 	Short: "ejson-kms manages your secrets using Amazon KMS and a simple JSON file",

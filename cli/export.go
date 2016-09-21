@@ -51,8 +51,6 @@ func exportCmd() *cobra.Command {
 	cmd.Flags().StringVar(&storePath, "path", storePath, "path of the secrets file")
 	cmd.Flags().StringVar(&format, "format", format, "format of the generated output (bash|dotenv|json)")
 
-	cmd.MarkFlagFilename("path", "json")
-
 	cmd.RunE = func(_ *cobra.Command, args []string) error {
 
 		err := utils.ValidCredentialsPath(storePath)

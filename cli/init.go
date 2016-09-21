@@ -54,9 +54,6 @@ func initCmd() *cobra.Command {
 	cmd.Flags().StringVar(&storePath, "path", storePath, "path of the generated file")
 	cmd.Flags().StringSliceVar(&rawEncryptionContext, "encryption-context", rawEncryptionContext, "encryption context added to the data keys (\"KEY1=VALUE1,KEY2=VALUE2\")")
 
-	cmd.MarkFlagRequired("kms-key-id")
-	cmd.MarkFlagFilename("path", "json")
-
 	cmd.RunE = func(_ *cobra.Command, args []string) error {
 
 		err := utils.ValidNewCredentialsPath(storePath)

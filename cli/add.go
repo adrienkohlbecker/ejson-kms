@@ -57,8 +57,6 @@ func addCmd() *cobra.Command {
 	cmd.Flags().StringVar(&storePath, "path", storePath, "path of the secrets file")
 	cmd.Flags().StringVar(&description, "description", description, "freeform description of the secret")
 
-	cmd.MarkFlagFilename("path", "json")
-
 	cmd.RunE = func(_ *cobra.Command, args []string) error {
 
 		err := utils.ValidCredentialsPath(storePath)
