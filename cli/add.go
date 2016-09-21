@@ -4,12 +4,10 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/adrienkohlbecker/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/adrienkohlbecker/ejson-kms/crypto"
 	"github.com/adrienkohlbecker/ejson-kms/kms"
 	"github.com/adrienkohlbecker/ejson-kms/model"
 	"github.com/adrienkohlbecker/ejson-kms/utils"
@@ -87,25 +85,10 @@ func (cmd *addCmd) Execute(args []string) errors.Error {
 		return err
 	}
 
-	fmt.Printf("KMS: Encrypting plaintext for %s\n", cmd.name)
-
-	now := time.Now().UTC().Truncate(time.Second)
-	cipher := crypto.NewCipher(client, cmd.creds.KMSKeyID, cmd.creds.EncryptionContext)
-
-	ciphertext, err := cipher.Encrypt(plaintext)
+	err = cmd.creds.Add(client, plaintext, cmd.name, cmd.description)
 	if err != nil {
-		return errors.WrapPrefix(err, "Unable to encrypt credential", 0)
+		return errors.WrapPrefix(err, "Unable to add credential", 0)
 	}
-
-	cred := model.Credential{
-		Name:        cmd.name,
-		Description: cmd.description,
-		AddedAt:     now,
-		RotatedAt:   nil,
-		Ciphertext:  ciphertext,
-	}
-
-	cmd.creds.Credentials = append(cmd.creds.Credentials, cred)
 
 	err = cmd.creds.Save(cmd.credsPath)
 	if err != nil {

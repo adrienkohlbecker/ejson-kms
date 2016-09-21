@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	crypto_mock "github.com/adrienkohlbecker/ejson-kms/crypto/mock"
+	kms_mock "github.com/adrienkohlbecker/ejson-kms/kms/mock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,6 +15,13 @@ var testContext = map[string]*string{"ABC": nil}
 
 const (
 	testKeyID         = "my-key-id"
+	testKeyPlaintext  = "-abcdefabcdefabcdefabcdefabcdef-"
+	testKeyCiphertext = "ciphertextblob"
+	testConstantNonce = "abcdefabcdefabcdefabcdef"
+	testPlaintext     = "abcdef"
+	testCiphertext    = "EJK1];Y2lwaGVydGV4dGJsb2I=;YWJjZGVmYWJjZGVmYWJjZGVmYWJjZGVmlPmP6IWfK7WJMuXVi8aQ7TZu8vCkVA=="
+	testName          = "my_cred"
+	testDescription   = "Some description."
 )
 
 func TestNewStore(t *testing.T) {
@@ -114,6 +123,45 @@ func TestSave(t *testing.T) {
 
 		goErr = os.Remove(dir)
 		assert.NoError(t, goErr)
+
+	})
+
+}
+
+func TestAdd(t *testing.T) {
+
+	t.Run("working", func(t *testing.T) {
+
+		client := kms_mock.GenerateDataKey(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		store := NewStore(testKeyID, testContext)
+
+		crypto_mock.WithConstRandReader(testConstantNonce, func() {
+			err := store.Add(client, testPlaintext, testName, testDescription)
+			assert.NoError(t, err)
+		})
+
+		if assert.Len(t, store.Credentials, 1) {
+			cred := store.Credentials[0]
+			assert.Equal(t, cred.Name, testName)
+			assert.Equal(t, cred.Description, testDescription)
+			assert.Equal(t, cred.Ciphertext, testCiphertext)
+			assert.WithinDuration(t, time.Now(), cred.AddedAt, 2*time.Second)
+			assert.Nil(t, cred.RotatedAt)
+		}
+
+	})
+
+	t.Run("fails", func(t *testing.T) {
+
+		client := kms_mock.GenerateDataKey(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		store := NewStore(testKeyID, testContext)
+
+		crypto_mock.WithErrorRandReader("testing errors", func() {
+			err := store.Add(client, testPlaintext, testName, testDescription)
+			if assert.Error(t, err) {
+				assert.Contains(t, err.Error(), "Unable to encrypt credential")
+			}
+		})
 
 	})
 

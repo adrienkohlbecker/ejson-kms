@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"time"
 
+	"github.com/adrienkohlbecker/ejson-kms/crypto"
+	"github.com/adrienkohlbecker/ejson-kms/kms"
 	"github.com/adrienkohlbecker/errors"
 )
 
@@ -104,6 +107,29 @@ func (j *Store) Save(path string) errors.Error {
 		return errors.WrapPrefix(err, fmt.Sprintf("Unable to write file at path %s", path), 0)
 	}
 
+	return nil
+
+}
+
+// Add adds a new credential to the store
+func (j *Store) Add(client kms.Client, plaintext string, name string, description string) errors.Error {
+
+	cipher := crypto.NewCipher(client, j.KMSKeyID, j.EncryptionContext)
+
+	ciphertext, err := cipher.Encrypt(plaintext)
+	if err != nil {
+		return errors.WrapPrefix(err, "Unable to encrypt credential", 0)
+	}
+
+	cred := Credential{
+		Name:        name,
+		Description: description,
+		AddedAt:     time.Now().UTC().Truncate(time.Second),
+		RotatedAt:   nil,
+		Ciphertext:  ciphertext,
+	}
+
+	j.Credentials = append(j.Credentials, cred)
 	return nil
 
 }
