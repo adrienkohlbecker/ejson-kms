@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
-	"time"
 
 	crypto_mock "github.com/adrienkohlbecker/ejson-kms/crypto/mock"
 	kms_mock "github.com/adrienkohlbecker/ejson-kms/kms/mock"
@@ -60,8 +59,6 @@ func TestLoad(t *testing.T) {
 			cred := j.Credentials[0]
 			assert.Equal(t, cred.Name, "test_cred")
 			assert.Equal(t, cred.Description, "Some Description")
-			assert.Equal(t, time.Date(2016, 9, 19, 14, 21, 22, 0, time.UTC), cred.AddedAt)
-			assert.Nil(t, cred.RotatedAt)
 			assert.NotEmpty(t, cred.Ciphertext)
 
 		}
@@ -157,8 +154,6 @@ func TestAdd(t *testing.T) {
 			assert.Equal(t, cred.Name, testName)
 			assert.Equal(t, cred.Description, testDescription)
 			assert.Equal(t, cred.Ciphertext, testCiphertext)
-			assert.WithinDuration(t, time.Now(), cred.AddedAt, 2*time.Second)
-			assert.Nil(t, cred.RotatedAt)
 		}
 
 	})
@@ -339,9 +334,6 @@ func TestRotate(t *testing.T) {
 
 		item := store.Find(testName)
 		assert.Equal(t, item.Ciphertext, testCiphertext2)
-		if assert.NotNil(t, item.RotatedAt) {
-			assert.WithinDuration(t, *item.RotatedAt, time.Now(), 2*time.Second)
-		}
 
 	})
 

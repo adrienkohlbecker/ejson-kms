@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"time"
 
 	"github.com/adrienkohlbecker/ejson-kms/crypto"
 	"github.com/adrienkohlbecker/ejson-kms/formatter"
@@ -117,8 +116,6 @@ func (j *Store) Add(client kms.Client, plaintext string, name string, descriptio
 	cred := &Credential{
 		Name:        name,
 		Description: description,
-		AddedAt:     time.Now().UTC().Truncate(time.Second),
-		RotatedAt:   nil,
 		Ciphertext:  ciphertext,
 	}
 
@@ -217,10 +214,7 @@ func (j *Store) Rotate(client kms.Client, name string, newPlaintext string) erro
 		return errors.WrapPrefix(err, "Unable to encrypt secret", 0)
 	}
 
-	now := time.Now().UTC().Truncate(time.Second)
 	item.Ciphertext = newCiphertext
-	item.RotatedAt = &now
-
 	return nil
 
 }

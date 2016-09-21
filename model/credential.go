@@ -1,7 +1,5 @@
 package model
 
-import "time"
-
 // Credential represents a given secret
 type Credential struct {
 	// Name is the name of the secret used during exporting.
@@ -14,13 +12,6 @@ type Credential struct {
 	// Common use cases include : how to rotate the secret, how it is used
 	// in the code, ...
 	Description string `json:"desctiption"`
-
-	// AddedAt is set when running `ejson-kms add`, and is purely informational.
-	AddedAt time.Time `json:"added_at"`
-
-	// RotatedAt is set when running `ejson-kms rotate`,
-	// and is purely informational.
-	RotatedAt *time.Time `json:"rotated_at"`
 
 	// Ciphertext contains the encrypted secret value, the plaintext nonce,
 	// along with the encrypted data key used for this specific secret.
