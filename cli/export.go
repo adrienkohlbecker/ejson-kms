@@ -1,14 +1,12 @@
 package cli
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
 	"github.com/adrienkohlbecker/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/adrienkohlbecker/ejson-kms/crypto"
 	"github.com/adrienkohlbecker/ejson-kms/formatter"
 	"github.com/adrienkohlbecker/ejson-kms/kms"
 	"github.com/adrienkohlbecker/ejson-kms/model"
@@ -73,21 +71,10 @@ func (cmd *exportCmd) Execute(args []string) errors.Error {
 		return err
 	}
 
-	items := make(chan formatter.Item, len(cmd.creds.Credentials))
-	cipher := crypto.NewCipher(client, cmd.creds.KMSKeyID, cmd.creds.EncryptionContext)
-
-	for _, item := range cmd.creds.Credentials {
-
-		plaintext, loopErr := cipher.Decrypt(item.Ciphertext)
-		if loopErr != nil {
-			return errors.WrapPrefix(loopErr, fmt.Sprintf("Unable to decrypt credential: %s", item.Name), 0)
-		}
-
-		items <- formatter.Item{Name: item.Name, Plaintext: plaintext}
-
+	items, err := cmd.creds.ExportPlaintext(client)
+	if err != nil {
+		return errors.WrapPrefix(err, "Unable to export items", 0)
 	}
-
-	close(items)
 
 	err = cmd.formatter(os.Stdout, items)
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/adrienkohlbecker/ejson-kms/crypto"
+	"github.com/adrienkohlbecker/ejson-kms/formatter"
 	"github.com/adrienkohlbecker/ejson-kms/kms"
 	"github.com/adrienkohlbecker/errors"
 )
@@ -131,5 +132,29 @@ func (j *Store) Add(client kms.Client, plaintext string, name string, descriptio
 
 	j.Credentials = append(j.Credentials, cred)
 	return nil
+
+}
+
+// ExportPlaintext deciphers all the credentials and publishes them to a channel
+// for formatting.
+func (j *Store) ExportPlaintext(client kms.Client) (chan formatter.Item, errors.Error) {
+
+	items := make(chan formatter.Item, len(j.Credentials))
+	cipher := crypto.NewCipher(client, j.KMSKeyID, j.EncryptionContext)
+
+	for _, item := range j.Credentials {
+
+		plaintext, loopErr := cipher.Decrypt(item.Ciphertext)
+		if loopErr != nil {
+			close(items)
+			return items, errors.WrapPrefix(loopErr, fmt.Sprintf("Unable to decrypt credential: %s", item.Name), 0)
+		}
+
+		items <- formatter.Item{Name: item.Name, Plaintext: plaintext}
+
+	}
+
+	close(items)
+	return items, nil
 
 }

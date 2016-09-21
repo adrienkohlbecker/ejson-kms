@@ -22,6 +22,9 @@ const (
 	testCiphertext    = "EJK1];Y2lwaGVydGV4dGJsb2I=;YWJjZGVmYWJjZGVmYWJjZGVmYWJjZGVmlPmP6IWfK7WJMuXVi8aQ7TZu8vCkVA=="
 	testName          = "my_cred"
 	testDescription   = "Some description."
+	testPlaintext2    = "ghijklm"
+	testName2         = "my_other_cred"
+	testDescription2  = "Some other description."
 )
 
 func TestNewStore(t *testing.T) {
@@ -162,6 +165,70 @@ func TestAdd(t *testing.T) {
 				assert.Contains(t, err.Error(), "Unable to encrypt credential")
 			}
 		})
+
+	})
+
+}
+
+func TestExportPlaintext(t *testing.T) {
+
+	store := NewStore(testKeyID, testContext)
+
+	t.Run("empty", func(t *testing.T) {
+
+		client := kms_mock.Decrypt(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		items, err := store.ExportPlaintext(client)
+		assert.NoError(t, err)
+
+		_, open := <-items
+		assert.False(t, open)
+
+	})
+
+	t.Run("working", func(t *testing.T) {
+
+		client := kms_mock.GenerateDataKey(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+
+		err := store.Add(client, testPlaintext, testName, testDescription)
+		assert.NoError(t, err)
+
+		err = store.Add(client, testPlaintext2, testName2, testDescription2)
+		assert.NoError(t, err)
+
+		client = kms_mock.Decrypt(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		items, err := store.ExportPlaintext(client)
+		assert.NoError(t, err)
+
+		item, open := <-items
+		assert.True(t, open)
+		assert.Equal(t, item.Name, testName)
+		assert.Equal(t, item.Plaintext, testPlaintext)
+
+		item, open = <-items
+		assert.True(t, open)
+		assert.Equal(t, item.Name, testName2)
+		assert.Equal(t, item.Plaintext, testPlaintext2)
+
+		_, open = <-items
+		assert.False(t, open)
+
+	})
+
+	t.Run("fails", func(t *testing.T) {
+
+		client := kms_mock.GenerateDataKey(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+
+		err := store.Add(client, testPlaintext, testName, testDescription)
+		assert.NoError(t, err)
+
+		client = kms_mock.DecryptWithError("testing error")
+		items, err := store.ExportPlaintext(client)
+		if assert.Error(t, err) {
+			assert.Contains(t, err.Error(), "Unable to decrypt credential")
+		}
+
+		_, open := <-items
+		assert.False(t, open)
 
 	})
 
