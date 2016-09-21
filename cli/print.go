@@ -59,9 +59,9 @@ func (cmd *printCmd) Parse(args []string) errors.Error {
 		return err
 	}
 
-	creds, err := model.Import(cmd.credsPath)
+	creds, err := model.Load(cmd.credsPath)
 	if err != nil {
-		return errors.WrapPrefix(err, "Unable to import JSON", 0)
+		return errors.WrapPrefix(err, "Unable to load JSON", 0)
 	}
 	cmd.creds = creds
 

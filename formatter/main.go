@@ -3,15 +3,14 @@ package formatter
 import (
 	"io"
 
-	"github.com/adrienkohlbecker/ejson-kms/model"
 	"github.com/adrienkohlbecker/errors"
 )
 
 // Item is a parameter given to formatters, with both the full credential data
 // and the associated plaintext
 type Item struct {
-	Credential model.Credential
-	Plaintext  string
+	Name      string
+	Plaintext string
 }
 
 // Formatter is the interface implemented by formatters.

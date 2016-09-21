@@ -20,7 +20,7 @@ func JSON(w io.Writer, creds <-chan Item) errors.Error {
 	output := make(map[string]string)
 
 	for item := range creds {
-		output[item.Credential.Name] = item.Plaintext
+		output[item.Name] = item.Plaintext
 	}
 
 	encoder := json.NewEncoder(w)

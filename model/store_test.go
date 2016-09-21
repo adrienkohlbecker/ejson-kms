@@ -25,11 +25,11 @@ func TestNewStore(t *testing.T) {
 
 }
 
-func TestImport(t *testing.T) {
+func TestLoad(t *testing.T) {
 
 	t.Run("valid", func(t *testing.T) {
 
-		j, err := Import("./testdata/empty.json")
+		j, err := Load("./testdata/empty.json")
 		assert.NoError(t, err)
 		assert.NotNil(t, j)
 
@@ -51,7 +51,7 @@ func TestImport(t *testing.T) {
 
 	t.Run("invalid json", func(t *testing.T) {
 
-		_, err := Import("./testdata/invalid.json")
+		_, err := Load("./testdata/invalid.json")
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Unable to decode Store")
 		}
@@ -60,7 +60,7 @@ func TestImport(t *testing.T) {
 
 	t.Run("no file", func(t *testing.T) {
 
-		_, err := Import("does-not-exist")
+		_, err := Load("does-not-exist")
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Unable to read file")
 		}
@@ -80,11 +80,11 @@ func TestContains(t *testing.T) {
 
 }
 
-func TestExport(t *testing.T) {
+func TestSave(t *testing.T) {
 
 	t.Run("valid", func(t *testing.T) {
 
-		j, err := Import("./testdata/empty.json")
+		j, err := Load("./testdata/empty.json")
 		assert.NoError(t, err)
 		assert.NotNil(t, j)
 
@@ -93,7 +93,7 @@ func TestExport(t *testing.T) {
 		goErr = tmpfile.Close()
 		assert.NoError(t, goErr)
 
-		err = j.Export(tmpfile.Name())
+		err = j.Save(tmpfile.Name())
 		assert.NoError(t, err)
 
 		goErr = os.Remove(tmpfile.Name())
@@ -107,7 +107,7 @@ func TestExport(t *testing.T) {
 		assert.NoError(t, goErr)
 
 		j := &Store{}
-		err := j.Export(dir)
+		err := j.Save(dir)
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Unable to write file")
 		}

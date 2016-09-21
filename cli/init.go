@@ -66,9 +66,9 @@ func (cmd *initCmd) Execute(args []string) errors.Error {
 
 	store := model.NewStore(cmd.kmsKeyID, cmd.encryptionContext)
 
-	err := store.Export(cmd.credsPath)
+	err := store.Save(cmd.credsPath)
 	if err != nil {
-		return errors.WrapPrefix(err, "Unable to export JSON", 0)
+		return errors.WrapPrefix(err, "Unable to save JSON", 0)
 	}
 
 	fmt.Printf("Exported new credentials file at: %s\n", cmd.credsPath)

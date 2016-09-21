@@ -62,9 +62,9 @@ func (cmd *addCmd) Parse(args []string) errors.Error {
 		return err
 	}
 
-	creds, err := model.Import(cmd.credsPath)
+	creds, err := model.Load(cmd.credsPath)
 	if err != nil {
-		return errors.WrapPrefix(err, "Unable to import JSON", 0)
+		return errors.WrapPrefix(err, "Unable to load JSON", 0)
 	}
 	cmd.creds = creds
 
@@ -107,9 +107,9 @@ func (cmd *addCmd) Execute(args []string) errors.Error {
 
 	cmd.creds.Credentials = append(cmd.creds.Credentials, cred)
 
-	err = cmd.creds.Export(cmd.credsPath)
+	err = cmd.creds.Save(cmd.credsPath)
 	if err != nil {
-		return errors.WrapPrefix(err, "Unable to export JSON", 0)
+		return errors.WrapPrefix(err, "Unable to save JSON", 0)
 	}
 
 	fmt.Printf("Exported new credentials file at: %s\n", cmd.credsPath)

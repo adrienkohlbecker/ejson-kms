@@ -23,7 +23,7 @@ import (
 func Dotenv(w io.Writer, creds <-chan Item) errors.Error {
 
 	for item := range creds {
-		key := strings.ToUpper(item.Credential.Name)
+		key := strings.ToUpper(item.Name)
 		value := strconv.QuoteToASCII(item.Plaintext)
 		fmt.Fprintf(w, "%s=%s\n", key, value)
 	}

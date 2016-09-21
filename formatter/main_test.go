@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/adrienkohlbecker/ejson-kms/model"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,15 +13,11 @@ func testFormatter(t *testing.T, formatter Formatter, dataPath string) {
 	var b bytes.Buffer
 	items := make(chan Item, 2)
 	items <- Item{
-		Credential: model.Credential{
-			Name: "my_credential",
-		},
+		Name:      "my_credential",
 		Plaintext: "my value",
 	}
 	items <- Item{
-		Credential: model.Credential{
-			Name: "another_one",
-		},
+		Name:      "another_one",
 		Plaintext: "string with \"quotes\"",
 	}
 	close(items)

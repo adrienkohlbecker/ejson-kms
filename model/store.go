@@ -54,9 +54,9 @@ func NewStore(kmsKeyID string, encryptionContext map[string]*string) *Store {
 
 }
 
-// Import takes a path to a credentials file and returns the contents of the
+// Load takes a path to a credentials file and returns the contents of the
 // file unmarshaled in the model.
-func Import(path string) (*Store, errors.Error) {
+func Load(path string) (*Store, errors.Error) {
 
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -87,9 +87,9 @@ func (j *Store) Contains(name string) bool {
 
 }
 
-// Export takes a Store struct and writes it to disk to the given path.
+// Save takes a Store struct and writes it to disk to the given path.
 // The Store is pretty-printed and file permissions are set to 0644.
-func (j *Store) Export(path string) errors.Error {
+func (j *Store) Save(path string) errors.Error {
 
 	bytes, err := json.MarshalIndent(j, "", "  ")
 	if err != nil {

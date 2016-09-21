@@ -51,9 +51,9 @@ func (cmd *exportCmd) Parse(args []string) errors.Error {
 		return err
 	}
 
-	creds, err := model.Import(cmd.credsPath)
+	creds, err := model.Load(cmd.credsPath)
 	if err != nil {
-		return errors.WrapPrefix(err, "Unable to import JSON", 0)
+		return errors.WrapPrefix(err, "Unable to load JSON", 0)
 	}
 	cmd.creds = creds
 
@@ -83,7 +83,7 @@ func (cmd *exportCmd) Execute(args []string) errors.Error {
 			return errors.WrapPrefix(loopErr, fmt.Sprintf("Unable to decrypt credential: %s", item.Name), 0)
 		}
 
-		items <- formatter.Item{Credential: item, Plaintext: plaintext}
+		items <- formatter.Item{Name: item.Name, Plaintext: plaintext}
 
 	}
 
