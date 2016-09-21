@@ -1,10 +1,6 @@
 package cli
 
-import (
-	"fmt"
-
-	"github.com/spf13/cobra"
-)
+import "github.com/spf13/cobra"
 
 func versionCmd() *cobra.Command {
 
@@ -14,7 +10,7 @@ func versionCmd() *cobra.Command {
 	}
 
 	cmd.RunE = func(_ *cobra.Command, args []string) error {
-		fmt.Printf("ejson-kms %s (%s) built %s\n", version, sha1, builtAt)
+		cmd.Printf("ejson-kms %s (%s) built %s\n", version, sha1, builtAt)
 		return nil
 	}
 

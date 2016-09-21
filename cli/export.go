@@ -6,7 +6,6 @@ import (
 	"github.com/adrienkohlbecker/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/adrienkohlbecker/ejson-kms/kms"
 	"github.com/adrienkohlbecker/ejson-kms/model"
 	"github.com/adrienkohlbecker/ejson-kms/utils"
 )
@@ -63,7 +62,7 @@ func exportCmd() *cobra.Command {
 			return errors.WrapPrefix(err, "Invalid formatter", 0)
 		}
 
-		client, err := kms.NewClient()
+		client, err := kmsNewClient()
 		if err != nil {
 			return errors.WrapPrefix(err, "Unable to initialize AWS client", 0)
 		}

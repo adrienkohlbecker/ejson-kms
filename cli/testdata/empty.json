@@ -1,0 +1,6 @@
+{
+  "kms_key_id": "arn:aws:kms:eu-west-1:012345678912:alias/ejson-kms-testing",
+  "version": 1,
+  "encryption_context": {},
+  "secrets": []
+}

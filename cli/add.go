@@ -7,7 +7,6 @@ import (
 	"github.com/adrienkohlbecker/errors"
 	"github.com/spf13/cobra"
 
-	"github.com/adrienkohlbecker/ejson-kms/kms"
 	"github.com/adrienkohlbecker/ejson-kms/model"
 	"github.com/adrienkohlbecker/ejson-kms/utils"
 )
@@ -83,9 +82,9 @@ func addCmd() *cobra.Command {
 			return errors.WrapPrefix(err, "Unable to read from stdin", 0)
 		}
 
-		client, err := kms.NewClient()
+		client, err := kmsNewClient()
 		if err != nil {
-			return errors.WrapPrefix(err, "Unable to initalize AWS client", 0)
+			return errors.WrapPrefix(err, "Unable to initialize AWS client", 0)
 		}
 
 		err = store.Add(client, plaintext, name, description)
