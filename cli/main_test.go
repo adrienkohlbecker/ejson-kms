@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -57,13 +58,23 @@ func copyFileToTemp(src string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer in.Close()
+	defer func() {
+		cerr := in.Close()
+		if cerr != nil {
+			fmt.Printf("error while closing in: %s", cerr)
+		}
+	}()
 
 	out, err := ioutil.TempFile(os.TempDir(), "ejson-kms-tests")
 	if err != nil {
 		return "", err
 	}
-	defer out.Close()
+	defer func() {
+		cerr := out.Close()
+		if cerr != nil {
+			fmt.Printf("error while closing out: %s", cerr)
+		}
+	}()
 
 	if _, err = io.Copy(out, in); err != nil {
 		return "", err
