@@ -64,13 +64,9 @@ func (cmd *initCmd) Parse(args []string) errors.Error {
 
 func (cmd *initCmd) Execute(args []string) errors.Error {
 
-	j := &model.Store{}
-	j.Version = 1
-	j.KMSKeyID = cmd.kmsKeyID
-	j.EncryptionContext = cmd.encryptionContext
-	j.Credentials = make([]model.Credential, 0)
+	store := model.NewStore(cmd.kmsKeyID, cmd.encryptionContext)
 
-	err := j.Export(cmd.credsPath)
+	err := store.Export(cmd.credsPath)
 	if err != nil {
 		return errors.WrapPrefix(err, "Unable to export JSON", 0)
 	}

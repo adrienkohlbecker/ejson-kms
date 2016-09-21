@@ -42,6 +42,18 @@ type Store struct {
 	Credentials []Credential `json:"credentials"`
 }
 
+// NewStore returns a new empty store
+func NewStore(kmsKeyID string, encryptionContext map[string]*string) *Store {
+
+	return &Store{
+		KMSKeyID:          kmsKeyID,
+		Version:           1,
+		EncryptionContext: encryptionContext,
+		Credentials:       make([]Credential, 0),
+	}
+
+}
+
 // Import takes a path to a credentials file and returns the contents of the
 // file unmarshaled in the model.
 func Import(path string) (*Store, errors.Error) {

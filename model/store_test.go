@@ -9,6 +9,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var testContext = map[string]*string{"ABC": nil}
+
+const (
+	testKeyID         = "my-key-id"
+)
+
+func TestNewStore(t *testing.T) {
+
+	store := NewStore(testKeyID, testContext)
+	assert.Equal(t, testKeyID, store.KMSKeyID)
+	assert.Equal(t, 1, store.Version)
+	assert.Equal(t, testContext, store.EncryptionContext)
+	assert.Equal(t, []Credential{}, store.Credentials)
+
+}
+
 func TestImport(t *testing.T) {
 
 	t.Run("valid", func(t *testing.T) {
