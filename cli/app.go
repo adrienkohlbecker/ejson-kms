@@ -15,9 +15,10 @@ Complete documentation is available at https://github.com/adrienkohlbecker/ejson
 func App() *cobra.Command {
 
 	var cmd = &cobra.Command{
-		Use:   "ejson-kms",
-		Short: "ejson-kms manages your secrets using Amazon KMS and a simple JSON file",
-		Long:  strings.TrimSpace(docApp),
+		Use:               "ejson-kms",
+		Short:             "ejson-kms manages your secrets using Amazon KMS and a simple JSON file",
+		Long:              strings.TrimSpace(docApp),
+		DisableAutoGenTag: true,
 	}
 
 	cmd.AddCommand(addCmd())

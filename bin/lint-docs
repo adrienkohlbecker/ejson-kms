@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Unofficial bash strict mode http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -eu
+set -o pipefail
+IFS=$'\n\t'
+
+bin/generate-docs
+
+if [ ! "$(git status --porcelain)" = '' ]; then
+  echo "Docs are out of date"
+  exit 1
+fi
