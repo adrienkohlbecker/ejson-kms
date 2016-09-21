@@ -1,6 +1,7 @@
 package crypto
 
 import (
+	"errors"
 	"testing"
 
 	crypto_mock "github.com/adrienkohlbecker/ejson-kms/crypto/mock"
@@ -24,7 +25,8 @@ func TestEncrypt(t *testing.T) {
 
 	t.Run("working", func(t *testing.T) {
 
-		client := kms_mock.New(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := &kms_mock.Client{}
+		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
 
 		crypto_mock.WithConstRandReader(testConstantNonce, func() {
 
@@ -39,7 +41,8 @@ func TestEncrypt(t *testing.T) {
 
 	t.Run("with aws error", func(t *testing.T) {
 
-		client := kms_mock.NewWithError("testing errors")
+		client := &kms_mock.Client{}
+		client.On("GenerateDataKey", testKeyID, testContext).Return("", "", errors.New("testing errors")).Once()
 
 		cipher := NewCipher(client, testKeyID, testContext)
 		_, err := cipher.Encrypt(testPlaintext)
@@ -50,7 +53,8 @@ func TestEncrypt(t *testing.T) {
 
 	t.Run("with encrypt error", func(t *testing.T) {
 
-		client := kms_mock.New(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := &kms_mock.Client{}
+		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
 
 		crypto_mock.WithErrorRandReader("testing error", func() {
 
@@ -68,7 +72,8 @@ func TestDecrypt(t *testing.T) {
 
 	t.Run("working", func(t *testing.T) {
 
-		client := kms_mock.New(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := &kms_mock.Client{}
+		client.On("Decrypt", testKeyCiphertext, testContext).Return(testKeyID, testKeyPlaintext, nil).Once()
 
 		cipher := NewCipher(client, testKeyID, testContext)
 		plaintext, err := cipher.Decrypt(testCiphertext)
@@ -81,6 +86,8 @@ func TestDecrypt(t *testing.T) {
 	t.Run("with decode error", func(t *testing.T) {
 
 		client := &kms_mock.Client{}
+		client.On("Decrypt", testKeyCiphertext, testContext).Return(testKeyID, testKeyPlaintext, nil).Once()
+
 		cipher := NewCipher(client, testKeyID, testContext)
 		_, err := cipher.Decrypt("abc")
 		if assert.Error(t, err) {
@@ -91,7 +98,8 @@ func TestDecrypt(t *testing.T) {
 
 	t.Run("with aws error", func(t *testing.T) {
 
-		client := kms_mock.NewWithError("testing errors")
+		client := &kms_mock.Client{}
+		client.On("Decrypt", testKeyCiphertext, testContext).Return("", "", errors.New("testing errors")).Once()
 
 		cipher := NewCipher(client, testKeyID, testContext)
 		_, err := cipher.Decrypt(testCiphertext)
@@ -103,7 +111,8 @@ func TestDecrypt(t *testing.T) {
 
 	t.Run("with decrypt error", func(t *testing.T) {
 
-		client := kms_mock.New(t, testKeyID, testContext, testKeyCiphertext, "notlongenough")
+		client := &kms_mock.Client{}
+		client.On("Decrypt", testKeyCiphertext, testContext).Return(testKeyID, "notlongenough", nil).Once()
 
 		cipher := NewCipher(client, testKeyID, testContext)
 		_, err := cipher.Decrypt(testCiphertext)

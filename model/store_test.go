@@ -1,6 +1,7 @@
 package model
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -135,7 +136,9 @@ func TestAdd(t *testing.T) {
 
 	t.Run("working", func(t *testing.T) {
 
-		client := kms_mock.New(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := &kms_mock.Client{}
+		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
+
 		store := NewStore(testKeyID, testContext)
 
 		crypto_mock.WithConstRandReader(testConstantNonce, func() {
@@ -156,15 +159,14 @@ func TestAdd(t *testing.T) {
 
 	t.Run("fails", func(t *testing.T) {
 
-		client := kms_mock.New(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := &kms_mock.Client{}
+		client.On("GenerateDataKey", testKeyID, testContext).Return("", "", errors.New("testing errors")).Once()
 		store := NewStore(testKeyID, testContext)
 
-		crypto_mock.WithErrorRandReader("testing errors", func() {
-			err := store.Add(client, testPlaintext, testName, testDescription)
-			if assert.Error(t, err) {
-				assert.Contains(t, err.Error(), "Unable to generate nonce")
-			}
-		})
+		err := store.Add(client, testPlaintext, testName, testDescription)
+		if assert.Error(t, err) {
+			assert.Contains(t, err.Error(), "Unable to generate data key")
+		}
 
 	})
 
@@ -176,7 +178,8 @@ func TestExportPlaintext(t *testing.T) {
 
 	t.Run("empty", func(t *testing.T) {
 
-		client := kms_mock.New(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := &kms_mock.Client{}
+
 		items, err := store.ExportPlaintext(client)
 		assert.NoError(t, err)
 
@@ -187,7 +190,9 @@ func TestExportPlaintext(t *testing.T) {
 
 	t.Run("working", func(t *testing.T) {
 
-		client := kms_mock.New(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := &kms_mock.Client{}
+		client.On("Decrypt", testKeyCiphertext, testContext).Return(testKeyID, testKeyPlaintext, nil).Twice()
+		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Twice()
 
 		err := store.Add(client, testPlaintext, testName, testDescription)
 		assert.NoError(t, err)
@@ -215,12 +220,13 @@ func TestExportPlaintext(t *testing.T) {
 
 	t.Run("fails", func(t *testing.T) {
 
-		client := kms_mock.New(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := &kms_mock.Client{}
+		client.On("Decrypt", testKeyCiphertext, testContext).Return("", "", errors.New("testing errors")).Once()
+		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
 
 		err := store.Add(client, testPlaintext, testName, testDescription)
 		assert.NoError(t, err)
 
-		client = kms_mock.NewWithError("testing error")
 		items, err := store.ExportPlaintext(client)
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Unable to decrypt key ciphertext")

@@ -1,6 +1,7 @@
 package kms
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -56,7 +57,8 @@ func TestGenerateDataKey(t *testing.T) {
 
 	t.Run("without AWS error", func(t *testing.T) {
 
-		client := kms_mock.New(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := &kms_mock.Client{}
+		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
 
 		expected := DataKey{
 			Ciphertext: []byte(testKeyCiphertext),
@@ -71,7 +73,8 @@ func TestGenerateDataKey(t *testing.T) {
 
 	t.Run("with AWS error", func(t *testing.T) {
 
-		client := kms_mock.NewWithError("testing errors")
+		client := &kms_mock.Client{}
+		client.On("GenerateDataKey", testKeyID, testContext).Return("", "", errors.New("testing errors")).Once()
 
 		_, err := GenerateDataKey(client, testKeyID, testContext)
 		if assert.Error(t, err) {
@@ -87,7 +90,8 @@ func TestDecryptDataKey(t *testing.T) {
 
 	t.Run("without AWS error", func(t *testing.T) {
 
-		client := kms_mock.New(t, testKeyID, testContext, testKeyCiphertext, testKeyPlaintext)
+		client := &kms_mock.Client{}
+		client.On("Decrypt", testKeyCiphertext, testContext).Return(testKeyID, testKeyPlaintext, nil).Once()
 
 		expected := DataKey{
 			Ciphertext: []byte(testKeyCiphertext),
@@ -102,7 +106,8 @@ func TestDecryptDataKey(t *testing.T) {
 
 	t.Run("with AWS error", func(t *testing.T) {
 
-		client := kms_mock.NewWithError("testing errors")
+		client := &kms_mock.Client{}
+		client.On("Decrypt", testKeyCiphertext, testContext).Return("", "", errors.New("testing errors")).Once()
 
 		_, err := DecryptDataKey(client, []byte(testKeyCiphertext), testContext)
 		if assert.Error(t, err) {
