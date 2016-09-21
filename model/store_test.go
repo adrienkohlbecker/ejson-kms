@@ -33,7 +33,7 @@ func TestNewStore(t *testing.T) {
 	assert.Equal(t, testKeyID, store.KMSKeyID)
 	assert.Equal(t, 1, store.Version)
 	assert.Equal(t, testContext, store.EncryptionContext)
-	assert.Equal(t, []Credential{}, store.Credentials)
+	assert.Equal(t, []*Credential{}, store.Credentials)
 
 }
 
@@ -83,8 +83,8 @@ func TestLoad(t *testing.T) {
 
 func TestContains(t *testing.T) {
 
-	j := &Store{Credentials: []Credential{
-		Credential{Name: "test_cred"},
+	j := &Store{Credentials: []*Credential{
+		&Credential{Name: "test_cred"},
 	}}
 
 	assert.True(t, j.Contains("test_cred"))

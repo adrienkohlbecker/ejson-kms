@@ -43,7 +43,7 @@ type Store struct {
 	EncryptionContext map[string]*string `json:"encryption_context"`
 
 	// Credentials is a list of credentials
-	Credentials []Credential `json:"credentials"`
+	Credentials []*Credential `json:"credentials"`
 }
 
 // NewStore returns a new empty store
@@ -53,7 +53,7 @@ func NewStore(kmsKeyID string, encryptionContext map[string]*string) *Store {
 		KMSKeyID:          kmsKeyID,
 		Version:           1,
 		EncryptionContext: encryptionContext,
-		Credentials:       make([]Credential, 0),
+		Credentials:       make([]*Credential, 0),
 	}
 
 }
@@ -122,7 +122,7 @@ func (j *Store) Add(client kms.Client, plaintext string, name string, descriptio
 		return errors.WrapPrefix(err, "Unable to encrypt credential", 0)
 	}
 
-	cred := Credential{
+	cred := &Credential{
 		Name:        name,
 		Description: description,
 		AddedAt:     time.Now().UTC().Truncate(time.Second),
