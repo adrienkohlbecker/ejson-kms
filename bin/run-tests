@@ -19,6 +19,7 @@ if [ ! -z "${CIRCLECI:-}" ]; then
     PKG_UNDERSCORE=$(echo "$PKG" | sed 's|github.com/adrienkohlbecker/||' | sed 's|/|_|g')
 
     exec 5>&1
+    set +e
     OUT=$(go test -v \
       -covermode=count \
       -coverprofile="$REPORTS_PATH/$PKG_UNDERSCORE.coverprofile" \
@@ -28,6 +29,7 @@ if [ ! -z "${CIRCLECI:-}" ]; then
       | grep -v "coverage: " \
       | tee >(cat - >&5)
     )
+    set -e
     echo "$OUT" | go-junit-report > "$REPORTS_PATH/$PKG_UNDERSCORE.xml"
 
   done
