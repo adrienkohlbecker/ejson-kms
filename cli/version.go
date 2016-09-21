@@ -14,7 +14,7 @@ func versionCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "version",
-		Short: "Prints the version of ejson-kms",
+		Short: "prints the version of ejson-kms",
 	}
 
 	cmd.RunE = func(_ *cobra.Command, args []string) error {

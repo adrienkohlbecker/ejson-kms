@@ -21,7 +21,7 @@ func ValidCredentialsPath(path string) errors.Error {
 
 	stat, err := os.Stat(path)
 	if err != nil {
-		return errors.WrapPrefix(err, fmt.Sprintf("Unable to find credentials file at %s", path), 0)
+		return errors.WrapPrefix(err, fmt.Sprintf("Unable to find secrets file at %s", path), 0)
 	}
 
 	if stat.IsDir() {
@@ -48,7 +48,7 @@ func ValidNewCredentialsPath(path string) errors.Error {
 
 }
 
-// ValidName checks if the provided string is valid as a credential name.
+// ValidName checks if the provided string is valid as a secret name.
 //
 // It must be only lowercase letters, digits or underscores.
 // It cannot start with a letter.

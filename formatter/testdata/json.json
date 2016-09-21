@@ -1,4 +1,4 @@
 {
   "another_one": "string with \"quotes\"",
-  "my_credential": "my value"
+  "my_secret": "my value"
 }

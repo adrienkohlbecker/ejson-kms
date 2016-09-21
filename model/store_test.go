@@ -255,7 +255,7 @@ func TestFind(t *testing.T) {
 
 }
 
-func TestRotateMasterKey(t *testing.T) {
+func TestRotateKMSKey(t *testing.T) {
 
 	t.Run("working", func(t *testing.T) {
 
@@ -270,7 +270,7 @@ func TestRotateMasterKey(t *testing.T) {
 			err := store.Add(client, testPlaintext, testName, testDescription)
 			assert.NoError(t, err)
 
-			err = store.RotateMasterKey(client, testKeyID2)
+			err = store.RotateKMSKey(client, testKeyID2)
 			assert.NoError(t, err)
 		})
 
@@ -291,9 +291,9 @@ func TestRotateMasterKey(t *testing.T) {
 		err := store.Add(client, testPlaintext, testName, testDescription)
 		assert.NoError(t, err)
 
-		err = store.RotateMasterKey(client, testKeyID2)
+		err = store.RotateKMSKey(client, testKeyID2)
 		if assert.Error(t, err) {
-			assert.Contains(t, err.Error(), "Unable to decrypt credential")
+			assert.Contains(t, err.Error(), "Unable to decrypt secret")
 		}
 
 	})
@@ -310,9 +310,9 @@ func TestRotateMasterKey(t *testing.T) {
 		err := store.Add(client, testPlaintext, testName, testDescription)
 		assert.NoError(t, err)
 
-		err = store.RotateMasterKey(client, testKeyID2)
+		err = store.RotateKMSKey(client, testKeyID2)
 		if assert.Error(t, err) {
-			assert.Contains(t, err.Error(), "Unable to encrypt credential")
+			assert.Contains(t, err.Error(), "Unable to encrypt secret")
 		}
 
 	})
@@ -370,7 +370,7 @@ func TestRotate(t *testing.T) {
 
 		err = store.Rotate(client, testName, testPlaintext)
 		if assert.Error(t, err) {
-			assert.Contains(t, err.Error(), "Trying to rotate a credential and giving the same value")
+			assert.Contains(t, err.Error(), "Trying to rotate a secret and giving the same value")
 		}
 
 	})
@@ -388,7 +388,7 @@ func TestRotate(t *testing.T) {
 
 		err = store.Rotate(client, testName, testPlaintext2)
 		if assert.Error(t, err) {
-			assert.Contains(t, err.Error(), "Unable to decrypt credential")
+			assert.Contains(t, err.Error(), "Unable to decrypt secret")
 		}
 
 	})
@@ -407,7 +407,7 @@ func TestRotate(t *testing.T) {
 
 		err = store.Rotate(client, testName, testPlaintext2)
 		if assert.Error(t, err) {
-			assert.Contains(t, err.Error(), "Unable to encrypt credential")
+			assert.Contains(t, err.Error(), "Unable to encrypt secret")
 		}
 
 	})

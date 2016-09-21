@@ -6,7 +6,7 @@ import (
 )
 
 // Cipher is a struct containing the configuration for crypto operations on
-// a single credentials file.
+// a single secrets file.
 type Cipher struct {
 	// Client is the AWS KMS client
 	Client kms.Client
@@ -27,7 +27,7 @@ func NewCipher(client kms.Client, kmsKeyID string, context map[string]*string) *
 	}
 }
 
-// Encrypt is the main entrypoint for encrypting credentials.
+// Encrypt is the main entrypoint for encrypting secrets.
 //
 // It takes the plaintext to encrypt, and returns the encrypted
 // and string-encoded ciphertext.
@@ -48,7 +48,7 @@ func (c *Cipher) Encrypt(plaintext string) (string, errors.Error) {
 
 }
 
-// Decrypt is the main entrypoint for encrypting credentials.
+// Decrypt is the main entrypoint for encrypting secrets.
 //
 // It takes the string-encoded ciphertext and returns the decoded
 // and decrypted plaintext.

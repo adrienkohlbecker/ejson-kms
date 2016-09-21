@@ -12,10 +12,10 @@ import (
 	"github.com/adrienkohlbecker/errors"
 )
 
-// Store represents a credentials file.
+// Store represents a secrets file.
 type Store struct {
 	// KMSKeyID is an aws ID pointing to the master key used to encrypt the
-	// credentials in this file.
+	// secrets in this file.
 	//
 	// This value can be a globally
 	// unique identifier, a fully specified ID to either an alias or a key, or
@@ -38,12 +38,12 @@ type Store struct {
 	// the encryption and decryption processes that use the key. This value is logged
 	// by AWS CloudTrail to provide context around the data encrypted by the key.
 	//
-	// Note that changing this value requires re-encrypting every credential
+	// Note that changing this value requires re-encrypting every secret
 	// in the file, since KMS uses it as part of the decryption process.
 	EncryptionContext map[string]*string `json:"encryption_context"`
 
-	// Credentials is a list of credentials
-	Credentials []*Credential `json:"credentials"`
+	// Credentials is a list of secrets
+	Credentials []*Credential `json:"secrets"`
 }
 
 // NewStore returns a new empty store
@@ -58,7 +58,7 @@ func NewStore(kmsKeyID string, encryptionContext map[string]*string) *Store {
 
 }
 
-// Load takes a path to a credentials file and returns the contents of the
+// Load takes a path to a secrets file and returns the contents of the
 // file unmarshaled in the model.
 func Load(path string) (*Store, errors.Error) {
 
@@ -78,7 +78,7 @@ func Load(path string) (*Store, errors.Error) {
 }
 
 // Contains is a convenience wrapper to check for the existence of a given
-// credential in the file.
+// secret in the file.
 func (j *Store) Contains(name string) bool {
 	return j.Find(name) != nil
 }
@@ -104,7 +104,7 @@ func (j *Store) Save(path string) errors.Error {
 
 }
 
-// Add adds a new credential to the store
+// Add adds a new secret to the store
 func (j *Store) Add(client kms.Client, plaintext string, name string, description string) errors.Error {
 
 	cipher := crypto.NewCipher(client, j.KMSKeyID, j.EncryptionContext)
@@ -127,7 +127,7 @@ func (j *Store) Add(client kms.Client, plaintext string, name string, descriptio
 
 }
 
-// ExportPlaintext deciphers all the credentials and publishes them to a channel
+// ExportPlaintext deciphers all the secrets and publishes them to a channel
 // for formatting.
 func (j *Store) ExportPlaintext(client kms.Client) (chan formatter.Item, errors.Error) {
 
@@ -151,7 +151,7 @@ func (j *Store) ExportPlaintext(client kms.Client) (chan formatter.Item, errors.
 
 }
 
-// Find returns the credential corresponding to a name
+// Find returns the secret corresponding to a name
 func (j *Store) Find(name string) *Credential {
 
 	for _, item := range j.Credentials {
@@ -166,8 +166,8 @@ func (j *Store) Find(name string) *Credential {
 
 }
 
-// RotateMasterKey re-encrypts all the credentials with the new given KMS key
-func (j *Store) RotateMasterKey(client kms.Client, newKMSKeyID string) errors.Error {
+// RotateKMSKey re-encrypts all the secrets with the new given KMS key
+func (j *Store) RotateKMSKey(client kms.Client, newKMSKeyID string) errors.Error {
 
 	oldCipher := crypto.NewCipher(client, j.KMSKeyID, j.EncryptionContext)
 	newCipher := crypto.NewCipher(client, newKMSKeyID, j.EncryptionContext)
@@ -176,12 +176,12 @@ func (j *Store) RotateMasterKey(client kms.Client, newKMSKeyID string) errors.Er
 
 		oldPlaintext, err := oldCipher.Decrypt(item.Ciphertext)
 		if err != nil {
-			return errors.WrapPrefix(err, fmt.Sprintf("Unable to decrypt credential: %s", item.Name), 0)
+			return errors.WrapPrefix(err, fmt.Sprintf("Unable to decrypt secret: %s", item.Name), 0)
 		}
 
 		newCiphertext, err := newCipher.Encrypt(oldPlaintext)
 		if err != nil {
-			return errors.WrapPrefix(err, "Unable to encrypt credential", 0)
+			return errors.WrapPrefix(err, "Unable to encrypt secret", 0)
 		}
 
 		item.Ciphertext = newCiphertext
@@ -193,7 +193,7 @@ func (j *Store) RotateMasterKey(client kms.Client, newKMSKeyID string) errors.Er
 
 }
 
-// Rotate changes the plaintext of a stored credential. A new data key is generated.
+// Rotate changes the plaintext of a stored secret. A new data key is generated.
 func (j *Store) Rotate(client kms.Client, name string, newPlaintext string) errors.Error {
 
 	item := j.Find(name)
@@ -205,16 +205,16 @@ func (j *Store) Rotate(client kms.Client, name string, newPlaintext string) erro
 
 	oldPlaintext, err := cipher.Decrypt(item.Ciphertext)
 	if err != nil {
-		return errors.WrapPrefix(err, "Unable to decrypt credential", 0)
+		return errors.WrapPrefix(err, "Unable to decrypt secret", 0)
 	}
 
 	if oldPlaintext == newPlaintext {
-		return errors.Errorf("Trying to rotate a credential and giving the same value")
+		return errors.Errorf("Trying to rotate a secret and giving the same value")
 	}
 
 	newCiphertext, err := cipher.Encrypt(newPlaintext)
 	if err != nil {
-		return errors.WrapPrefix(err, "Unable to encrypt credential", 0)
+		return errors.WrapPrefix(err, "Unable to encrypt secret", 0)
 	}
 
 	now := time.Now().UTC().Truncate(time.Second)

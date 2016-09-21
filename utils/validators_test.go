@@ -26,14 +26,14 @@ func TestValidCredentialsPath(t *testing.T) {
 
 		err := ValidCredentialsPath("not-a-real-path")
 		if assert.Error(t, err) {
-			assert.Contains(t, err.Error(), "Unable to find credentials file")
+			assert.Contains(t, err.Error(), "Unable to find secrets file")
 		}
 
 	})
 
 	t.Run("directory", func(t *testing.T) {
 
-		dir, goErr := ioutil.TempDir(os.TempDir(), "valid-credentials-path")
+		dir, goErr := ioutil.TempDir(os.TempDir(), "valid-secrets-path")
 		assert.NoError(t, goErr)
 
 		err := ValidCredentialsPath(dir)
@@ -48,7 +48,7 @@ func TestValidCredentialsPath(t *testing.T) {
 
 	t.Run("valid path", func(t *testing.T) {
 
-		tmpfile, goErr := ioutil.TempFile(os.TempDir(), "valid-credentials-path")
+		tmpfile, goErr := ioutil.TempFile(os.TempDir(), "valid-secrets-path")
 		assert.NoError(t, goErr)
 
 		err := ValidCredentialsPath(tmpfile.Name())
@@ -83,7 +83,7 @@ func TestValidNewCredentialsPath(t *testing.T) {
 
 	t.Run("existing path", func(t *testing.T) {
 
-		tmpfile, goErr := ioutil.TempFile(os.TempDir(), "valid-credentials-path")
+		tmpfile, goErr := ioutil.TempFile(os.TempDir(), "valid-secrets-path")
 		assert.NoError(t, goErr)
 
 		err := ValidNewCredentialsPath(tmpfile.Name())

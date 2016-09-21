@@ -6,7 +6,7 @@ import (
 	"github.com/adrienkohlbecker/errors"
 )
 
-// Item is a parameter given to formatters, with the credential name
+// Item is a parameter given to formatters, with the secret name
 // and the associated plaintext
 type Item struct {
 	Name      string

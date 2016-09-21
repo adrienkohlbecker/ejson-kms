@@ -9,10 +9,10 @@ import (
 
 // JSON implements the Formatter interface.
 //
-// It outputs the decrypted credentials as JSON:
+// It outputs the decrypted secrets as JSON:
 //
 //  {
-//    "my_credential": "my value",
+//    "my_secret": "my value",
 //    "another_one": "string with \"quotes\""
 //  }
 func JSON(w io.Writer, creds <-chan Item) errors.Error {

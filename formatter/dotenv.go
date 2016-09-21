@@ -11,12 +11,12 @@ import (
 
 // Dotenv implements the Formatter interface.
 //
-// It outputs the decrypted credentials in the form:
+// It outputs the decrypted secrets in the form:
 //
 //   MY_CREDENTIAL="my value"
 //   ANOTHER_ONE="string with \"quotes\""
 //
-// The credential names are capitalized and the values are quoted as Go strings.
+// The secret names are capitalized and the values are quoted as Go strings.
 //
 // TODO: Ensure the go syntax for strings is compatible with Dotenv, as it seems
 // to be the case from quick testing.

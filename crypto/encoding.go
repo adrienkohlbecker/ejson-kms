@@ -12,8 +12,8 @@ import (
 // It will allow versioning the algorithm in the future.
 const MagicPrefix = "EJK1]"
 
-// encrypted is a struct representation of a encrypted credential.
-// It contains the ciphertext of both the credential and the data key.
+// encrypted is a struct representation of a encrypted secret.
+// It contains the ciphertext of both the secret and the data key.
 type encrypted struct {
 	ciphertext    []byte
 	keyCiphertext []byte

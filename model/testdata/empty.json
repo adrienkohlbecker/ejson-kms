@@ -4,7 +4,7 @@
   "encryption_context": {
     "KEY": "VALUE"
   },
-  "credentials": [
+  "secrets": [
     {
       "name": "test_cred",
       "desctiption": "Some Description",

@@ -13,7 +13,21 @@ import (
 )
 
 const docExport = `
-Export a credentials file in it's decrypted form.
+export: Export a secrets file in it's decrypted form.
+
+Each secret in the file will be decrypted and output to standard out.
+A number of formats are available:
+
+  * bash:   export SECRET="password"
+  * dotenv: SECRET="password"
+  * json:   { "secret": "password" }
+
+Please be careful when exporting your secrets, do not save them to disk!
+`
+const exampleExport = `
+ejson-kms export
+ejson-kms export --format=json
+ejson-kms export --path=secrets.json --format=dotenv
 `
 
 func init() {
@@ -23,24 +37,27 @@ func init() {
 func exportCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "export",
-		Short: "Export a credentials file in it's decrypted form.",
-		Long:  strings.TrimSpace(docExport),
+		Use:     "export",
+		Short:   "export the decrypted secrets",
+		Long:    strings.TrimSpace(docExport),
+		Example: strings.TrimSpace(exampleExport),
 	}
 
 	var (
-		storePath = ".credentials.json"
+		storePath = ".secrets.json"
 		format    = "bash"
 	)
 
-	cmd.Flags().StringVar(&storePath, "path", storePath, "The path of the generated file.")
-	cmd.Flags().StringVar(&format, "format", format, "The format of the generated output (bash|dotenv|json)")
+	cmd.Flags().StringVar(&storePath, "path", storePath, "path of the secrets file")
+	cmd.Flags().StringVar(&format, "format", format, "format of the generated output (bash|dotenv|json)")
+
+	cmd.MarkFlagFilename("path", "json")
 
 	cmd.RunE = func(_ *cobra.Command, args []string) error {
 
 		err := utils.ValidCredentialsPath(storePath)
 		if err != nil {
-			return err
+			return errors.WrapPrefix(err, "Invalid path", 0)
 		}
 
 		store, err := model.Load(storePath)
@@ -50,12 +67,12 @@ func exportCmd() *cobra.Command {
 
 		formatter, err := utils.ValidFormatter(format)
 		if err != nil {
-			return err
+			return errors.WrapPrefix(err, "Invalid formatter", 0)
 		}
 
 		client, err := kms.NewClient()
 		if err != nil {
-			return err
+			return errors.WrapPrefix(err, "Unable to initialize AWS client", 0)
 		}
 
 		items, err := store.ExportPlaintext(client)

@@ -13,7 +13,7 @@ func testFormatter(t *testing.T, formatter Formatter, dataPath string) {
 	var b bytes.Buffer
 	items := make(chan Item, 2)
 	items <- Item{
-		Name:      "my_credential",
+		Name:      "my_secret",
 		Plaintext: "my value",
 	}
 	items <- Item{
