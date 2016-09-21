@@ -17,6 +17,10 @@ type Client struct {
 //
 func (m *Client) GenerateDataKey(params *kms.GenerateDataKeyInput) (*kms.GenerateDataKeyOutput, error) {
 
+	if len(params.GrantTokens) > 0 || *params.KeySpec != "AES_256" {
+		panic("unexpected arguments to GenerateDataKey")
+	}
+
 	args := m.Called(*params.KeyId, params.EncryptionContext)
 	return &kms.GenerateDataKeyOutput{
 		CiphertextBlob: []byte(args.String(0)),
@@ -31,6 +35,10 @@ func (m *Client) GenerateDataKey(params *kms.GenerateDataKeyInput) (*kms.Generat
 //   client.On("Decrypt", testKeyCiphertext, testContext).Return(testKeyID, testKeyPlaintext, nil)
 //
 func (m *Client) Decrypt(params *kms.DecryptInput) (*kms.DecryptOutput, error) {
+
+	if len(params.GrantTokens) > 0 {
+		panic("unexpected arguments to Decrypt")
+	}
 
 	args := m.Called(string(params.CiphertextBlob), params.EncryptionContext)
 	keyID := args.String(0)
