@@ -11,7 +11,7 @@ type Secret struct {
 	// Description is a free-form explanation of what the secret is used for.
 	// Common use cases include : how to rotate the secret, how it is used
 	// in the code, ...
-	Description string `json:"desctiption"`
+	Description string `json:"description"`
 
 	// Ciphertext contains the encrypted secret value, the plaintext nonce,
 	// along with the encrypted data key used for this specific secret.
