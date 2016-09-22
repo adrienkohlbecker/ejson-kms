@@ -13,17 +13,13 @@ type Cipher struct {
 
 	// KMSKeyID is the ID of the master key to use for key wrapping
 	KMSKeyID string
-
-	// Context is a key-value store of arbitrary values added to the data keys
-	Context map[string]*string
 }
 
 // NewCipher returns an initialized Cipher.
-func NewCipher(client kms.Client, kmsKeyID string, context map[string]*string) *Cipher {
+func NewCipher(client kms.Client, kmsKeyID string) *Cipher {
 	return &Cipher{
 		Client:   client,
 		KMSKeyID: kmsKeyID,
-		Context:  context,
 	}
 }
 
@@ -31,9 +27,9 @@ func NewCipher(client kms.Client, kmsKeyID string, context map[string]*string) *
 //
 // It takes the plaintext to encrypt, and returns the encrypted
 // and string-encoded ciphertext.
-func (c *Cipher) Encrypt(plaintext string) (string, errors.Error) {
+func (c *Cipher) Encrypt(plaintext string, context map[string]*string) (string, errors.Error) {
 
-	key, err := kms.GenerateDataKey(c.Client, c.KMSKeyID, c.Context)
+	key, err := kms.GenerateDataKey(c.Client, c.KMSKeyID, context)
 	if err != nil {
 		return "", err
 	}
@@ -52,14 +48,14 @@ func (c *Cipher) Encrypt(plaintext string) (string, errors.Error) {
 //
 // It takes the string-encoded ciphertext and returns the decoded
 // and decrypted plaintext.
-func (c *Cipher) Decrypt(encoded string) (string, errors.Error) {
+func (c *Cipher) Decrypt(encoded string, context map[string]*string) (string, errors.Error) {
 
 	encrypted, err := decode(encoded)
 	if err != nil {
 		return "", err
 	}
 
-	key, err := kms.DecryptDataKey(c.Client, encrypted.keyCiphertext, c.Context)
+	key, err := kms.DecryptDataKey(c.Client, encrypted.keyCiphertext, context)
 	if err != nil {
 		return "", err
 	}

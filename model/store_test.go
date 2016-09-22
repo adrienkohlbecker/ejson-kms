@@ -11,8 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var testContext = map[string]*string{"ABC": nil}
-
 const (
 	testKeyID         = "my-key-id"
 	testKeyPlaintext  = "-abcdefabcdefabcdefabcdefabcdef-"
@@ -20,17 +18,23 @@ const (
 	testConstantNonce = "abcdefabcdefabcdefabcdef"
 	testPlaintext     = "abcdef"
 	testCiphertext    = "EJK1];Y2lwaGVydGV4dGJsb2I=;YWJjZGVmYWJjZGVmYWJjZGVmYWJjZGVmlPmP6IWfK7WJMuXVi8aQ7TZu8vCkVA=="
-	testName          = "my_cred"
 	testDescription   = "Some description."
 	testPlaintext2    = "ghijklm"
 	testCiphertext2   = "EJK1];Y2lwaGVydGV4dGJsb2I=;YWJjZGVmYWJjZGVmYWJjZGVmYWJjZGVm4iKh5QPWblMQEKL6IaIRtjBk+P6qXpI="
-	testName2         = "my_other_cred"
 	testDescription2  = "Some other description."
 
 	testKeyID2             = "my-other-key"
 	testKeyPlaintext2      = "-123456789012345678901234567890-"
 	testKeyCiphertext2     = "anotherciphertextblob"
 	testCiphertextOtherKey = "EJK1];YW5vdGhlcmNpcGhlcnRleHRibG9i;YWJjZGVmYWJjZGVmYWJjZGVmYWJjZGVmQV4vWDZmRgWgHcfvkFd0yP7uEoH1vw=="
+)
+
+var (
+	testName     = "my_cred"
+	testName2    = "my_other_cred"
+	testContext  = map[string]*string{"ABC": nil}
+	testContext1 = map[string]*string{"ABC": nil, "Secret": &testName}
+	testContext2 = map[string]*string{"ABC": nil, "Secret": &testName2}
 )
 
 func TestNewStore(t *testing.T) {
@@ -140,7 +144,7 @@ func TestAdd(t *testing.T) {
 	t.Run("working", func(t *testing.T) {
 
 		client := &kms_mock.Client{}
-		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
+		client.On("GenerateDataKey", testKeyID, testContext1).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
 
 		store := NewStore(testKeyID, testContext)
 
@@ -161,7 +165,7 @@ func TestAdd(t *testing.T) {
 	t.Run("fails", func(t *testing.T) {
 
 		client := &kms_mock.Client{}
-		client.On("GenerateDataKey", testKeyID, testContext).Return("", "", errors.New("testing errors")).Once()
+		client.On("GenerateDataKey", testKeyID, testContext1).Return("", "", errors.New("testing errors")).Once()
 		store := NewStore(testKeyID, testContext)
 
 		err := store.Add(client, testPlaintext, testName, testDescription)
@@ -192,8 +196,10 @@ func TestExportPlaintext(t *testing.T) {
 	t.Run("working", func(t *testing.T) {
 
 		client := &kms_mock.Client{}
-		client.On("Decrypt", testKeyCiphertext, testContext).Return(testKeyID, testKeyPlaintext, nil).Twice()
-		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Twice()
+		client.On("Decrypt", testKeyCiphertext, testContext1).Return(testKeyID, testKeyPlaintext, nil).Once()
+		client.On("Decrypt", testKeyCiphertext, testContext2).Return(testKeyID, testKeyPlaintext, nil).Once()
+		client.On("GenerateDataKey", testKeyID, testContext1).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
+		client.On("GenerateDataKey", testKeyID, testContext2).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
 
 		err := store.Add(client, testPlaintext, testName, testDescription)
 		assert.NoError(t, err)
@@ -222,8 +228,8 @@ func TestExportPlaintext(t *testing.T) {
 	t.Run("fails", func(t *testing.T) {
 
 		client := &kms_mock.Client{}
-		client.On("Decrypt", testKeyCiphertext, testContext).Return("", "", errors.New("testing errors")).Once()
-		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
+		client.On("Decrypt", testKeyCiphertext, testContext1).Return("", "", errors.New("testing errors")).Once()
+		client.On("GenerateDataKey", testKeyID, testContext1).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
 
 		err := store.Add(client, testPlaintext, testName, testDescription)
 		assert.NoError(t, err)
@@ -255,9 +261,9 @@ func TestRotateKMSKey(t *testing.T) {
 	t.Run("working", func(t *testing.T) {
 
 		client := &kms_mock.Client{}
-		client.On("Decrypt", testKeyCiphertext, testContext).Return(testKeyID, testKeyPlaintext, nil).Once()
-		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
-		client.On("GenerateDataKey", testKeyID2, testContext).Return(testKeyCiphertext2, testKeyPlaintext2, nil).Once()
+		client.On("Decrypt", testKeyCiphertext, testContext1).Return(testKeyID, testKeyPlaintext, nil).Once()
+		client.On("GenerateDataKey", testKeyID, testContext1).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
+		client.On("GenerateDataKey", testKeyID2, testContext1).Return(testKeyCiphertext2, testKeyPlaintext2, nil).Once()
 
 		store := NewStore(testKeyID, testContext)
 
@@ -278,8 +284,8 @@ func TestRotateKMSKey(t *testing.T) {
 	t.Run("decrypt error", func(t *testing.T) {
 
 		client := &kms_mock.Client{}
-		client.On("Decrypt", testKeyCiphertext, testContext).Return("", "", errors.New("testing errors")).Once()
-		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
+		client.On("Decrypt", testKeyCiphertext, testContext1).Return("", "", errors.New("testing errors")).Once()
+		client.On("GenerateDataKey", testKeyID, testContext1).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
 
 		store := NewStore(testKeyID, testContext)
 
@@ -296,9 +302,9 @@ func TestRotateKMSKey(t *testing.T) {
 	t.Run("encrypt error", func(t *testing.T) {
 
 		client := &kms_mock.Client{}
-		client.On("Decrypt", testKeyCiphertext, testContext).Return(testKeyID, testKeyPlaintext, nil).Once()
-		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
-		client.On("GenerateDataKey", testKeyID2, testContext).Return("", "", errors.New("testing errors")).Once()
+		client.On("Decrypt", testKeyCiphertext, testContext1).Return(testKeyID, testKeyPlaintext, nil).Once()
+		client.On("GenerateDataKey", testKeyID, testContext1).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
+		client.On("GenerateDataKey", testKeyID2, testContext1).Return("", "", errors.New("testing errors")).Once()
 
 		store := NewStore(testKeyID, testContext)
 
@@ -319,8 +325,8 @@ func TestRotate(t *testing.T) {
 	t.Run("working", func(t *testing.T) {
 
 		client := &kms_mock.Client{}
-		client.On("Decrypt", testKeyCiphertext, testContext).Return(testKeyID, testKeyPlaintext, nil).Once()
-		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Twice()
+		client.On("Decrypt", testKeyCiphertext, testContext1).Return(testKeyID, testKeyPlaintext, nil).Once()
+		client.On("GenerateDataKey", testKeyID, testContext1).Return(testKeyCiphertext, testKeyPlaintext, nil).Twice()
 
 		store := NewStore(testKeyID, testContext)
 
@@ -352,8 +358,8 @@ func TestRotate(t *testing.T) {
 	t.Run("same value", func(t *testing.T) {
 
 		client := &kms_mock.Client{}
-		client.On("Decrypt", testKeyCiphertext, testContext).Return(testKeyID, testKeyPlaintext, nil).Once()
-		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
+		client.On("Decrypt", testKeyCiphertext, testContext1).Return(testKeyID, testKeyPlaintext, nil).Once()
+		client.On("GenerateDataKey", testKeyID, testContext1).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
 
 		store := NewStore(testKeyID, testContext)
 
@@ -370,8 +376,8 @@ func TestRotate(t *testing.T) {
 	t.Run("decrypt error", func(t *testing.T) {
 
 		client := &kms_mock.Client{}
-		client.On("Decrypt", testKeyCiphertext, testContext).Return("", "", errors.New("testing errors")).Once()
-		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
+		client.On("Decrypt", testKeyCiphertext, testContext1).Return("", "", errors.New("testing errors")).Once()
+		client.On("GenerateDataKey", testKeyID, testContext1).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
 
 		store := NewStore(testKeyID, testContext)
 
@@ -388,9 +394,9 @@ func TestRotate(t *testing.T) {
 	t.Run("encrypt error", func(t *testing.T) {
 
 		client := &kms_mock.Client{}
-		client.On("Decrypt", testKeyCiphertext, testContext).Return(testKeyID, testKeyPlaintext, nil).Once()
-		client.On("GenerateDataKey", testKeyID, testContext).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
-		client.On("GenerateDataKey", testKeyID, testContext).Return("", "", errors.New("testing errors")).Once()
+		client.On("Decrypt", testKeyCiphertext, testContext1).Return(testKeyID, testKeyPlaintext, nil).Once()
+		client.On("GenerateDataKey", testKeyID, testContext1).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
+		client.On("GenerateDataKey", testKeyID, testContext1).Return("", "", errors.New("testing errors")).Once()
 
 		store := NewStore(testKeyID, testContext)
 

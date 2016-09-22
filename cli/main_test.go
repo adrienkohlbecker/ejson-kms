@@ -12,6 +12,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var (
+	testName = "secret"
+)
+
 const (
 	testDataEmpty         = "./testdata/empty.json"
 	testDataInvalid       = "./testdata/invalid.json"

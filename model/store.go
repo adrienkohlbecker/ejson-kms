@@ -104,11 +104,20 @@ func (s *Store) Save(path string) errors.Error {
 }
 
 // Add adds a new secret to the store
+//
+// Note that the name of the secret is automatically added to the encryption
+// context under the key "Secret"
 func (s *Store) Add(client kms.Client, plaintext string, name string, description string) errors.Error {
 
-	cipher := crypto.NewCipher(client, s.KMSKeyID, s.EncryptionContext)
+	context := make(map[string]*string)
+	for k, v := range s.EncryptionContext {
+		context[k] = v
+	}
+	context["Secret"] = &name
 
-	ciphertext, err := cipher.Encrypt(plaintext)
+	cipher := crypto.NewCipher(client, s.KMSKeyID)
+
+	ciphertext, err := cipher.Encrypt(plaintext, context)
 	if err != nil {
 		return err
 	}
@@ -129,11 +138,17 @@ func (s *Store) Add(client kms.Client, plaintext string, name string, descriptio
 func (s *Store) ExportPlaintext(client kms.Client) (chan formatter.Item, errors.Error) {
 
 	items := make(chan formatter.Item, len(s.Secrets))
-	cipher := crypto.NewCipher(client, s.KMSKeyID, s.EncryptionContext)
+	cipher := crypto.NewCipher(client, s.KMSKeyID)
 
 	for _, item := range s.Secrets {
 
-		plaintext, err := cipher.Decrypt(item.Ciphertext)
+		context := make(map[string]*string)
+		for k, v := range s.EncryptionContext {
+			context[k] = v
+		}
+		context["Secret"] = &item.Name
+
+		plaintext, err := cipher.Decrypt(item.Ciphertext, context)
 		if err != nil {
 			close(items)
 			return items, err
@@ -166,17 +181,23 @@ func (s *Store) Find(name string) *Secret {
 // RotateKMSKey re-encrypts all the secrets with the new given KMS key
 func (s *Store) RotateKMSKey(client kms.Client, newKMSKeyID string) errors.Error {
 
-	oldCipher := crypto.NewCipher(client, s.KMSKeyID, s.EncryptionContext)
-	newCipher := crypto.NewCipher(client, newKMSKeyID, s.EncryptionContext)
+	oldCipher := crypto.NewCipher(client, s.KMSKeyID)
+	newCipher := crypto.NewCipher(client, newKMSKeyID)
 
 	for _, item := range s.Secrets {
 
-		oldPlaintext, err := oldCipher.Decrypt(item.Ciphertext)
+		context := make(map[string]*string)
+		for k, v := range s.EncryptionContext {
+			context[k] = v
+		}
+		context["Secret"] = &item.Name
+
+		oldPlaintext, err := oldCipher.Decrypt(item.Ciphertext, context)
 		if err != nil {
 			return errors.WrapPrefix(err, fmt.Sprintf("Unable to decrypt secret: %s", item.Name), 0)
 		}
 
-		newCiphertext, err := newCipher.Encrypt(oldPlaintext)
+		newCiphertext, err := newCipher.Encrypt(oldPlaintext, context)
 		if err != nil {
 			return errors.WrapPrefix(err, "Unable to encrypt secret", 0)
 		}
@@ -191,6 +212,9 @@ func (s *Store) RotateKMSKey(client kms.Client, newKMSKeyID string) errors.Error
 }
 
 // Rotate changes the plaintext of a stored secret. A new data key is generated.
+//
+// Note that the name of the secret is automatically added to the encryption
+// context under the key "Secret"
 func (s *Store) Rotate(client kms.Client, name string, newPlaintext string) errors.Error {
 
 	item := s.Find(name)
@@ -198,9 +222,15 @@ func (s *Store) Rotate(client kms.Client, name string, newPlaintext string) erro
 		return errors.Errorf("Unable to find %s", name)
 	}
 
-	cipher := crypto.NewCipher(client, s.KMSKeyID, s.EncryptionContext)
+	context := make(map[string]*string)
+	for k, v := range s.EncryptionContext {
+		context[k] = v
+	}
+	context["Secret"] = &item.Name
 
-	oldPlaintext, err := cipher.Decrypt(item.Ciphertext)
+	cipher := crypto.NewCipher(client, s.KMSKeyID)
+
+	oldPlaintext, err := cipher.Decrypt(item.Ciphertext, context)
 	if err != nil {
 		return errors.WrapPrefix(err, "Unable to decrypt secret", 0)
 	}
@@ -209,7 +239,7 @@ func (s *Store) Rotate(client kms.Client, name string, newPlaintext string) erro
 		return errors.Errorf("Trying to rotate a secret and giving the same value")
 	}
 
-	newCiphertext, err := cipher.Encrypt(newPlaintext)
+	newCiphertext, err := cipher.Encrypt(newPlaintext, context)
 	if err != nil {
 		return errors.WrapPrefix(err, "Unable to encrypt secret", 0)
 	}

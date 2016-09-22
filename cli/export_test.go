@@ -87,7 +87,7 @@ func TestExport(t *testing.T) {
 			cmd.SetOutput(&bytes.Buffer{})
 
 			client := &mock_kms.Client{}
-			client.On("Decrypt", testKeyCiphertext, map[string]*string{}).Return("", "", errors.New("testing errors")).Once()
+			client.On("Decrypt", testKeyCiphertext, map[string]*string{"Secret": &testName}).Return("", "", errors.New("testing errors")).Once()
 
 			withMockKmsClient(t, client, func() {
 				err := cmd.Execute()
@@ -111,7 +111,7 @@ func TestExport(t *testing.T) {
 			cmd.SetOutput(out)
 
 			client := &mock_kms.Client{}
-			client.On("Decrypt", testKeyCiphertext, map[string]*string{}).Return(testKmsKeyID, testKeyPlaintext, nil).Once()
+			client.On("Decrypt", testKeyCiphertext, map[string]*string{"Secret": &testName}).Return(testKmsKeyID, testKeyPlaintext, nil).Once()
 
 			withMockKmsClient(t, client, func() {
 				err := cmd.Execute()

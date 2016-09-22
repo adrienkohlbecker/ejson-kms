@@ -88,7 +88,7 @@ func TestRotateKMSKey(t *testing.T) {
 			cmd.SetOutput(&bytes.Buffer{})
 
 			client := &mock_kms.Client{}
-			client.On("Decrypt", testKeyCiphertext, map[string]*string{}).Return("", "", errors.New("testing errors")).Once()
+			client.On("Decrypt", testKeyCiphertext, map[string]*string{"Secret": &testName}).Return("", "", errors.New("testing errors")).Once()
 
 			withMockKmsClient(t, client, func() {
 				err := cmd.Execute()
@@ -110,9 +110,9 @@ func TestRotateKMSKey(t *testing.T) {
 			cmd.SetOutput(&bytes.Buffer{})
 
 			client := &mock_kms.Client{}
-			client.On("Decrypt", testKeyCiphertext, map[string]*string{}).Return(testKmsKeyID, testKeyPlaintext, nil).Once()
-			client.On("GenerateDataKey", testKmsKeyID2, map[string]*string{}).Return(testKeyCiphertext2, testKeyPlaintext2, nil).Once()
-			client.On("Decrypt", testKeyCiphertext2, map[string]*string{}).Return(testKmsKeyID2, testKeyPlaintext2, nil).Once()
+			client.On("Decrypt", testKeyCiphertext, map[string]*string{"Secret": &testName}).Return(testKmsKeyID, testKeyPlaintext, nil).Once()
+			client.On("GenerateDataKey", testKmsKeyID2, map[string]*string{"Secret": &testName}).Return(testKeyCiphertext2, testKeyPlaintext2, nil).Once()
+			client.On("Decrypt", testKeyCiphertext2, map[string]*string{"Secret": &testName}).Return(testKmsKeyID2, testKeyPlaintext2, nil).Once()
 
 			withMockKmsClient(t, client, func() {
 				err := cmd.Execute()
@@ -132,7 +132,7 @@ func TestRotateKMSKey(t *testing.T) {
 			_, ok = <-items
 			assert.False(t, ok)
 
-			assert.Equal(t, item.Name, "secret")
+			assert.Equal(t, item.Name, testName)
 			assert.Equal(t, item.Plaintext, "abcdef")
 
 		})

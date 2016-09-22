@@ -65,7 +65,7 @@ func TestRotate(t *testing.T) {
 		withTempStore(t, testDataInvalid, func(storePath string) {
 
 			cmd := rotateCmd()
-			cmd.SetArgs([]string{"--path", storePath, "secret"})
+			cmd.SetArgs([]string{"--path", storePath, testName})
 			cmd.SetOutput(&bytes.Buffer{})
 
 			err := cmd.Execute()
@@ -82,7 +82,7 @@ func TestRotate(t *testing.T) {
 		withTempStore(t, testDataEmpty, func(storePath string) {
 
 			cmd := rotateCmd()
-			cmd.SetArgs([]string{"--path", storePath, "secret"})
+			cmd.SetArgs([]string{"--path", storePath, testName})
 			cmd.SetOutput(&bytes.Buffer{})
 
 			err := cmd.Execute()
@@ -99,7 +99,7 @@ func TestRotate(t *testing.T) {
 		withTempStore(t, testDataOneCredential, func(storePath string) {
 
 			cmd := rotateCmd()
-			cmd.SetArgs([]string{"--path", storePath, "secret"})
+			cmd.SetArgs([]string{"--path", storePath, testName})
 			cmd.SetOutput(&bytes.Buffer{})
 
 			withStdinError(t, func() {
@@ -118,7 +118,7 @@ func TestRotate(t *testing.T) {
 		withTempStore(t, testDataOneCredential, func(storePath string) {
 
 			cmd := rotateCmd()
-			cmd.SetArgs([]string{"--path", storePath, "secret"})
+			cmd.SetArgs([]string{"--path", storePath, testName})
 			cmd.SetOutput(&bytes.Buffer{})
 
 			withKMSNewClientError(t, func() {
@@ -137,11 +137,11 @@ func TestRotate(t *testing.T) {
 		withTempStore(t, testDataOneCredential, func(storePath string) {
 
 			cmd := rotateCmd()
-			cmd.SetArgs([]string{"--path", storePath, "secret"})
+			cmd.SetArgs([]string{"--path", storePath, testName})
 			cmd.SetOutput(&bytes.Buffer{})
 
 			client := &mock_kms.Client{}
-			client.On("Decrypt", testKeyCiphertext, map[string]*string{}).Return("", "", errors.New("testing errors")).Once()
+			client.On("Decrypt", testKeyCiphertext, map[string]*string{"Secret": &testName}).Return("", "", errors.New("testing errors")).Once()
 
 			withMockKmsClient(t, client, func() {
 				err := cmd.Execute()
@@ -159,12 +159,12 @@ func TestRotate(t *testing.T) {
 		withTempStore(t, testDataOneCredential, func(storePath string) {
 
 			cmd := rotateCmd()
-			cmd.SetArgs([]string{"--path", storePath, "secret"})
+			cmd.SetArgs([]string{"--path", storePath, testName})
 			cmd.SetOutput(&bytes.Buffer{})
 
 			client := &mock_kms.Client{}
-			client.On("Decrypt", testKeyCiphertext, map[string]*string{}).Return(testKmsKeyID, testKeyPlaintext, nil).Twice()
-			client.On("GenerateDataKey", testKmsKeyID, map[string]*string{}).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
+			client.On("Decrypt", testKeyCiphertext, map[string]*string{"Secret": &testName}).Return(testKmsKeyID, testKeyPlaintext, nil).Twice()
+			client.On("GenerateDataKey", testKmsKeyID, map[string]*string{"Secret": &testName}).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
 
 			withStdin(t, "password\n", func() {
 
@@ -183,7 +183,7 @@ func TestRotate(t *testing.T) {
 				_, ok = <-items
 				assert.False(t, ok)
 
-				assert.Equal(t, item.Name, "secret")
+				assert.Equal(t, item.Name, testName)
 				assert.Equal(t, item.Plaintext, "password")
 
 			})
