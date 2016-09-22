@@ -1,7 +1,9 @@
 // Package formatter is a collection of functions used to format secrets for
 // output. Currently formatters for Bash, JSON and Dotenv are implemented.
 //
-// Examples
+// Example
+//
+// Here is how to use the formatters:
 //
 //   items := make(chan formatter.Items, 1)
 //   items <- formatter.Item{Name: "secret", Plaintext: "password"}

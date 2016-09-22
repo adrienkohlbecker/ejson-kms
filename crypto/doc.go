@@ -5,24 +5,31 @@
 //
 // Secret encryption
 //
-// * For each `Encrypt` operation, a new 256 bits data key is requested from KMS.
+// For each `Encrypt` operation, a new 256 bits data key is requested from KMS.
 // which returns both the key in plaintext and in encrypted form.
-// * This key is then fed to nacl/secretbox, along with a 192 bits random nonce,
+//
+// This key is then fed to nacl/secretbox, along with a 192 bits random nonce,
 // generated from go's default CSPRNG (see the crypto/rand package). secretbox
 // uses XSalsa20 and Poly1305 to encrypt and authenticate messages.
-// * The secret ciphertext consists of the random nonce and the encrypted secret.
-// * The encrypted data key and the encrypted secret are then base64-encoded
+//
+// The secret ciphertext consists of the random nonce and the encrypted secret.
+//
+// The encrypted data key and the encrypted secret are then base64-encoded
 // and returned as a string, along with a versioning field.
 //
 // Secret decryption
 //
-// * The encrypted data key and encrypted secret are extracted from the input
-// * A request is made to AWS KMS to decypt the data key. AWS returns the data
+// The encrypted data key and encrypted secret are extracted from the input
+//
+// A request is made to AWS KMS to decypt the data key. AWS returns the data
 // key plaintext.
-// * The nonce and secret ciphertext are extracted from the secret ciphertext,
+//
+// The nonce and secret ciphertext are extracted from the secret ciphertext,
 // and fed to nacl/secretbox for authentication and decryption.
 //
 // Encoding format
+//
+// The encrypted secrets are encoded in the following format:
 //
 //   "EJK1];abcdef...;foobar..."
 //    ^-- versionning field allowing algorithm changes in the future

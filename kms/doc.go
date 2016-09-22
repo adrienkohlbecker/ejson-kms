@@ -2,6 +2,8 @@
 //
 // Example
 //
+// Here is how to use this package:
+//
 //   client := kms.DefaultClient() // uses default AWS credentials locations
 //   kms.GenerateDataKey(client, kmsKeyID, encryptionContext)
 //   => kms.DataKey{Ciphertext: "abcd...", Plaintext: "foo..."}
