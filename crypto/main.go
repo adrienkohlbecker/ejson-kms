@@ -13,9 +13,6 @@ type Cipher struct {
 
 	// KMSKeyID is the ID of the master key to use for key wrapping
 	KMSKeyID string
-
-	// force use of named fields to be able to add fields in the future
-	_hidden bool
 }
 
 // NewCipher returns an initialized Cipher.
