@@ -1,6 +1,6 @@
 // Package kms implements a client to AWS KMS.
 //
-// Example:
+// Example
 //
 //   client := kms.DefaultClient() // uses default AWS credentials locations
 //   kms.GenerateDataKey(client, kmsKeyID, encryptionContext)
