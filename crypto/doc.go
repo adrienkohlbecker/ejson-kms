@@ -14,7 +14,7 @@
 //
 // The secret ciphertext consists of the random nonce and the encrypted secret.
 //
-// The encrypted data key and the encrypted secret are then base64-encoded
+// The encrypted data key and the secret ciphertext are then base64-encoded
 // and returned as a string, along with a versioning field.
 //
 // Secret decryption
@@ -24,7 +24,7 @@
 // A request is made to AWS KMS to decypt the data key. AWS returns the data
 // key plaintext.
 //
-// The nonce and secret ciphertext are extracted from the secret ciphertext,
+// The nonce and encrypted secret are extracted from the secret ciphertext,
 // and fed to nacl/secretbox for authentication and decryption.
 //
 // Encoding format
