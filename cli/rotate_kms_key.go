@@ -51,7 +51,7 @@ func rotateKMSKeyCmd() *cobra.Command {
 			return errors.WrapPrefix(err, "Unable to load JSON", 0)
 		}
 
-		client, err := kmsNewClient()
+		client, err := kmsDefaultClient()
 		if err != nil {
 			return errors.WrapPrefix(err, "Unable to initialize AWS client", 0)
 		}

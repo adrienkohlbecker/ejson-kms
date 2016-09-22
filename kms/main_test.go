@@ -18,11 +18,11 @@ const (
 	testKeyPlaintext  = "plaintext"
 )
 
-func TestNewClient(t *testing.T) {
+func TestDefaultClient(t *testing.T) {
 
 	t.Run("valid", func(t *testing.T) {
 
-		s, err := NewClient()
+		s, err := DefaultClient()
 		if assert.NoError(t, err) {
 			assert.Implements(t, new(Client), s)
 		}
@@ -39,7 +39,7 @@ func TestNewClient(t *testing.T) {
 		goErr = os.Setenv("AWS_SDK_LOAD_CONFIG", "1")
 		assert.NoError(t, goErr)
 
-		_, err := NewClient()
+		_, err := DefaultClient()
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "Unable to create AWS session")
 		}

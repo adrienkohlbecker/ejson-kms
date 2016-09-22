@@ -68,7 +68,7 @@ func TestRotateKMSKey(t *testing.T) {
 			cmd.SetArgs([]string{"--path", storePath, testKmsKeyID2})
 			cmd.SetOutput(&bytes.Buffer{})
 
-			withKMSNewClientError(t, func() {
+			withKMSDefaultClientError(t, func() {
 				err := cmd.Execute()
 				if assert.Error(t, err) {
 					assert.Equal(t, err.Error(), "Unable to initialize AWS client: testing errors")

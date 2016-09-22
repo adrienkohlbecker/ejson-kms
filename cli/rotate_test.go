@@ -122,7 +122,7 @@ func TestRotate(t *testing.T) {
 			cmd.SetOutput(&bytes.Buffer{})
 
 			withStdin(t, "password\n", func() {
-				withKMSNewClientError(t, func() {
+				withKMSDefaultClientError(t, func() {
 					err := cmd.Execute()
 					if assert.Error(t, err) {
 						assert.Equal(t, err.Error(), "Unable to initialize AWS client: testing errors")

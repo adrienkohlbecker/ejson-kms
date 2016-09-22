@@ -70,7 +70,7 @@ func rotateCmd() *cobra.Command {
 			return errors.WrapPrefix(err, "Unable to read from stdin", 0)
 		}
 
-		client, err := kmsNewClient()
+		client, err := kmsDefaultClient()
 		if err != nil {
 			return errors.WrapPrefix(err, "Unable to initialize AWS client", 0)
 		}

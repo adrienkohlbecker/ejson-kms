@@ -20,9 +20,9 @@ type Client interface {
 	Decrypt(*kms.DecryptInput) (*kms.DecryptOutput, error)
 }
 
-// NewClient creates a new AWS session (reads credentials and settings from
+// DefaultClient creates a new AWS session (reads credentials and settings from
 // the environment), and returns a ready-to-use KMS instance.
-func NewClient() (Client, errors.Error) {
+func DefaultClient() (Client, errors.Error) {
 
 	sess, err := session.NewSession()
 	if err != nil {

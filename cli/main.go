@@ -8,5 +8,5 @@ var (
 	builtAt string
 
 	// for mocking in tests
-	kmsNewClient = kms.NewClient
+	kmsDefaultClient = kms.DefaultClient
 )

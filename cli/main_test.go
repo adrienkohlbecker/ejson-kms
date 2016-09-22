@@ -137,28 +137,28 @@ func withStdinError(t *testing.T, f func()) {
 
 }
 
-func withKMSNewClientError(t *testing.T, f func()) {
+func withKMSDefaultClientError(t *testing.T, f func()) {
 
-	original := kmsNewClient
-	kmsNewClient = func() (kms.Client, errors.Error) {
+	original := kmsDefaultClient
+	kmsDefaultClient = func() (kms.Client, errors.Error) {
 		return nil, errors.Errorf("testing errors")
 	}
 
 	f()
 
-	kmsNewClient = original
+	kmsDefaultClient = original
 
 }
 
 func withMockKmsClient(t *testing.T, other kms.Client, f func()) {
 
-	original := kmsNewClient
-	kmsNewClient = func() (kms.Client, errors.Error) {
+	original := kmsDefaultClient
+	kmsDefaultClient = func() (kms.Client, errors.Error) {
 		return other, nil
 	}
 
 	f()
 
-	kmsNewClient = original
+	kmsDefaultClient = original
 
 }
