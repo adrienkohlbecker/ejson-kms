@@ -10,7 +10,7 @@ import (
 
 // MagicPrefix is a string prepended to all ciphertexts in the JSON representation.
 // It will allow versioning the algorithm in the future.
-const MagicPrefix = "EJK1]"
+const MagicPrefix = "EJK1"
 
 // encrypted is a struct representation of a encrypted secret.
 // It contains the ciphertext of both the secret and the data key.

@@ -17,16 +17,16 @@ const (
 	testKeyCiphertext = "ciphertextblob"
 	testConstantNonce = "abcdefabcdefabcdefabcdef"
 	testPlaintext     = "abcdef"
-	testCiphertext    = "EJK1];Y2lwaGVydGV4dGJsb2I=;YWJjZGVmYWJjZGVmYWJjZGVmYWJjZGVmlPmP6IWfK7WJMuXVi8aQ7TZu8vCkVA=="
+	testCiphertext    = "EJK1;Y2lwaGVydGV4dGJsb2I=;YWJjZGVmYWJjZGVmYWJjZGVmYWJjZGVmlPmP6IWfK7WJMuXVi8aQ7TZu8vCkVA=="
 	testDescription   = "Some description."
 	testPlaintext2    = "ghijklm"
-	testCiphertext2   = "EJK1];Y2lwaGVydGV4dGJsb2I=;YWJjZGVmYWJjZGVmYWJjZGVmYWJjZGVm4iKh5QPWblMQEKL6IaIRtjBk+P6qXpI="
+	testCiphertext2   = "EJK1;Y2lwaGVydGV4dGJsb2I=;YWJjZGVmYWJjZGVmYWJjZGVmYWJjZGVm4iKh5QPWblMQEKL6IaIRtjBk+P6qXpI="
 	testDescription2  = "Some other description."
 
 	testKeyID2             = "my-other-key"
 	testKeyPlaintext2      = "-123456789012345678901234567890-"
 	testKeyCiphertext2     = "anotherciphertextblob"
-	testCiphertextOtherKey = "EJK1];YW5vdGhlcmNpcGhlcnRleHRibG9i;YWJjZGVmYWJjZGVmYWJjZGVmYWJjZGVmQV4vWDZmRgWgHcfvkFd0yP7uEoH1vw=="
+	testCiphertextOtherKey = "EJK1;YW5vdGhlcmNpcGhlcnRleHRibG9i;YWJjZGVmYWJjZGVmYWJjZGVmYWJjZGVmQV4vWDZmRgWgHcfvkFd0yP7uEoH1vw=="
 )
 
 var (

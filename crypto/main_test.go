@@ -18,7 +18,7 @@ const (
 	testKeyCiphertext = "ciphertextblob"
 	testConstantNonce = "abcdefabcdefabcdefabcdef"
 	testPlaintext     = "abcdef"
-	testCiphertext    = "EJK1];Y2lwaGVydGV4dGJsb2I=;YWJjZGVmYWJjZGVmYWJjZGVmYWJjZGVmlPmP6IWfK7WJMuXVi8aQ7TZu8vCkVA=="
+	testCiphertext    = "EJK1;Y2lwaGVydGV4dGJsb2I=;YWJjZGVmYWJjZGVmYWJjZGVmYWJjZGVmlPmP6IWfK7WJMuXVi8aQ7TZu8vCkVA=="
 )
 
 func TestEncrypt(t *testing.T) {

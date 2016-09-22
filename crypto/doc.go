@@ -31,7 +31,7 @@
 //
 // The encrypted secrets are encoded in the following format:
 //
-//   "EJK1];abcdef...;foobar..."
+//   "EJK1;abcdef...;foobar..."
 //    ^-- versionning field allowing algorithm changes in the future
 //          ^-- base64 encoded encrypted data key
 //                    ^-- base64 encoded [random nonce, encrypted secret]

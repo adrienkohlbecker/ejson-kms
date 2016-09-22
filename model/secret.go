@@ -15,6 +15,6 @@ type Secret struct {
 
 	// Ciphertext contains the encrypted secret value, the plaintext nonce,
 	// along with the encrypted data key used for this specific secret.
-	// A versioning field is also added, currently only `EJK1]`
+	// A versioning field is also added, currently only `EJK1`
 	Ciphertext string `json:"ciphertext"`
 }
