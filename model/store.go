@@ -43,6 +43,9 @@ type Store struct {
 
 	// Secrets is a list of secrets
 	Secrets []*Secret `json:"secrets"`
+
+	// force use of named fields to be able to add fields in the future
+	_hidden bool
 }
 
 // NewStore returns a new empty store

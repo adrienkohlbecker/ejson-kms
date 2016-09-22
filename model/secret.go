@@ -17,4 +17,7 @@ type Secret struct {
 	// along with the encrypted data key used for this specific secret.
 	// A versioning field is also added, currently only `EJK1]`
 	Ciphertext string `json:"ciphertext"`
+
+	// force use of named fields to be able to add fields in the future
+	_hidden bool
 }
