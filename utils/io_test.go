@@ -8,46 +8,93 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestReadFromFile(t *testing.T) {
+func TestReadPassword(t *testing.T) {
 
 	t.Run("valid", func(t *testing.T) {
 
-		tmpfile, goErr := ioutil.TempFile(os.TempDir(), "read-from-file")
-		assert.NoError(t, goErr)
+		withStdin(t, "testing 123\n", func() {
 
-		_, goErr = tmpfile.WriteString("I'm in your file\n  \n \n")
-		assert.NoError(t, goErr)
-		goErr = tmpfile.Sync()
-		assert.NoError(t, goErr)
-		_, goErr = tmpfile.Seek(0, 0)
-		assert.NoError(t, goErr)
+			contents, err := ReadPassword()
+			assert.NoError(t, err)
+			assert.Contains(t, contents, "testing 123")
 
-		contents, err := ReadFromFile(tmpfile)
-		assert.NoError(t, err)
-		assert.Contains(t, contents, "I'm in your file")
+		})
 
-		goErr = tmpfile.Close()
-		assert.NoError(t, goErr)
-		goErr = os.Remove(tmpfile.Name())
-		assert.NoError(t, goErr)
+	})
+
+	t.Run("valid terminal", func(t *testing.T) {
+
+		original := isTerminal
+		isTerminal = func(fd int) bool { return true }
+
+		withStdin(t, "testing 123\n", func() {
+
+			contents, err := ReadPassword()
+			assert.NoError(t, err)
+			assert.Contains(t, contents, "testing 123")
+
+		})
+
+		isTerminal = original
 
 	})
 
 	t.Run("closed fd", func(t *testing.T) {
 
-		tmpfile, goErr := ioutil.TempFile(os.TempDir(), "read-from-file")
-		assert.NoError(t, goErr)
-		goErr = tmpfile.Close()
-		assert.NoError(t, goErr)
+		withStdinError(t, func() {
 
-		_, err := ReadFromFile(tmpfile)
-		if assert.Error(t, err) {
-			assert.Contains(t, err.Error(), "Unable to read from file")
-		}
+			_, err := ReadPassword()
+			if assert.Error(t, err) {
+				assert.Contains(t, err.Error(), "Unable to read from stdin")
+			}
 
-		goErr = os.Remove(tmpfile.Name())
-		assert.NoError(t, goErr)
+		})
 
 	})
+
+}
+
+func withStdin(t *testing.T, str string, f func()) {
+
+	tmpfile, err := ioutil.TempFile(os.TempDir(), "read-from-file")
+	assert.NoError(t, err)
+
+	_, err = tmpfile.WriteString(str)
+	assert.NoError(t, err)
+	err = tmpfile.Sync()
+	assert.NoError(t, err)
+	_, err = tmpfile.Seek(0, 0)
+	assert.NoError(t, err)
+
+	original := os.Stdin
+	os.Stdin = tmpfile
+
+	f()
+
+	os.Stdin = original
+
+	err = tmpfile.Close()
+	assert.NoError(t, err)
+	err = os.Remove(tmpfile.Name())
+	assert.NoError(t, err)
+
+}
+
+func withStdinError(t *testing.T, f func()) {
+
+	tmpfile, err := ioutil.TempFile(os.TempDir(), "read-from-file")
+	assert.NoError(t, err)
+	err = tmpfile.Close()
+	assert.NoError(t, err)
+
+	original := os.Stdin
+	os.Stdin = tmpfile
+
+	f()
+
+	os.Stdin = original
+
+	err = os.Remove(tmpfile.Name())
+	assert.NoError(t, err)
 
 }

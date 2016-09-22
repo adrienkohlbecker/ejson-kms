@@ -105,7 +105,7 @@ func TestRotate(t *testing.T) {
 			withStdinError(t, func() {
 				err := cmd.Execute()
 				if assert.Error(t, err) {
-					assert.Contains(t, err.Error(), "Unable to read from stdin: Unable to read from file")
+					assert.Contains(t, err.Error(), "Unable to read from stdin")
 				}
 			})
 
@@ -121,11 +121,13 @@ func TestRotate(t *testing.T) {
 			cmd.SetArgs([]string{"--path", storePath, testName})
 			cmd.SetOutput(&bytes.Buffer{})
 
-			withKMSNewClientError(t, func() {
-				err := cmd.Execute()
-				if assert.Error(t, err) {
-					assert.Equal(t, err.Error(), "Unable to initialize AWS client: testing errors")
-				}
+			withStdin(t, "password\n", func() {
+				withKMSNewClientError(t, func() {
+					err := cmd.Execute()
+					if assert.Error(t, err) {
+						assert.Equal(t, err.Error(), "Unable to initialize AWS client: testing errors")
+					}
+				})
 			})
 
 		})
@@ -143,11 +145,13 @@ func TestRotate(t *testing.T) {
 			client := &mock_kms.Client{}
 			client.On("Decrypt", testKeyCiphertext, map[string]*string{"Secret": &testName}).Return("", "", errors.New("testing errors")).Once()
 
-			withMockKmsClient(t, client, func() {
-				err := cmd.Execute()
-				if assert.Error(t, err) {
-					assert.Equal(t, err.Error(), "Unable to rotate secret: Unable to decrypt secret: Unable to decrypt key ciphertext: testing errors")
-				}
+			withStdin(t, "password\n", func() {
+				withMockKmsClient(t, client, func() {
+					err := cmd.Execute()
+					if assert.Error(t, err) {
+						assert.Equal(t, err.Error(), "Unable to rotate secret: Unable to decrypt secret: Unable to decrypt key ciphertext: testing errors")
+					}
+				})
 			})
 
 		})

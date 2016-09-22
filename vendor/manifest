@@ -61,6 +61,14 @@
 			"notests": true
 		},
 		{
+			"importpath": "github.com/howeyc/gopass",
+			"repository": "https://github.com/howeyc/gopass",
+			"vcs": "git",
+			"revision": "26c6e1184fd5255fa5f5289d0b789a4819c203a4",
+			"branch": "master",
+			"notests": true
+		},
+		{
 			"importpath": "github.com/inconshreveable/mousetrap",
 			"repository": "https://github.com/inconshreveable/mousetrap",
 			"vcs": "git",
@@ -81,14 +89,6 @@
 			"repository": "https://github.com/magiconair/properties",
 			"vcs": "git",
 			"revision": "0723e352fa358f9322c938cc2dadda874e9151a9",
-			"branch": "master",
-			"notests": true
-		},
-		{
-			"importpath": "github.com/mattn/go-isatty",
-			"repository": "https://github.com/mattn/go-isatty",
-			"vcs": "git",
-			"revision": "66b8e73f3f5cda9f96b69efd03dd3d7fc4a5cdb8",
 			"branch": "master",
 			"notests": true
 		},
@@ -259,6 +259,15 @@
 			"revision": "81372b2fc2f10bef2a7f338da115c315a56b2726",
 			"branch": "master",
 			"path": "salsa20/salsa",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/crypto/ssh/terminal",
+			"repository": "https://go.googlesource.com/crypto",
+			"vcs": "git",
+			"revision": "6ab629be5e31660579425a738ba8870beb5b7404",
+			"branch": "master",
+			"path": "/ssh/terminal",
 			"notests": true
 		},
 		{

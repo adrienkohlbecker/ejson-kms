@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"os"
 	"strings"
 
 	"github.com/adrienkohlbecker/errors"
@@ -66,7 +65,7 @@ func rotateCmd() *cobra.Command {
 			return errors.Errorf("No secret with the given name has been found. Use the `add` command")
 		}
 
-		plaintext, err := utils.ReadFromFile(os.Stdin)
+		plaintext, err := utils.ReadPassword()
 		if err != nil {
 			return errors.WrapPrefix(err, "Unable to read from stdin", 0)
 		}

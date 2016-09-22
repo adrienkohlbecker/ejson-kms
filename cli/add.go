@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"os"
 	"strings"
 
 	"github.com/adrienkohlbecker/errors"
@@ -77,7 +76,7 @@ func addCmd() *cobra.Command {
 			return errors.Errorf("A secret with the same name already exists. Use the `rotate` command")
 		}
 
-		plaintext, err := utils.ReadFromFile(os.Stdin)
+		plaintext, err := utils.ReadPassword()
 		if err != nil {
 			return errors.WrapPrefix(err, "Unable to read from stdin", 0)
 		}
