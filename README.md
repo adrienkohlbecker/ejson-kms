@@ -234,11 +234,21 @@ Below are the basic IAM policies needed to give access to `ejson-kms` to a user.
 
 # Versionning
 
-`ejson-kms` follows [Semantic Versioning](http://semver.org/)
+`ejson-kms` follows [Semantic Versioning](http://semver.org/). For the versions available, see the [releases on this repository](https://github.com/adrienkohlbecker/ejson-kms/releases).
+
+# Authors
+
+[Adrien Kohlbecker](https://github.com/adrienkohlbecker)
+
+See also the list of [contributors](https://github.com/adrienkohlbecker/ejson-kms/contributors) who participated in this project.
 
 # License
 
-`ejson-kms` is released under the MIT license.
+`ejson-kms` is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
+# Acknowledgments
+
+This project was heavily inspired by [ejson][ejson] and [credstash][credstash].
 
 
 [XSalsa20]: https://cr.yp.to/snuffle/xsalsa-20081128.pdf
