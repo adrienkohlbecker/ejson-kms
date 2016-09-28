@@ -122,21 +122,29 @@ It depends, however, on AWS KMS for cryptography.
 
 # Installation
 
-## Binary
-
 Binaries for Linux, OSX and Windows are provided in the GitHub Releases page.
 
-The binaries are signed using the key `0x20CC21AF`.
+The binaries are signed using the GPG key `0x20CC21AF`.
+
+## Linux
 
 You can install `ejson-kms` on Linux with the following:
 
 ```bash
 export EJSON_KMS_VERSION="1.0.0"
-curl -o ejson-kms https://github.com/adrienkohlbecker/ejson-kms/releases/download/$EJSON_KMS_VERSION/ejson-kms-$EJSON_KMS_VERSION-linux-amd64
-curl -o ejson-kms.asc https://github.com/adrienkohlbecker/ejson-kms/releases/download/$EJSON_KMS_VERSION/ejson-kms-$EJSON_KMS_VERSION-linux-amd64.asc
+curl -Lo ejson-kms https://github.com/adrienkohlbecker/ejson-kms/releases/download/$EJSON_KMS_VERSION/ejson-kms-$EJSON_KMS_VERSION-linux-amd64
+curl -Lo ejson-kms.asc https://github.com/adrienkohlbecker/ejson-kms/releases/download/$EJSON_KMS_VERSION/ejson-kms-$EJSON_KMS_VERSION-linux-amd64.asc
 gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "0x20CC21AF"
 gpg --verify ejson-kms.asc
 chmod +x ejson-kms
+```
+
+## OSX
+
+You can install `ejson-kms` using [Homebrew](http://brew.sh):
+
+```bash
+brew install adrienkohlbecker/ejson-kms/ejson-kms
 ```
 
 ## From source
