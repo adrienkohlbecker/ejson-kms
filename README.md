@@ -23,7 +23,7 @@ Software systems often need access to some shared credential. For example, your 
 
 The main benefits provided by `ejson-kms` are:
 
-* Secrets can be safely stored in a git repo.
+* Secrets can be safely stored in a git repository.
 * Changes to secrets are auditable on a line-by-line basis with git blame.
 * Any number of access control policies can be implemented using IAM roles
 * Usage audit is possible using encryption contexts and CloudTrail
@@ -57,7 +57,7 @@ Secrets are stored in a JSON file with the following schema:
 
 AWS gives us the ability to store an arbitrary context with each secret, in the form of key-value pairs.
 
-These key-value pairs are stored with the secret and are logged in CloudTrail for each encryption/decryption operation. You can use it for auditing purposes by adding, for example, the name of the project or the type of environment (production, staging, ...). Additionaly, you can use it to further restrict access to your credentials with IAM policies.
+These key-value pairs are stored with the secret and are logged in CloudTrail for each encryption/decryption operation. You can use it for auditing purposes by adding, for example, the name of the project or the type of environment (production, staging, ...). Additionally, you can use it to further restrict access to your credentials with IAM policies.
 
 Note: Since the context is stored with the secret and authenticated, it is **read-only**: once a secret has been encrypted, you cannot change the context.
 
@@ -70,7 +70,7 @@ automatically under the key `Secret`
 * KMS returns the data key encrypted with the master key (stored on AWS servers) and the corresponding plaintext.
 * That data key is used to encrypt one secret.
 * A random nonce is generated and NaCL Secretbox is used for encryption.
-* Under the hood, secretbox uses [XSalsa20][XSalsa20] and [Poly1305][Poly1305] to encrypt and
+* Under the hood, Secretbox uses [XSalsa20][XSalsa20] and [Poly1305][Poly1305] to encrypt and
 authenticate messages. The length of messages is not hidden.
 * Finally, the encrypted data key, the random nonce and the encrypted secret are each stored in the JSON file.
 
@@ -177,7 +177,7 @@ Add a secret with `ejson-kms add SECRET_NAME`
 * `ejson-kms` will ask you to type the secret at runtime.
 * Alternatively, you can use the form `echo "password" | ejson-kms add secret`, but be mindful of your bash history if you do so.
 * To store the contents of a file (such as a TLS key), use `cat tls.key | ejson-kms add tls_key`
-* Optionnaly, you can provide a description for this secret using `--description="Nuclear launch codes"`. Use it to describe what the secret is used for, how to rotate it...
+* Optionally, you can provide a description for this secret using `--description="Nuclear launch codes"`. Use it to describe what the secret is used for, how to rotate it...
 * The name of the credential can include lower-case letters, digits, and underscores. They cannot start with numbers (for compatibility with bash on export). Valid names: `password`, `api_key`, `secret_123`. Invalid names: `Password`, `API KEY`, `123-secret`.
 
 ## rotate
@@ -240,7 +240,7 @@ Below are the basic IAM policies needed to give access to `ejson-kms` to a user.
 }
 ```
 
-# Versionning
+# Versioning
 
 `ejson-kms` follows [Semantic Versioning](http://semver.org/). For the versions available, see the [releases on this repository](https://github.com/adrienkohlbecker/ejson-kms/releases).
 
