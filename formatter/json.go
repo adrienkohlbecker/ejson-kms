@@ -1,6 +1,7 @@
 package formatter
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 
@@ -23,12 +24,17 @@ func JSON(w io.Writer, creds <-chan Item) errors.Error {
 		output[item.Name] = item.Plaintext
 	}
 
-	encoder := json.NewEncoder(w)
-	encoder.SetIndent("", "  ")
-	err := encoder.Encode(output)
+	b, err := json.MarshalIndent(output, "", "  ")
 	if err != nil {
 		// Note: Not covered in tests, need a way to trigger an encoding error.
 		return errors.WrapPrefix(err, "Unable to format JSON", 0)
+	}
+
+	b = append(b, 0x0A) // add trailing new line
+
+	_, err = io.Copy(w, bytes.NewReader(b))
+	if err != nil {
+		return errors.WrapPrefix(err, "Unable to write to output", 0)
 	}
 
 	return nil

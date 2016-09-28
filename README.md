@@ -149,7 +149,7 @@ brew install adrienkohlbecker/ejson-kms/ejson-kms
 
 ## From source
 
-`ejson-kms` requires a working Go 1.7+ installation.
+`ejson-kms` requires a working Go 1.6+ installation.
 
 You can install ejson-kms from source with:
 
