@@ -51,7 +51,7 @@ func TestLoad(t *testing.T) {
 
 	t.Run("valid", func(t *testing.T) {
 
-		j, err := Load("./testdata/empty.json")
+		j, err := Load("./testdata/valid.json")
 		assert.NoError(t, err)
 		assert.NotNil(t, j)
 
@@ -104,7 +104,7 @@ func TestSave(t *testing.T) {
 
 	t.Run("valid", func(t *testing.T) {
 
-		j, err := Load("./testdata/empty.json")
+		j, err := Load("./testdata/valid.json")
 		assert.NoError(t, err)
 		assert.NotNil(t, j)
 
