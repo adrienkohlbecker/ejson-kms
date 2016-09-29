@@ -214,7 +214,7 @@ echo "$SECRET"
 
 # IAM policies
 
-Below are the basic IAM policies needed to give access to `ejson-kms` to a user. More complex policies can be devises, especially using encryption contexts. Refer to the documentation of AWS KMS and IAM for more information.
+Below are the basic IAM policies needed to give access to `ejson-kms` to a user. More complex policies can be devised, especially using encryption contexts. Refer to the documentation of AWS KMS and IAM for more information.
 
 ## Secret writer
 
