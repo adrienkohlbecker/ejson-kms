@@ -222,6 +222,7 @@ echo "$SECRET"
 * **Shared credentials file**:
   * If `AWS_SHARED_CREDENTIALS_FILE` is set, this path will be used
   * Otherwise `$HOME/.aws/credentials` on Linux/OSX and `%USERPROFILE%\.aws\credentials` on Windows
+  * An AWS profile can be set with the `AWS_PROFILE` environment variable, otherwise it will use the default profile.
 * **Instance profile**: On EC2 instances with an assigned instance role
 
 # IAM policies
