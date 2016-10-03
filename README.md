@@ -212,6 +212,18 @@ eval "$(ejson-kms export)"
 echo "$SECRET"
 ```
 
+# AWS authentication
+
+`ejson-kms` will look for AWS credentials in the following locations and order:
+
+* **Environment variables**:
+  * Access Key ID: `AWS_ACCESS_KEY_ID` or `AWS_ACCESS_KEY`
+  * Secret Access Key: `AWS_SECRET_ACCESS_KEY` or `AWS_SECRET_KEY`
+* **Shared credentials file**:
+  * If `AWS_SHARED_CREDENTIALS_FILE` is set, this path will be used
+  * Otherwise `$HOME/.aws/credentials` on Linux/OSX and `%USERPROFILE%\.aws\credentials` on Windows
+* **Instance profile**: On EC2 instances with an assigned instance role
+
 # IAM policies
 
 Below are the basic IAM policies needed to give access to `ejson-kms` to a user. More complex policies can be devised, especially using encryption contexts. Refer to the documentation of AWS KMS and IAM for more information.
