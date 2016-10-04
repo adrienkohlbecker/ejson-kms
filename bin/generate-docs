@@ -9,3 +9,5 @@ find ./doc -name "*.md" -exec rm {} \;
 find ./doc -name "*.1" -exec rm {} \;
 
 go run doc/main.go
+
+find ./doc -name "*.1" -exec sed -i 's/.TH "EJSON-KMS" "1" .*/.TH "EJSON-KMS" "1"/' {} \;
