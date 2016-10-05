@@ -124,7 +124,7 @@ It depends, however, on AWS KMS for cryptography.
 
 Binaries for Linux, OSX and Windows are provided in the GitHub Releases page.
 
-The binaries are signed using the GPG key `0x20CC21AF`.
+The binaries are signed using the GPG key `C248DE6357445D6302F9A62E74BFD03C20CC21AF`.
 
 ## Linux
 
@@ -134,7 +134,7 @@ You can install `ejson-kms` on Linux with the following:
 export EJSON_KMS_VERSION="1.0.0"
 curl -Lo ejson-kms https://github.com/adrienkohlbecker/ejson-kms/releases/download/$EJSON_KMS_VERSION/ejson-kms-$EJSON_KMS_VERSION-linux-amd64
 curl -Lo ejson-kms.asc https://github.com/adrienkohlbecker/ejson-kms/releases/download/$EJSON_KMS_VERSION/ejson-kms-$EJSON_KMS_VERSION-linux-amd64.asc
-gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "0x20CC21AF"
+gpg --keyserver ha.pool.sks-keyservers.net --recv-keys C248DE6357445D6302F9A62E74BFD03C20CC21AF
 gpg --verify ejson-kms.asc
 chmod +x ejson-kms
 ```
