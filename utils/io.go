@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -27,7 +28,7 @@ func ReadPassword() (string, errors.Error) {
 		fmt.Println("Please enter the value and press enter:")
 		bytes, err = gopass.GetPasswdMasked()
 	} else {
-		bytes, err = gopass.GetPasswd()
+		bytes, err = ioutil.ReadAll(os.Stdin)
 	}
 
 	if err != nil {

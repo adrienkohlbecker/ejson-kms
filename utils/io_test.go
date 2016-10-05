@@ -12,11 +12,11 @@ func TestReadPassword(t *testing.T) {
 
 	t.Run("valid", func(t *testing.T) {
 
-		withStdin(t, "testing 123\n", func() {
+		withStdin(t, "testing 123\nand anotherline", func() {
 
 			contents, err := ReadPassword()
 			assert.NoError(t, err)
-			assert.Contains(t, contents, "testing 123")
+			assert.Contains(t, contents, "testing 123\nand anotherline")
 
 		})
 
