@@ -219,11 +219,16 @@ echo "$SECRET"
 * **Environment variables**:
   * Access Key ID: `AWS_ACCESS_KEY_ID` or `AWS_ACCESS_KEY`
   * Secret Access Key: `AWS_SECRET_ACCESS_KEY` or `AWS_SECRET_KEY`
+  * Region: `AWS_REGION`
+  * If using an IAM role: `AWS_SESSION_TOKEN`
 * **Shared credentials file**:
   * If `AWS_SHARED_CREDENTIALS_FILE` is set, this path will be used
   * Otherwise `$HOME/.aws/credentials` on Linux/OSX and `%USERPROFILE%\.aws\credentials` on Windows
   * An AWS profile can be set with the `AWS_PROFILE` environment variable, otherwise it will use the default profile.
+  * If you need to load the AWS region from ~/.aws/config, you need to set `AWS_SDK_LOAD_CONFIG=true`, otherwise you need to set `AWS_REGION`
 * **Instance profile**: On EC2 instances with an assigned instance role
+
+See also [the AWS SDK session documentation](https://docs.aws.amazon.com/sdk-for-go/api/aws/session/).
 
 # IAM policies
 
@@ -260,6 +265,26 @@ Below are the basic IAM policies needed to give access to `ejson-kms` to a user.
       "Resource": "arn:aws:kms:us-east-1:AWSACCOUNTID:key/KEY-GUID"
     }
   ]
+}
+```
+
+## Secret reader scoped by Encryption Context
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": {
+    "Effect": "Allow",
+    "Action": [
+      "kms:Decrypt"
+    ],
+    "Resource": "arn:aws:kms:us-east-1:AWSACCOUNTID:key/KEY-GUID",
+    "Condition": {
+      "StringEquals": {
+        "kms:EncryptionContext:MY_KEY": "MY_VALUE"
+      }
+    }
+  }
 }
 ```
 
