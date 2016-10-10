@@ -10,7 +10,7 @@ func versionCmd() *cobra.Command {
 	}
 
 	cmd.RunE = func(_ *cobra.Command, args []string) error {
-		cmd.Printf("ejson-kms %s (%s) built %s\n", version, sha1, builtAt)
+		cmd.Printf("ejson-kms %s (%s)\n", version, sha1)
 		return nil
 	}
 

@@ -14,7 +14,7 @@ fi
 mkdir -p .dist
 env go build \
   -v \
-  -ldflags "-X 'github.com/adrienkohlbecker/ejson-kms/cli.version=$VERSION' -X 'github.com/adrienkohlbecker/ejson-kms/cli.sha1=$SHA1' -X 'github.com/adrienkohlbecker/ejson-kms/cli.builtAt=$BUILT_AT'" \
+  -ldflags "-X 'github.com/adrienkohlbecker/ejson-kms/cli.version=$VERSION' -X 'github.com/adrienkohlbecker/ejson-kms/cli.sha1=$SHA1'" \
   -o "$OUTPUT" \
   github.com/adrienkohlbecker/ejson-kms
 

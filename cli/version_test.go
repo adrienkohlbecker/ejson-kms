@@ -13,7 +13,6 @@ func TestVersion(t *testing.T) {
 
 	version = "1.0.0"
 	sha1 = "git hash"
-	builtAt = "(built at)"
 
 	cmd := versionCmd()
 	cmd.SetOutput(out)
@@ -21,6 +20,6 @@ func TestVersion(t *testing.T) {
 	err := cmd.Execute()
 	assert.NoError(t, err)
 
-	assert.Equal(t, out.String(), "ejson-kms 1.0.0 (git hash) built (built at)\n")
+	assert.Equal(t, out.String(), "ejson-kms 1.0.0 (git hash)\n")
 
 }
