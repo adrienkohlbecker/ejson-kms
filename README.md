@@ -13,7 +13,7 @@ The secrets are encrypted using secret-key cryptography (NaCl Secretbox: [XSalsa
 2. Create a KMS master key on AWS
 3. Create a secrets file with `ejson-kms init --kms-key-id="alias/MyKMSKey"`
 4. Add an encrypted secret with `ejson-kms add secret`
-5. Use the decrypted credential in your bash scripts with `eval $(ejson-kms export)`
+5. Use the decrypted credential in your bash scripts with `eval "$(ejson-kms export)"`
 
 # What is it
 
