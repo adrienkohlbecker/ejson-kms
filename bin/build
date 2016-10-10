@@ -12,11 +12,7 @@ if [ "$GOOS" = "windows" ]; then
 fi
 
 mkdir -p .dist
-env go build \
-  -v \
-  -ldflags "-X 'github.com/adrienkohlbecker/ejson-kms/cli.version=$VERSION' -X 'github.com/adrienkohlbecker/ejson-kms/cli.sha1=$SHA1'" \
-  -o "$OUTPUT" \
-  github.com/adrienkohlbecker/ejson-kms
+OUTPUT=$OUTPUT VERSION=$VERSION SHA1=$SHA1 bin/compile
 
 gpg --local-user "0x20CC21AF" --armor --detach-sign "$OUTPUT"
 gpg --verify "$OUTPUT.asc"
