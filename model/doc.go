@@ -14,7 +14,7 @@
 //   store := store.Load("mysecrets.json")
 //   store.Contains("secret") // true
 //   store.Rotate(kmsClient, "secret", "new_password")
-//   store.Export(formatter.Bash) // "export SECRET=\"new_password\""
+//   store.Export(formatter.Bash) // "export SECRET='new_password'"
 //   store.Save("mysecrets.json")
 //
 //   store := store.Load("mysecrets.json")

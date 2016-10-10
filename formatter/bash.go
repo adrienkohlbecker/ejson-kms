@@ -3,7 +3,6 @@ package formatter
 import (
 	"fmt"
 	"io"
-	"strconv"
 	"strings"
 
 	"github.com/adrienkohlbecker/errors"
@@ -13,19 +12,18 @@ import (
 //
 // It outputs the decrypted secrets in the form:
 //
-//   export MY_SECRET="my value"
-//   export ANOTHER_ONE="string with \"quotes\""
+//   export MY_SECRET='my value'
+//   export ANOTHER_ONE='string with ''quotes'''
 //
-// The secret names are capitalized and the values are quoted as Go strings.
-//
-// TODO: Ensure the go syntax for strings is compatible with Bash, as it seems
-// to be the case from quick testing.
+// The secret names are capitalized and the no processing is done to the string
+// except replacing all `'` with `''`.
 func Bash(w io.Writer, creds <-chan Item) errors.Error {
 
 	for item := range creds {
 		key := strings.ToUpper(item.Name)
-		value := strconv.QuoteToASCII(item.Plaintext)
-		fmt.Fprintf(w, "export %s=%s\n", key, value)
+		value := item.Plaintext
+		value = strings.Replace(value, "'", "''", -1)
+		fmt.Fprintf(w, "export %s='%s'\n", key, value)
 	}
 
 	return nil

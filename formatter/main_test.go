@@ -11,14 +11,18 @@ import (
 func testFormatter(t *testing.T, formatter Formatter, dataPath string) {
 
 	var b bytes.Buffer
-	items := make(chan Item, 2)
+	items := make(chan Item, 3)
 	items <- Item{
 		Name:      "my_secret",
 		Plaintext: "my value",
 	}
 	items <- Item{
 		Name:      "another_one",
-		Plaintext: "string with \"quotes\"",
+		Plaintext: "string with \"double\" and 'single' quotes",
+	}
+	items <- Item{
+		Name:      "foobar",
+		Plaintext: "string\nwith\nnewlines",
 	}
 	close(items)
 

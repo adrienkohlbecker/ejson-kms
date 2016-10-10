@@ -1,4 +1,5 @@
 {
-  "another_one": "string with \"quotes\"",
+  "another_one": "string with \"double\" and 'single' quotes",
+  "foobar": "string\nwith\nnewlines",
   "my_secret": "my value"
 }
