@@ -1,3 +1,9 @@
+# 2.0.0 - October 10th, 2016
+
+Changed BASH escaping in export, now uses single quotes and no string processing.
+This is a breaking change, but is necessary to preserve multi-line strings such
+as TLS keys when using the `eval "$(ejson-kms export)"` idiom.
+
 # 1.0.1 - October 6th, 2016
 
 Fixed `echo "foo\nbar" | ejson-kms add` previously added only the first line
