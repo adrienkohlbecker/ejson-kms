@@ -16,7 +16,7 @@ export: Export a secrets file in it's decrypted form.
 Each secret in the file will be decrypted and output to standard out.
 A number of formats are available:
 
-  * bash:   export SECRET='password'
+  * bash:   SECRET='password'
   * dotenv: SECRET="password"
   * json:   { "secret": "password" }
 

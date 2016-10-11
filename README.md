@@ -198,8 +198,8 @@ Every secret will be decrypted with the old key, encrypted with the new key and 
 To use your decrypted secrets, you can export them in a few formats with `ejson-kms export --format=bash`. The export will be output to standard out.
 
 Currently there are 3 formats supported:
-* `bash`: `export SECRET='password'` (name is capitalized)
-* `dotenv`: `SECRET="password"` (name is capitalized)
+* `bash`: `SECRET='password'` (name is capitalized, value as-is except escaping of `'` with `''`)
+* `dotenv`: `SECRET="password"` (name is capitalized, value uses escape sequences (\t, \n, \xFF, \u0100) for non-ASCII characters and non-printable characters)
 * `json`: `{ "secret": "password" }`
 
 To use in a bash script, do the following:

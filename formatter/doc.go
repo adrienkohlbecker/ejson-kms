@@ -10,7 +10,7 @@
 //
 //   switch format {
 //     case "bash":
-//       // export SECRET='password'
+//       // SECRET='password'
 //       formatter.Bash(os.Stdout, items)
 //     case "dotenv":
 //       // SECRET="password"

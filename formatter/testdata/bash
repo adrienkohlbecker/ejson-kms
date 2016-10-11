@@ -1,5 +1,5 @@
-export MY_SECRET='my value'
-export ANOTHER_ONE='string with "double" and ''single'' quotes'
-export FOOBAR='string
+MY_SECRET='my value'
+ANOTHER_ONE='string with "double" and ''single'' quotes'
+FOOBAR='string
 with
 newlines'

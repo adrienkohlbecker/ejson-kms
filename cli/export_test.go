@@ -116,7 +116,7 @@ func TestExport(t *testing.T) {
 			withMockKmsClient(t, client, func() {
 				err := cmd.Execute()
 				if assert.NoError(t, err) {
-					assert.Equal(t, out.String(), "export SECRET='abcdef'\n")
+					assert.Equal(t, out.String(), "SECRET='abcdef'\n")
 				}
 			})
 

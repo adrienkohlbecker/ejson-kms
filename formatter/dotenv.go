@@ -17,6 +17,8 @@ import (
 //   ANOTHER_ONE="string with \"quotes\""
 //
 // The secret names are capitalized and the values are quoted as Go strings.
+// Specifically, it uses escape sequences (\t, \n, \xFF, \u0100) for
+// non-ASCII characters and non-printable characters
 //
 // TODO: Ensure the go syntax for strings is compatible with Dotenv, as it seems
 // to be the case from quick testing.
