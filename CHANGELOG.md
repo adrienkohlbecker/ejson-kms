@@ -1,3 +1,10 @@
+# 3.0.0 - October 11th, 2016
+
+Removed the `export` keyword from BASH formatter.
+This is a breaking change that provides more secure defaults. Specifically,
+you will need to export the environment variables yourself if your app needs
+them outside of the BASH script.
+
 # 2.0.0 - October 10th, 2016
 
 Changed BASH escaping in export, now uses single quotes and no string processing.
