@@ -17,4 +17,9 @@ type Secret struct {
 	// along with the encrypted data key used for this specific secret.
 	// A versioning field is also added, currently only `EJK1`
 	Ciphertext string `json:"ciphertext"`
+
+	// _hidden is a dummy hidden key to force the use of explicit keys when
+	// initializing the struct. Allows adding keys in the future without
+	// breaking code
+	_hidden struct{}
 }

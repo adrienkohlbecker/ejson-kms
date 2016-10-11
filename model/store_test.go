@@ -37,6 +37,11 @@ var (
 	testContext2 = map[string]*string{"ABC": nil, "Secret": &testName2}
 )
 
+func TestDummy(t *testing.T) {
+	_ = Store{_hidden: struct{}{}}
+	_ = Secret{_hidden: struct{}{}}
+}
+
 func TestNewStore(t *testing.T) {
 
 	store := NewStore(testKeyID, testContext)

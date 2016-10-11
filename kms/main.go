@@ -12,6 +12,11 @@ import (
 type DataKey struct {
 	Ciphertext []byte
 	Plaintext  []byte
+
+	// _hidden is a dummy hidden key to force the use of explicit keys when
+	// initializing the struct. Allows adding keys in the future without
+	// breaking code
+	_hidden struct{}
 }
 
 // Client is the interface that is implemented by kms.KMS.

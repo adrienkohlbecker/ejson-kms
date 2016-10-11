@@ -21,6 +21,10 @@ const (
 	testCiphertext    = "EJK1;Y2lwaGVydGV4dGJsb2I=;YWJjZGVmYWJjZGVmYWJjZGVmYWJjZGVmlPmP6IWfK7WJMuXVi8aQ7TZu8vCkVA=="
 )
 
+func TestDummy(t *testing.T) {
+	_ = Cipher{_hidden: struct{}{}}
+}
+
 func TestEncrypt(t *testing.T) {
 
 	t.Run("working", func(t *testing.T) {

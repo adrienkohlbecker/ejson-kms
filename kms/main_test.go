@@ -18,6 +18,10 @@ const (
 	testKeyPlaintext  = "plaintext"
 )
 
+func TestDummy(t *testing.T) {
+	_ = DataKey{_hidden: struct{}{}}
+}
+
 func TestDefaultClient(t *testing.T) {
 
 	t.Run("valid", func(t *testing.T) {

@@ -43,6 +43,11 @@ type Store struct {
 
 	// Secrets is a list of secrets
 	Secrets []*Secret `json:"secrets"`
+
+	// _hidden is a dummy hidden key to force the use of explicit keys when
+	// initializing the struct. Allows adding keys in the future without
+	// breaking code
+	_hidden struct{}
 }
 
 // NewStore returns a new empty store
