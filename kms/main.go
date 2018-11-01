@@ -1,10 +1,10 @@
 package kms
 
 import (
-	"github.com/adrienkohlbecker/errors"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/kms"
+	"github.com/go-errors/errors"
 )
 
 // DataKey is a structure used to hold the ciphertext and plaintext of
@@ -27,7 +27,7 @@ type Client interface {
 
 // DefaultClient creates a new AWS session (reads credentials and settings from
 // the environment), and returns a ready-to-use KMS instance.
-func DefaultClient() (Client, errors.Error) {
+func DefaultClient() (Client, error) {
 
 	sess, err := session.NewSession()
 	if err != nil {
@@ -46,7 +46,7 @@ func DefaultClient() (Client, errors.Error) {
 // An encryptionContext can be given as key-value pairs. These are stored with
 // the key, logged through AWS CloudTrail (if enabled), and must be provided
 // as is for each future use of the data key.
-func GenerateDataKey(client Client, kmsKeyID string, encryptionContext map[string]*string) (DataKey, errors.Error) {
+func GenerateDataKey(client Client, kmsKeyID string, encryptionContext map[string]*string) (DataKey, error) {
 
 	params := &kms.GenerateDataKeyInput{
 		KeyId:             aws.String(kmsKeyID),
@@ -66,7 +66,7 @@ func GenerateDataKey(client Client, kmsKeyID string, encryptionContext map[strin
 
 // DecryptDataKey takes an encrypted data key and associated encryptionContext,
 // and returns the key plaintext (along with the ciphertext for consistency).
-func DecryptDataKey(client Client, ciphertext []byte, encryptionContext map[string]*string) (DataKey, errors.Error) {
+func DecryptDataKey(client Client, ciphertext []byte, encryptionContext map[string]*string) (DataKey, error) {
 
 	params := &kms.DecryptInput{
 		CiphertextBlob:    ciphertext,

@@ -2,14 +2,6 @@
 
 
 [[projects]]
-  branch = "master"
-  digest = "1:9af80a2dea7755e9281689d6bcd1c306d18baa495ce3afb6039bf3fbb064f144"
-  name = "github.com/adrienkohlbecker/errors"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "2b36bc76a9c8d86322384abd03057a176eab47ef"
-
-[[projects]]
   digest = "1:5280deb8452edadfc312f1a96091631b1fd26174e17f4f29742e189b20257420"
   name = "github.com/aws/aws-sdk-go"
   packages = [
@@ -56,6 +48,14 @@
   packages = ["spew"]
   pruneopts = "UT"
   revision = "5215b55f46b2b919f50a1df0eaa5886afe4e3b3d"
+
+[[projects]]
+  branch = "master"
+  digest = "1:d0557c61d3acd22f04f7b6b675b847381034b229b7dce10b1d31bfa0d7f30017"
+  name = "github.com/go-errors/errors"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "d98b870cc4e05f1545532a80e9909be8216095b6"
 
 [[projects]]
   digest = "1:15e27372d379b45b18ac917b9dafc45c45485239490ece18cca97a12f9591146"
@@ -167,10 +167,10 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/adrienkohlbecker/errors",
     "github.com/aws/aws-sdk-go/aws",
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/kms",
+    "github.com/go-errors/errors",
     "github.com/howeyc/gopass",
     "github.com/spf13/cobra",
     "github.com/spf13/cobra/doc",

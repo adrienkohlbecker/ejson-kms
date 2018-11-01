@@ -2,7 +2,6 @@ package crypto
 
 import (
 	"github.com/adrienkohlbecker/ejson-kms/kms"
-	"github.com/adrienkohlbecker/errors"
 )
 
 // Cipher is a struct containing the configuration for crypto operations on
@@ -32,7 +31,7 @@ func NewCipher(client kms.Client, kmsKeyID string) *Cipher {
 //
 // It takes the plaintext to encrypt, and returns the encrypted
 // and string-encoded ciphertext.
-func (c *Cipher) Encrypt(plaintext string, context map[string]*string) (string, errors.Error) {
+func (c *Cipher) Encrypt(plaintext string, context map[string]*string) (string, error) {
 
 	key, err := kms.GenerateDataKey(c.Client, c.KMSKeyID, context)
 	if err != nil {
@@ -53,7 +52,7 @@ func (c *Cipher) Encrypt(plaintext string, context map[string]*string) (string, 
 //
 // It takes the string-encoded ciphertext and returns the decoded
 // and decrypted plaintext.
-func (c *Cipher) Decrypt(encoded string, context map[string]*string) (string, errors.Error) {
+func (c *Cipher) Decrypt(encoded string, context map[string]*string) (string, error) {
 
 	encrypted, err := decode(encoded)
 	if err != nil {

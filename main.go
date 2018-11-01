@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/adrienkohlbecker/ejson-kms/cli"
-	"github.com/adrienkohlbecker/errors"
+	"github.com/go-errors/errors"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 		// Error contents is already printed out by cobra
 
 		enableDebug := os.Getenv("EJSON_KMS_DEBUG") == "1"
-		errStack, ok := err.(errors.Error)
+		errStack, ok := err.(*errors.Error)
 
 		if ok && enableDebug {
 			fmt.Fprintf(os.Stderr, "\n")

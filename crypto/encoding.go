@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/adrienkohlbecker/errors"
+	"github.com/go-errors/errors"
 )
 
 // MagicPrefix is a string prepended to all ciphertexts in the JSON representation.
@@ -29,7 +29,7 @@ func (encoded *encrypted) encode() string {
 
 // decode takes a string from the JSON representation and decodes the
 // ciphertext and keyCiphertext, while validating the format.
-func decode(encoded string) (*encrypted, errors.Error) {
+func decode(encoded string) (*encrypted, error) {
 	values := strings.Split(encoded, ";")
 	if len(values) != 3 {
 		return &encrypted{}, errors.Errorf("Invalid format for encoded string %s", encoded)

@@ -5,8 +5,6 @@ import (
 	"io"
 	"strconv"
 	"strings"
-
-	"github.com/adrienkohlbecker/errors"
 )
 
 // Dotenv implements the Formatter interface.
@@ -22,7 +20,7 @@ import (
 //
 // TODO: Ensure the go syntax for strings is compatible with Dotenv, as it seems
 // to be the case from quick testing.
-func Dotenv(w io.Writer, creds <-chan Item) errors.Error {
+func Dotenv(w io.Writer, creds <-chan Item) error {
 
 	for item := range creds {
 		key := strings.ToUpper(item.Name)

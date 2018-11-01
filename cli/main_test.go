@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/adrienkohlbecker/ejson-kms/kms"
-	"github.com/adrienkohlbecker/errors"
+	"github.com/go-errors/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -140,7 +140,7 @@ func withStdinError(t *testing.T, f func()) {
 func withKMSDefaultClientError(t *testing.T, f func()) {
 
 	original := kmsDefaultClient
-	kmsDefaultClient = func() (kms.Client, errors.Error) {
+	kmsDefaultClient = func() (kms.Client, error) {
 		return nil, errors.Errorf("testing errors")
 	}
 
@@ -153,7 +153,7 @@ func withKMSDefaultClientError(t *testing.T, f func()) {
 func withMockKmsClient(t *testing.T, other kms.Client, f func()) {
 
 	original := kmsDefaultClient
-	kmsDefaultClient = func() (kms.Client, errors.Error) {
+	kmsDefaultClient = func() (kms.Client, error) {
 		return other, nil
 	}
 

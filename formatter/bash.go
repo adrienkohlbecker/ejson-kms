@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"io"
 	"strings"
-
-	"github.com/adrienkohlbecker/errors"
 )
 
 // Bash implements the Formatter interface.
@@ -17,7 +15,7 @@ import (
 //
 // The secret names are capitalized and the no processing is done to the string
 // except replacing all `'` with `''`.
-func Bash(w io.Writer, creds <-chan Item) errors.Error {
+func Bash(w io.Writer, creds <-chan Item) error {
 
 	for item := range creds {
 		key := strings.ToUpper(item.Name)

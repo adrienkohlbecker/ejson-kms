@@ -2,8 +2,6 @@ package formatter
 
 import (
 	"io"
-
-	"github.com/adrienkohlbecker/errors"
 )
 
 // Item is a parameter given to formatters, with the secret name
@@ -16,4 +14,4 @@ type Item struct {
 // Formatter is the interface implemented by formatters.
 //
 // It takes any Writer and a channel of Items (to ease parallelization of KMS calls)
-type Formatter func(w io.Writer, creds <-chan Item) errors.Error
+type Formatter func(w io.Writer, creds <-chan Item) error

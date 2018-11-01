@@ -7,13 +7,13 @@ import (
 	"strings"
 
 	"github.com/adrienkohlbecker/ejson-kms/formatter"
-	"github.com/adrienkohlbecker/errors"
+	"github.com/go-errors/errors"
 )
 
 var nameRegexp = regexp.MustCompile("^[a-z_][a-z0-9_]*$")
 
 // ValidSecretsPath checks for an existing path that is not a directory.
-func ValidSecretsPath(path string) errors.Error {
+func ValidSecretsPath(path string) error {
 
 	if path == "" {
 		return errors.Errorf("No path provided")
@@ -33,7 +33,7 @@ func ValidSecretsPath(path string) errors.Error {
 }
 
 // ValidNewSecretsPath checks for a valid path that does not exist.
-func ValidNewSecretsPath(path string) errors.Error {
+func ValidNewSecretsPath(path string) error {
 
 	if path == "" {
 		return errors.Errorf("No path provided")
@@ -52,7 +52,7 @@ func ValidNewSecretsPath(path string) errors.Error {
 //
 // It must be only lowercase letters, digits or underscores.
 // It cannot start with a letter.
-func ValidName(name string) errors.Error {
+func ValidName(name string) error {
 
 	if !nameRegexp.MatchString(name) {
 		return errors.Errorf("Invalid format for name: must be lowercase, can contain letters, digits and underscores, and cannot start with a number.")
@@ -63,7 +63,7 @@ func ValidName(name string) errors.Error {
 
 // HasOneArgument checks that the provided string slice has one (and only one)
 // value that is not empty, and returns it.
-func HasOneArgument(args []string) (string, errors.Error) {
+func HasOneArgument(args []string) (string, error) {
 
 	var value string
 	if len(args) == 1 {
@@ -85,7 +85,7 @@ func HasOneArgument(args []string) (string, errors.Error) {
 // encryption contexts.
 // The format must be key1=value1. Keys and values are not checked for
 // a specific format
-func ValidEncryptionContext(raw []string) (map[string]*string, errors.Error) {
+func ValidEncryptionContext(raw []string) (map[string]*string, error) {
 
 	encryptionContext := make(map[string]*string)
 
@@ -102,7 +102,7 @@ func ValidEncryptionContext(raw []string) (map[string]*string, errors.Error) {
 
 // ValidFormatter parses the formatter string argument into a formatter
 // method. Supported values are "bash", "dotenv" and "json".
-func ValidFormatter(format string) (formatter.Formatter, errors.Error) {
+func ValidFormatter(format string) (formatter.Formatter, error) {
 
 	var ret formatter.Formatter
 

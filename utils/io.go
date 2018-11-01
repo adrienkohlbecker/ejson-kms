@@ -8,7 +8,7 @@ import (
 
 	"golang.org/x/crypto/ssh/terminal"
 
-	"github.com/adrienkohlbecker/errors"
+	"github.com/go-errors/errors"
 	"github.com/howeyc/gopass"
 )
 
@@ -17,7 +17,7 @@ import (
 //
 // If file is a terminal (such as when running with os.Stdin), it prints
 // instructions to the user on how to close the input by sending an EOF.
-func ReadPassword() (string, errors.Error) {
+func ReadPassword() (string, error) {
 
 	isTTY := isTerminal(int(os.Stdin.Fd()))
 	var bytes []byte

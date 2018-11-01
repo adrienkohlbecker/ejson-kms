@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/adrienkohlbecker/errors"
+	"github.com/go-errors/errors"
 )
 
 // JSON implements the Formatter interface.
@@ -16,7 +16,7 @@ import (
 //    "my_secret": "my value",
 //    "another_one": "string with \"quotes\""
 //  }
-func JSON(w io.Writer, creds <-chan Item) errors.Error {
+func JSON(w io.Writer, creds <-chan Item) error {
 
 	output := make(map[string]string)
 

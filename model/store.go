@@ -8,7 +8,7 @@ import (
 	"github.com/adrienkohlbecker/ejson-kms/crypto"
 	"github.com/adrienkohlbecker/ejson-kms/formatter"
 	"github.com/adrienkohlbecker/ejson-kms/kms"
-	"github.com/adrienkohlbecker/errors"
+	"github.com/go-errors/errors"
 )
 
 // Store represents a secrets file.
@@ -64,7 +64,7 @@ func NewStore(kmsKeyID string, encryptionContext map[string]*string) *Store {
 
 // Load takes a path to a secrets file and returns the contents of the
 // file unmarshaled in the model.
-func Load(path string) (*Store, errors.Error) {
+func Load(path string) (*Store, error) {
 
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -89,7 +89,7 @@ func (s *Store) Contains(name string) bool {
 
 // Save takes a Store struct and writes it to disk to the given path.
 // The JSON is pretty-printed and file permissions are set to 0644.
-func (s *Store) Save(path string) errors.Error {
+func (s *Store) Save(path string) error {
 
 	bytes, err := json.MarshalIndent(s, "", "  ")
 	if err != nil {
@@ -112,7 +112,7 @@ func (s *Store) Save(path string) errors.Error {
 //
 // Note that the name of the secret is automatically added to the encryption
 // context under the key "Secret"
-func (s *Store) Add(client kms.Client, plaintext string, name string, description string) errors.Error {
+func (s *Store) Add(client kms.Client, plaintext string, name string, description string) error {
 
 	context := make(map[string]*string)
 	for k, v := range s.EncryptionContext {
@@ -140,7 +140,7 @@ func (s *Store) Add(client kms.Client, plaintext string, name string, descriptio
 
 // ExportPlaintext deciphers all the secrets and publishes them to a channel
 // for formatting.
-func (s *Store) ExportPlaintext(client kms.Client) (chan formatter.Item, errors.Error) {
+func (s *Store) ExportPlaintext(client kms.Client) (chan formatter.Item, error) {
 
 	items := make(chan formatter.Item, len(s.Secrets))
 	cipher := crypto.NewCipher(client, s.KMSKeyID)
@@ -184,7 +184,7 @@ func (s *Store) Find(name string) *Secret {
 }
 
 // RotateKMSKey re-encrypts all the secrets with the new given KMS key
-func (s *Store) RotateKMSKey(client kms.Client, newKMSKeyID string) errors.Error {
+func (s *Store) RotateKMSKey(client kms.Client, newKMSKeyID string) error {
 
 	oldCipher := crypto.NewCipher(client, s.KMSKeyID)
 	newCipher := crypto.NewCipher(client, newKMSKeyID)
@@ -220,7 +220,7 @@ func (s *Store) RotateKMSKey(client kms.Client, newKMSKeyID string) errors.Error
 //
 // Note that the name of the secret is automatically added to the encryption
 // context under the key "Secret"
-func (s *Store) Rotate(client kms.Client, name string, newPlaintext string) errors.Error {
+func (s *Store) Rotate(client kms.Client, name string, newPlaintext string) error {
 
 	item := s.Find(name)
 	if item == nil {

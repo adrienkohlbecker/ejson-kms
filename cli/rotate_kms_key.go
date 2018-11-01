@@ -3,7 +3,7 @@ package cli
 import (
 	"strings"
 
-	"github.com/adrienkohlbecker/errors"
+	"github.com/go-errors/errors"
 	"github.com/spf13/cobra"
 
 	"github.com/adrienkohlbecker/ejson-kms/model"

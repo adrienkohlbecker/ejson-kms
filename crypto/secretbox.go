@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"io"
 
-	"github.com/adrienkohlbecker/errors"
+	"github.com/go-errors/errors"
 	"golang.org/x/crypto/nacl/secretbox"
 )
 
@@ -22,7 +22,7 @@ const (
 //   On OpenBSD, Reader uses getentropy(2).
 //   On other Unix-like systems, Reader reads from /dev/urandom.
 //   On Windows systems, Reader uses the CryptGenRandom API.
-func randomNonce() ([nonceSize]byte, errors.Error) {
+func randomNonce() ([nonceSize]byte, error) {
 
 	nonce := [nonceSize]byte{}
 
@@ -38,7 +38,7 @@ func randomNonce() ([nonceSize]byte, errors.Error) {
 // encryptBytes uses nacl/secretbox to encrypt a plaintext. A random nonce
 // is generated for each call. The return value is the nonce + ciphertext
 // in a single byte slice.
-func encryptBytes(keyBytes []byte, plaintext []byte) ([]byte, errors.Error) {
+func encryptBytes(keyBytes []byte, plaintext []byte) ([]byte, error) {
 
 	if len(keyBytes) != keySize {
 		return []byte{}, errors.Errorf("Expected key size of %d, got %d", keySize, len(keyBytes))
@@ -60,7 +60,7 @@ func encryptBytes(keyBytes []byte, plaintext []byte) ([]byte, errors.Error) {
 
 // decryptBytes uses nacl/secretbox to decrypt a ciphertext. The input must
 // take the form nonce + ciphertext in a single byte slice.
-func decryptBytes(keyBytes []byte, bytes []byte) ([]byte, errors.Error) {
+func decryptBytes(keyBytes []byte, bytes []byte) ([]byte, error) {
 
 	if len(keyBytes) != keySize {
 		return []byte{}, errors.Errorf("Expected key size of %d, got %d", keySize, len(keyBytes))
