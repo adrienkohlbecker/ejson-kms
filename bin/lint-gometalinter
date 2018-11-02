@@ -10,7 +10,4 @@ gometalinter \
   --vendor \
   --tests \
   --deadline=300s \
-  --concurrency="$(nproc)" \
-  --linter="gotype:sh -c 'go test -i {path} && gotype -a -e {path}':^(?P<path>.*?\.go):(?P<line>\d+):(?P<col>\d+):\s*(?P<message>.*)$" \
-  --disable=dupl \
   ./...

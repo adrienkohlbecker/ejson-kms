@@ -13,6 +13,19 @@ import (
 
 // Store represents a secrets file.
 type Store struct {
+	// _hidden is a dummy hidden key to force the use of explicit keys when
+	// initializing the struct. Allows adding keys in the future without
+	// breaking code
+	_hidden struct{}
+
+	// Name/value pair that contains additional data to be authenticated during
+	// the encryption and decryption processes that use the key. This value is logged
+	// by AWS CloudTrail to provide context around the data encrypted by the key.
+	//
+	// Note that changing this value requires re-encrypting every secret
+	// in the file, since KMS uses it as part of the decryption process.
+	EncryptionContext map[string]*string `json:"encryption_context"`
+
 	// KMSKeyID is an aws ID pointing to the master key used to encrypt the
 	// secrets in this file.
 	//
@@ -29,25 +42,12 @@ type Store struct {
 	//   Alias Name Example - alias/MyAliasName
 	KMSKeyID string `json:"kms_key_id"`
 
-	// Version is the version of the JSON schema to use. For now there is only
-	// version 1.
-	Version int `json:"version"`
-
-	// Name/value pair that contains additional data to be authenticated during
-	// the encryption and decryption processes that use the key. This value is logged
-	// by AWS CloudTrail to provide context around the data encrypted by the key.
-	//
-	// Note that changing this value requires re-encrypting every secret
-	// in the file, since KMS uses it as part of the decryption process.
-	EncryptionContext map[string]*string `json:"encryption_context"`
-
 	// Secrets is a list of secrets
 	Secrets []*Secret `json:"secrets"`
 
-	// _hidden is a dummy hidden key to force the use of explicit keys when
-	// initializing the struct. Allows adding keys in the future without
-	// breaking code
-	_hidden struct{}
+	// Version is the version of the JSON schema to use. For now there is only
+	// version 1.
+	Version int `json:"version"`
 }
 
 // NewStore returns a new empty store
@@ -66,7 +66,7 @@ func NewStore(kmsKeyID string, encryptionContext map[string]*string) *Store {
 // file unmarshaled in the model.
 func Load(path string) (*Store, error) {
 
-	bytes, err := ioutil.ReadFile(path)
+	bytes, err := ioutil.ReadFile(path) // nolint: gosec
 	if err != nil {
 		return nil, errors.WrapPrefix(err, fmt.Sprintf("Unable to read file at %s", path), 0)
 	}

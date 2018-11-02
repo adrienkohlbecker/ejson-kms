@@ -21,7 +21,10 @@ func Bash(w io.Writer, creds <-chan Item) error {
 		key := strings.ToUpper(item.Name)
 		value := item.Plaintext
 		value = strings.Replace(value, "'", "''", -1)
-		fmt.Fprintf(w, "%s='%s'\n", key, value)
+		_, err := fmt.Fprintf(w, "%s='%s'\n", key, value)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

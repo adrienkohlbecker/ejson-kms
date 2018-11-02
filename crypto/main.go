@@ -7,16 +7,16 @@ import (
 // Cipher is a struct containing the configuration for crypto operations on
 // a single secrets file.
 type Cipher struct {
+	// _hidden is a dummy hidden key to force the use of explicit keys when
+	// initializing the struct. Allows adding keys in the future without
+	// breaking code
+	_hidden struct{}
+
 	// Client is the AWS KMS client
 	Client kms.Client
 
 	// KMSKeyID is the ID of the master key to use for key wrapping
 	KMSKeyID string
-
-	// _hidden is a dummy hidden key to force the use of explicit keys when
-	// initializing the struct. Allows adding keys in the future without
-	// breaking code
-	_hidden struct{}
 }
 
 // NewCipher returns an initialized Cipher.

@@ -19,8 +19,8 @@ func main() {
 		errStack, ok := err.(*errors.Error)
 
 		if ok && enableDebug {
-			fmt.Fprintf(os.Stderr, "\n")
-			fmt.Fprintln(os.Stderr, string(errStack.Stack()))
+			fmt.Println("")
+			fmt.Println(string(errStack.Stack()))
 		}
 
 		os.Exit(1)

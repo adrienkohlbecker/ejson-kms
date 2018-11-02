@@ -25,7 +25,10 @@ func Dotenv(w io.Writer, creds <-chan Item) error {
 	for item := range creds {
 		key := strings.ToUpper(item.Name)
 		value := strconv.QuoteToASCII(item.Plaintext)
-		fmt.Fprintf(w, "%s=%s\n", key, value)
+		_, err := fmt.Fprintf(w, "%s=%s\n", key, value)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

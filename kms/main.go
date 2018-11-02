@@ -10,13 +10,13 @@ import (
 // DataKey is a structure used to hold the ciphertext and plaintext of
 // a generated KMS data key.
 type DataKey struct {
-	Ciphertext []byte
-	Plaintext  []byte
-
 	// _hidden is a dummy hidden key to force the use of explicit keys when
 	// initializing the struct. Allows adding keys in the future without
 	// breaking code
 	_hidden struct{}
+
+	Ciphertext []byte
+	Plaintext  []byte
 }
 
 // Client is the interface that is implemented by kms.KMS.
