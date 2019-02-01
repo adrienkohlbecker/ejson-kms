@@ -23,6 +23,7 @@ func App() *cobra.Command {
 
 	cmd.AddCommand(addCmd())
 	cmd.AddCommand(exportCmd())
+	cmd.AddCommand(importCmd())
 	cmd.AddCommand(initCmd())
 	cmd.AddCommand(rotateKMSKeyCmd())
 	cmd.AddCommand(rotateCmd())
