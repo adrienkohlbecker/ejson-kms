@@ -1,0 +1,6 @@
+another_one: string with "double" and 'single' quotes
+foobar: |
+  string
+  with
+  newlines
+my_secret: my value
