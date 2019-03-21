@@ -22,7 +22,6 @@ func YAML(w io.Writer, creds <-chan Item) error {
 		output[item.Name] = item.Plaintext
 	}
 	b, err := yaml.Marshal(output)
-	// b, err := json.MarshalIndent(output, "", "  ")
 	if err != nil {
 		// Note: Not covered in tests, need a way to trigger an encoding error.
 		return errors.WrapPrefix(err, "Unable to format YAML", 0)
