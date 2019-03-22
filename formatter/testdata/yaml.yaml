@@ -4,4 +4,3 @@ foobar: |-
   with
   newlines
 my_secret: my value
-

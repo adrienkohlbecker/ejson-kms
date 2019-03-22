@@ -27,8 +27,6 @@ func YAML(w io.Writer, creds <-chan Item) error {
 		return errors.WrapPrefix(err, "Unable to format YAML", 0)
 	}
 
-	b = append(b, 0x0A) // add trailing new line
-
 	_, err = io.Copy(w, bytes.NewReader(b))
 	if err != nil {
 		return errors.WrapPrefix(err, "Unable to write to output", 0)
