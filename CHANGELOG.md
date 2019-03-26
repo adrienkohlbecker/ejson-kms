@@ -1,3 +1,8 @@
+# 4.0.0 - January 29th, 2019
+
+Vendoring go dependencies using dep rather than gvt
+Use go-errors/errors upstream rather than own fork. This is breaking change for projects using this as a library as it changes the return type of most methods from `errors.Error` to `error`.
+
 # 3.0.0 - October 11th, 2016
 
 Removed the `export` keyword from BASH formatter.
