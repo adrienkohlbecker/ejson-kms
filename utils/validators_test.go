@@ -203,6 +203,7 @@ func TestValidFormatter(t *testing.T) {
 		"json":   formatter.JSON,
 		"bash":   formatter.Bash,
 		"dotenv": formatter.Dotenv,
+		"yaml":   formatter.YAML,
 	}
 
 	for value, f := range valid {
