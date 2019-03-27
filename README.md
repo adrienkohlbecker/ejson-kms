@@ -131,7 +131,7 @@ The binaries are signed using the GPG key `C248DE6357445D6302F9A62E74BFD03C20CC2
 You can install `ejson-kms` on Linux with the following:
 
 ```bash
-export EJSON_KMS_VERSION="4.0.0"
+export EJSON_KMS_VERSION="4.1.0"
 curl -Lo ejson-kms https://github.com/adrienkohlbecker/ejson-kms/releases/download/$EJSON_KMS_VERSION/ejson-kms-$EJSON_KMS_VERSION-linux-amd64
 curl -Lo ejson-kms.asc https://github.com/adrienkohlbecker/ejson-kms/releases/download/$EJSON_KMS_VERSION/ejson-kms-$EJSON_KMS_VERSION-linux-amd64.asc
 gpg --keyserver ha.pool.sks-keyservers.net --recv-keys C248DE6357445D6302F9A62E74BFD03C20CC21AF
@@ -197,10 +197,11 @@ Every secret will be decrypted with the old key, encrypted with the new key and 
 
 To use your decrypted secrets, you can export them in a few formats with `ejson-kms export --format=bash`. The export will be output to standard out.
 
-Currently there are 3 formats supported:
+Currently there are four formats supported:
 * `bash`: `SECRET='password'` (name is capitalized, value as-is except escaping of `'` with `''`)
 * `dotenv`: `SECRET="password"` (name is capitalized, value uses escape sequences (\t, \n, \xFF, \u0100) for non-ASCII characters and non-printable characters)
 * `json`: `{ "secret": "password" }`
+* `yaml`: `secret: password`
 
 To use in a bash script, do the following:
 
