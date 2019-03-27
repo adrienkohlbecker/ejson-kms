@@ -13,6 +13,7 @@ A number of formats are available:
   * bash:   SECRET='password'
   * dotenv: SECRET="password"
   * json:   { "secret": "password" }
+  * yaml:   secret: password
 
 Please be careful when exporting your secrets, do not save them to disk!
 
