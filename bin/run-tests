@@ -8,14 +8,14 @@ IFS=$'\n\t'
 
 if [ ! -z "${CIRCLECI:-}" ]; then
 
-  REPORTS_PATH=${REPORTS_PATH:=".artifacts"}
-  mkdir -p "$REPORTS_PATH"
+  TEST_RESULTS=${TEST_RESULTS:=".artifacts"}
+  mkdir -p "$TEST_RESULTS"
 
-  gotestsum --junitfile "$REPORTS_PATH/gotestsum-report.xml" -- -covermode=count -coverprofile="$REPORTS_PATH/cover.out" ./...
-  go tool cover -html="$REPORTS_PATH/cover.out" > "$REPORTS_PATH/cover.html"
+  gotestsum --junitfile "$TEST_RESULTS/gotestsum-report.xml" -- -covermode=count -coverprofile="$TEST_RESULTS/cover.out" ./...
+  go tool cover -html="$TEST_RESULTS/cover.out" > "$TEST_RESULTS/cover.html"
 
   if [ ! -z "${COVERALLS_TOKEN:-}" ]; then
-    goveralls -coverprofile="$REPORTS_PATH/cover.out" -service=circle-ci -repotoken="$COVERALLS_TOKEN"
+    goveralls -coverprofile="$TEST_RESULTS/cover.out" -service=circle-ci -repotoken="$COVERALLS_TOKEN"
   fi
 
 else
