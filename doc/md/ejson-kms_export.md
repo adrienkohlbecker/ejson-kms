@@ -32,7 +32,7 @@ ejson-kms export --path=secrets.json --format=dotenv
 ### Options
 
 ```
-      --format string   format of the generated output (bash|dotenv|json) (default "bash")
+      --format string   format of the generated output (bash|dotenv|json|yaml) (default "bash")
       --path string     path of the secrets file (default ".secrets.json")
 ```
 
