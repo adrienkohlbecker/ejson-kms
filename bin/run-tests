@@ -12,7 +12,7 @@ if [ ! -z "${CIRCLECI:-}" ]; then
   mkdir -p "$TEST_RESULTS"
 
   gotestsum --junitfile "$TEST_RESULTS/gotestsum-report.xml" -- -covermode=count -coverprofile="$TEST_RESULTS/cover.out" ./...
-  go tool cover -html="$TEST_RESULTS/cover.out" > "$TEST_RESULTS/cover.html"
+  go tool cover -html="$TEST_RESULTS/cover.out" -o "$TEST_RESULTS/cover.html"
 
   if [ ! -z "${COVERALLS_TOKEN:-}" ]; then
     goveralls -coverprofile="$TEST_RESULTS/cover.out" -service=circle-ci -repotoken="$COVERALLS_TOKEN"
