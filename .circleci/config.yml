@@ -22,6 +22,7 @@ jobs:
       - run: bin/lint-shellcheck
       - run: bin/lint-gometalinter
       - run: bin/lint-docs
+      - run: OUTPUT=$TEST_RESULTS/ejson-kms VERSION=$(git describe) SHA1=$(git rev-parse HEAD) bin/compile
 
       - save_cache:
           key: v1-pkg-cache
