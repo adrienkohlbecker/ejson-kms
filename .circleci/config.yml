@@ -13,8 +13,7 @@ jobs:
           keys:
             - v1-pkg-cache
 
-      - run: go get -u github.com/wadey/gocovmerge
-      - run: go get -u github.com/ngoossens/go-junit-report
+      - run: go get -u gotest.tools/gotestsum
       - run: go get -u github.com/alecthomas/gometalinter
       - run: go get -u github.com/mattn/goveralls
       - run: gometalinter --install
