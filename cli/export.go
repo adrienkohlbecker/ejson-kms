@@ -16,11 +16,14 @@ export: Export a secrets file in it's decrypted form.
 Each secret in the file will be decrypted and output to standard out.
 A number of formats are available:
 
-  * bash:   SECRET='password'
+  * bash:          SECRET='password'
+  * dotenv:        SECRET="password"
+  * json:          { "secret": "password" }
+  * yaml:          secret: password
   * bash-export:   export SECRET='password'
-  * dotenv: SECRET="password"
-  * json:   { "secret": "password" }
-  * yaml:   secret: password
+  * bash-ifnotset: : ${SECRET='password'}
+  * bash-ifempty:  : ${SECRET:='password'}
+  
 
 Please be careful when exporting your secrets, do not save them to disk!
 `
