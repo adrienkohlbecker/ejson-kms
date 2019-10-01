@@ -17,6 +17,7 @@ Each secret in the file will be decrypted and output to standard out.
 A number of formats are available:
 
   * bash:   SECRET='password'
+  * bash-export:   export SECRET='password'
   * dotenv: SECRET="password"
   * json:   { "secret": "password" }
   * yaml:   secret: password
@@ -44,7 +45,7 @@ func exportCmd() *cobra.Command {
 	)
 
 	cmd.Flags().StringVar(&storePath, "path", storePath, "path of the secrets file")
-	cmd.Flags().StringVar(&format, "format", format, "format of the generated output (bash|dotenv|json|yaml)")
+	cmd.Flags().StringVar(&format, "format", format, "format of the generated output (bash|bash-export|dotenv|json|yaml)")
 
 	cmd.RunE = func(_ *cobra.Command, args []string) error {
 

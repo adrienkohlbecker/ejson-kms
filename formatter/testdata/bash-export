@@ -1,0 +1,5 @@
+export MY_SECRET='my value'
+export ANOTHER_ONE='string with "double" and ''single'' quotes'
+export FOOBAR='string
+with
+newlines'
