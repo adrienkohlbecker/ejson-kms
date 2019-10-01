@@ -109,8 +109,6 @@ func ValidFormatter(format string) (formatter.Formatter, error) {
 	switch format {
 	case "bash":
 		ret = formatter.Bash
-	case "bash-export":
-		ret = formatter.BashExport
 	case "bash-ifnotset":
 		ret = formatter.BashIfNotSet
 	case "bash-ifempty":

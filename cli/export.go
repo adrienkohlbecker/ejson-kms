@@ -20,7 +20,6 @@ A number of formats are available:
   * dotenv:        SECRET="password"
   * json:          { "secret": "password" }
   * yaml:          secret: password
-  * bash-export:   export SECRET='password'
   * bash-ifnotset: : ${SECRET='password'}
   * bash-ifempty:  : ${SECRET:='password'}
   
@@ -48,7 +47,7 @@ func exportCmd() *cobra.Command {
 	)
 
 	cmd.Flags().StringVar(&storePath, "path", storePath, "path of the secrets file")
-	cmd.Flags().StringVar(&format, "format", format, "format of the generated output (bash|dotenv|json|yaml|bash-export|bash-ifnotset|bash-ifempty)")
+	cmd.Flags().StringVar(&format, "format", format, "format of the generated output (bash|dotenv|json|yaml|bash-ifnotset|bash-ifempty)")
 
 	cmd.RunE = func(_ *cobra.Command, args []string) error {
 
