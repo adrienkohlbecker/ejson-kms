@@ -1,0 +1,37 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: golang:1.11
+    working_directory: /go/src/github.com/adrienkohlbecker/ejson-kms
+    environment:
+      TEST_RESULTS: /tmp/test-results
+
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-pkg-cache
+
+      - run: go get -u gotest.tools/gotestsum
+      - run: go get -u github.com/alecthomas/gometalinter
+      - run: go get -u github.com/mattn/goveralls
+      - run: gometalinter --install
+
+      - run: bin/run-tests
+      - run: bin/lint-shellcheck
+      - run: bin/lint-gometalinter
+      - run: bin/lint-docs
+      - run: OUTPUT=$TEST_RESULTS/ejson-kms VERSION=$(git describe) SHA1=$(git rev-parse HEAD) bin/compile
+
+      - save_cache:
+          key: v1-pkg-cache
+          paths:
+            - "/go/pkg"
+
+      - store_artifacts:
+          path: /tmp/test-results
+          destination: raw-test-output
+
+      - store_test_results:
+          path: /tmp/test-results
