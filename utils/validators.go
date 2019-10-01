@@ -111,6 +111,10 @@ func ValidFormatter(format string) (formatter.Formatter, error) {
 		ret = formatter.Bash
 	case "bash-export":
 		ret = formatter.BashExport
+	case "bash-ifnotset":
+		ret = formatter.BashIfNotSet
+	case "bash-ifempty":
+		ret = formatter.BashIfEmpty
 	case "dotenv":
 		ret = formatter.Dotenv
 	case "json":

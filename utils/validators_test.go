@@ -200,10 +200,13 @@ func TestValidEncryptionContext(t *testing.T) {
 func TestValidFormatter(t *testing.T) {
 
 	valid := map[string]formatter.Formatter{
-		"json":   formatter.JSON,
-		"bash":   formatter.Bash,
-		"dotenv": formatter.Dotenv,
-		"yaml":   formatter.YAML,
+		"json":          formatter.JSON,
+		"bash":          formatter.Bash,
+		"bash-export":   formatter.BashExport,
+		"bash-ifnotset": formatter.BashIfNotSet,
+		"bash-ifempty":  formatter.BashIfEmpty,
+		"dotenv":        formatter.Dotenv,
+		"yaml":          formatter.YAML,
 	}
 
 	for value, f := range valid {
