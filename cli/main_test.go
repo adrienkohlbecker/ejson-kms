@@ -20,8 +20,8 @@ const (
 	testDataEmpty         = "./testdata/empty.json"
 	testDataInvalid       = "./testdata/invalid.json"
 	testDataOneCredential = "./testdata/one_credential.json"
-	testDataValidEnv 			= "./testdata/valid.env"
-	testDataInvalidEnv 		= "./testdata/invalid.env"
+	testDataValidEnv      = "./testdata/valid.env"
+	testDataInvalidEnv    = "./testdata/invalid.env"
 
 	testKmsKeyID       = "arn:aws:kms:eu-west-1:012345678912:alias/ejson-kms-testing"
 	testKeyPlaintext   = "-abcdefabcdefabcdefabcdefabcdef-"
