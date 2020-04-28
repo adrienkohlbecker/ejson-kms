@@ -101,7 +101,7 @@ func ValidEncryptionContext(raw []string) (map[string]*string, error) {
 }
 
 // ValidFormatter parses the formatter string argument into a formatter
-// method. Supported values are "bash", "dotenv" and "json".
+// method. Supported values are "bash", "dotenv", "json" and "yaml".
 func ValidFormatter(format string) (formatter.Formatter, error) {
 
 	var ret formatter.Formatter
@@ -113,6 +113,8 @@ func ValidFormatter(format string) (formatter.Formatter, error) {
 		ret = formatter.Dotenv
 	case "json":
 		ret = formatter.JSON
+	case "yaml":
+		ret = formatter.YAML
 	default:
 		return nil, errors.Errorf("Unknown format %s", format)
 	}

@@ -13,6 +13,7 @@ A number of formats are available:
   * bash:   SECRET='password'
   * dotenv: SECRET="password"
   * json:   { "secret": "password" }
+  * yaml:   secret: password
 
 Please be careful when exporting your secrets, do not save them to disk!
 
@@ -31,7 +32,7 @@ ejson-kms export --path=secrets.json --format=dotenv
 ### Options
 
 ```
-      --format string   format of the generated output (bash|dotenv|json) (default "bash")
+      --format string   format of the generated output (bash|dotenv|json|yaml) (default "bash")
       --path string     path of the secrets file (default ".secrets.json")
 ```
 

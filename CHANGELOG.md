@@ -1,3 +1,7 @@
+# 4.1.0 - March 27th, 2019
+
+Added support for yaml files in export subcommand.
+
 # 4.0.0 - January 29th, 2019
 
 Vendoring go dependencies using dep rather than gvt
