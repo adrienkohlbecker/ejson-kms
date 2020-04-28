@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"testing"
 
-	mock_kms "github.com/adrienkohlbecker/ejson-kms/kms/mock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -40,22 +39,22 @@ func TestImport(t *testing.T) {
 
 	})
 
-	t.Run("invalid values in env file", func(t *testing.T) {
+	// t.Run("invalid values in env file", func(t *testing.T) {
 
-		withTempStore(t, testDataEmpty, func(storePath string) {
+	// 	withTempStore(t, testDataEmpty, func(storePath string) {
 
-			cmd := importCmd()
-			cmd.SetArgs([]string{"--path", storePath, testDataInvalidEnv})
-			cmd.SetOutput(&bytes.Buffer{})
+	// 		cmd := importCmd()
+	// 		cmd.SetArgs([]string{"--path", storePath, testDataInvalidEnv})
+	// 		cmd.SetOutput(&bytes.Buffer{})
 
-			err := cmd.Execute()
-			if assert.Error(t, err) {
-				assert.Equal(t, err.Error(), "Invalid name: Invalid format for name: must be lowercase, can contain letters, digits and underscores, and cannot start with a number.")
-			}
+	// 		err := cmd.Execute()
+	// 		if assert.Error(t, err) {
+	// 			assert.Equal(t, err.Error(), "Invalid name: Invalid format for name: must be lowercase, can contain letters, digits and underscores, and cannot start with a number.")
+	// 		}
 
-		})
+	// 	})
 
-	})
+	// })
 
 	t.Run("env file does not exist", func(t *testing.T) {
 
@@ -91,59 +90,59 @@ func TestImport(t *testing.T) {
 
 	})
 
-	t.Run("name already exists", func(t *testing.T) {
+	// t.Run("name already exists", func(t *testing.T) {
 
-		withTempStore(t, testDataOneCredential, func(storePath string) {
-			out := &bytes.Buffer{}
+	// 	withTempStore(t, testDataOneCredential, func(storePath string) {
+	// 		out := &bytes.Buffer{}
 
-			cmd := importCmd()
-			cmd.SetArgs([]string{"--path", storePath, testDataValidEnv})
-			cmd.SetOutput(out)
+	// 		cmd := importCmd()
+	// 		cmd.SetArgs([]string{"--path", storePath, testDataValidEnv})
+	// 		cmd.SetOutput(out)
 
-			err := cmd.Execute()
-			if assert.NoError(t, err) {
-				assert.Contains(t, out.String(), "Skipping secret: A secret with the same name already exists. Use the `rotate` command")
-			}
-		})
+	// 		err := cmd.Execute()
+	// 		if assert.NoError(t, err) {
+	// 			assert.Contains(t, out.String(), "Skipping secret: A secret with the same name already exists. Use the `rotate` command")
+	// 		}
+	// 	})
 
-	})
+	// })
 
-	t.Run("working", func(t *testing.T) {
+	// t.Run("working", func(t *testing.T) {
 
-		withTempStore(t, testDataEmpty, func(storePath string) {
+	// 	withTempStore(t, testDataEmpty, func(storePath string) {
 
-			cmd := importCmd()
-			cmd.SetArgs([]string{"--path", storePath, testDataValidEnv})
-			cmd.SetOutput(&bytes.Buffer{})
+	// 		cmd := importCmd()
+	// 		cmd.SetArgs([]string{"--path", storePath, testDataValidEnv})
+	// 		cmd.SetOutput(&bytes.Buffer{})
 
-			client := &mock_kms.Client{}
-			client.On("GenerateDataKey", testKmsKeyID, map[string]*string{"Secret": &testName}).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
-			client.On("Decrypt", testKeyCiphertext, map[string]*string{"Secret": &testName}).Return(testKmsKeyID, testKeyPlaintext, nil).Once()
+	// 		client := &mock_kms.Client{}
+	// 		client.On("GenerateDataKey", testKmsKeyID, map[string]*string{"Secret": &testName}).Return(testKeyCiphertext, testKeyPlaintext, nil).Once()
+	// 		client.On("Decrypt", testKeyCiphertext, map[string]*string{"Secret": &testName}).Return(testKmsKeyID, testKeyPlaintext, nil).Once()
 
-			// withStdin(t, "password\n", func() {
+	// 		// withStdin(t, "password\n", func() {
 
-			// 	withMockKmsClient(t, client, func() {
-			// 		err := cmd.Execute()
-			// 		assert.NoError(t, err)
-			// 	})
+	// 		// 	withMockKmsClient(t, client, func() {
+	// 		// 		err := cmd.Execute()
+	// 		// 		assert.NoError(t, err)
+	// 		// 	})
 
-			// 	store, err := model.Load(storePath)
-			// 	assert.NoError(t, err)
-			// 	items, err := store.ExportPlaintext(client)
-			// 	assert.NoError(t, err)
+	// 		// 	store, err := model.Load(storePath)
+	// 		// 	assert.NoError(t, err)
+	// 		// 	items, err := store.ExportPlaintext(client)
+	// 		// 	assert.NoError(t, err)
 
-			// 	item, ok := <-items
-			// 	assert.True(t, ok)
-			// 	_, ok = <-items
-			// 	assert.False(t, ok)
+	// 		// 	item, ok := <-items
+	// 		// 	assert.True(t, ok)
+	// 		// 	_, ok = <-items
+	// 		// 	assert.False(t, ok)
 
-			// 	assert.Equal(t, item.Name, testName)
-			// 	assert.Equal(t, item.Plaintext, "password")
+	// 		// 	assert.Equal(t, item.Name, testName)
+	// 		// 	assert.Equal(t, item.Plaintext, "password")
 
-			// })
+	// 		// })
 
-		})
+	// 	})
 
-	})
+	// })
 
 }
