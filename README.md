@@ -134,7 +134,7 @@ You can install `ejson-kms` on Linux with the following:
 export EJSON_KMS_VERSION="4.1.0"
 curl -Lo ejson-kms https://github.com/adrienkohlbecker/ejson-kms/releases/download/$EJSON_KMS_VERSION/ejson-kms-$EJSON_KMS_VERSION-linux-amd64
 curl -Lo ejson-kms.asc https://github.com/adrienkohlbecker/ejson-kms/releases/download/$EJSON_KMS_VERSION/ejson-kms-$EJSON_KMS_VERSION-linux-amd64.asc
-gpg --keyserver ha.pool.sks-keyservers.net --recv-keys C248DE6357445D6302F9A62E74BFD03C20CC21AF
+gpg --keyserver keyserver.ubuntu.com --recv-keys C248DE6357445D6302F9A62E74BFD03C20CC21AF
 gpg --verify ejson-kms.asc
 chmod +x ejson-kms
 ```
