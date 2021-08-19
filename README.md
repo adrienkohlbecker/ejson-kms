@@ -1,6 +1,6 @@
 # ejson-kms
 
-[![GoDoc](https://godoc.org/github.com/adrienkohlbecker/ejson-kms?status.svg)](https://godoc.org/github.com/adrienkohlbecker/ejson-kms) [![CircleCI](https://circleci.com/gh/adrienkohlbecker/ejson-kms/tree/master.svg?style=shield)](https://circleci.com/gh/adrienkohlbecker/ejson-kms/tree/master) [![Coverage Status](https://coveralls.io/repos/github/adrienkohlbecker/ejson-kms/badge.svg?branch=master)](https://coveralls.io/github/adrienkohlbecker/ejson-kms?branch=master)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/adrienkohlbecker/ejson-kms)](https://github.com/adrienkohlbecker/ejson-kms/releases/latest) ![GitHub downloads](https://img.shields.io/github/downloads/adrienkohlbecker/ejson-kms/total) [![GoDoc](https://godoc.org/github.com/adrienkohlbecker/ejson-kms?status.svg)](https://godoc.org/github.com/adrienkohlbecker/ejson-kms) [![CircleCI](https://circleci.com/gh/adrienkohlbecker/ejson-kms/tree/master.svg?style=shield)](https://circleci.com/gh/adrienkohlbecker/ejson-kms/tree/master) [![Coverage Status](https://coveralls.io/repos/github/adrienkohlbecker/ejson-kms/badge.svg?branch=master)](https://coveralls.io/github/adrienkohlbecker/ejson-kms?branch=master)
 
 `ejson-kms` is a utility for managing a collection of secrets in source control using AWS KMS.
 
