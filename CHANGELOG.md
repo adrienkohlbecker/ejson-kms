@@ -1,4 +1,8 @@
-# 4.2.0 - Augyst 22nd, 2021
+# 4.3.0 - August 22nd, 2021
+
+Added `bash-ifnotset` and `bash-ifempty` formatters
+
+# 4.2.0 - August 22nd, 2021
 
 Switched to go modules and go 1.16
 Added darwin/linux arm64 binary
