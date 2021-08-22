@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: golang:1.11
+      - image: golang:1.16
     working_directory: /go/src/github.com/adrienkohlbecker/ejson-kms
     environment:
       TEST_RESULTS: /tmp/test-results

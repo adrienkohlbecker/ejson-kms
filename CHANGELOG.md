@@ -1,3 +1,8 @@
+# 4.2.0 - Augyst 22nd, 2021
+
+Switched to go modules and go 1.16
+Added darwin arm64 binary
+
 # 4.1.0 - March 27th, 2019
 
 Added support for yaml files in export subcommand.
