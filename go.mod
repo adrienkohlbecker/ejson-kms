@@ -19,7 +19,7 @@ require (
 	github.com/spf13/pflag v0.0.0-20160915153101-c7e63cf4530b // indirect
 	github.com/stretchr/objx v0.0.0-20140526180921-cbeaeb16a013 // indirect
 	github.com/stretchr/testify v1.1.4-0.20160615092844-d77da356e56a
-	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
+	golang.org/x/crypto v0.1.0
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/yaml.v2 v2.2.2
 )
