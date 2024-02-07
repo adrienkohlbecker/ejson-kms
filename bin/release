@@ -11,5 +11,7 @@ SHA1=$(git rev-parse HEAD)
 git tag --sign --local-user="0x20CC21AF" --annotate --message "$VERSION" "$VERSION" HEAD
 
 VERSION=$VERSION SHA1=$SHA1 GOOS=darwin GOARCH=amd64 bin/build
+VERSION=$VERSION SHA1=$SHA1 GOOS=darwin GOARCH=arm64 bin/build
 VERSION=$VERSION SHA1=$SHA1 GOOS=linux GOARCH=amd64 bin/build
+VERSION=$VERSION SHA1=$SHA1 GOOS=linux GOARCH=arm64 bin/build
 VERSION=$VERSION SHA1=$SHA1 GOOS=windows GOARCH=amd64 bin/build

@@ -1,6 +1,6 @@
 # ejson-kms
 
-[![GoDoc](https://godoc.org/github.com/adrienkohlbecker/ejson-kms?status.svg)](https://godoc.org/github.com/adrienkohlbecker/ejson-kms) [![CircleCI](https://circleci.com/gh/adrienkohlbecker/ejson-kms/tree/master.svg?style=shield)](https://circleci.com/gh/adrienkohlbecker/ejson-kms/tree/master) [![Coverage Status](https://coveralls.io/repos/github/adrienkohlbecker/ejson-kms/badge.svg?branch=master)](https://coveralls.io/github/adrienkohlbecker/ejson-kms?branch=master)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/adrienkohlbecker/ejson-kms)](https://github.com/adrienkohlbecker/ejson-kms/releases/latest) ![GitHub downloads](https://img.shields.io/github/downloads/adrienkohlbecker/ejson-kms/total) [![GoDoc](https://godoc.org/github.com/adrienkohlbecker/ejson-kms?status.svg)](https://godoc.org/github.com/adrienkohlbecker/ejson-kms) [![CircleCI](https://circleci.com/gh/adrienkohlbecker/ejson-kms/tree/master.svg?style=shield)](https://circleci.com/gh/adrienkohlbecker/ejson-kms/tree/master) [![Coverage Status](https://coveralls.io/repos/github/adrienkohlbecker/ejson-kms/badge.svg?branch=master)](https://coveralls.io/github/adrienkohlbecker/ejson-kms?branch=master)
 
 `ejson-kms` is a utility for managing a collection of secrets in source control using AWS KMS.
 
@@ -131,10 +131,10 @@ The binaries are signed using the GPG key `C248DE6357445D6302F9A62E74BFD03C20CC2
 You can install `ejson-kms` on Linux with the following:
 
 ```bash
-export EJSON_KMS_VERSION="4.1.0"
+export EJSON_KMS_VERSION="4.2.0"
 curl -Lo ejson-kms https://github.com/adrienkohlbecker/ejson-kms/releases/download/$EJSON_KMS_VERSION/ejson-kms-$EJSON_KMS_VERSION-linux-amd64
 curl -Lo ejson-kms.asc https://github.com/adrienkohlbecker/ejson-kms/releases/download/$EJSON_KMS_VERSION/ejson-kms-$EJSON_KMS_VERSION-linux-amd64.asc
-gpg --keyserver ha.pool.sks-keyservers.net --recv-keys C248DE6357445D6302F9A62E74BFD03C20CC21AF
+gpg --keyserver keyserver.ubuntu.com --recv-keys C248DE6357445D6302F9A62E74BFD03C20CC21AF
 gpg --verify ejson-kms.asc
 chmod +x ejson-kms
 ```

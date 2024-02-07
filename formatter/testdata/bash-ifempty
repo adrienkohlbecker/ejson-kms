@@ -1,0 +1,5 @@
+: ${MY_SECRET:='my value'}
+: ${ANOTHER_ONE:='string with "double" and ''single'' quotes'}
+: ${FOOBAR:='string
+with
+newlines'}
